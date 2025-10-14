@@ -165,122 +165,20 @@ function ProfileData() {
             <Login_Navbar />
             <div className="dashboard-container">
                 {/* Welcome Section */}
-                <div className="welcome-section">
-                    <div className="welcome-content">
+                <div className="">
+                    <div className="">
                         <h1>Welcome back, {userData.Name || "Student"}!</h1>
                         <p>Continue your journey in Communication with Lingua AI</p>
                     </div>
                 </div>
 
                 {/* Main Dashboard Grid */}
-                <div className="dashboard-grid">
+                <div className="">
                     {/* Interested Fields */}
-                    <div className="dashboard-card">
-                        
-                    </div>
-
-                    {/* RoadMap */}
-                    <div className="dashboard-card">
-                        
-                    </div>
-
-                    {/* Test Modules */}
-                    <div className="dashboard-card test-modules">
-                        <h3><i className="fas fa-graduation-cap"></i> Practice & Tests</h3>
-                        <div className="test-grid">
-                            {testModules.map(test => (
-                                <div key={test.id} className="test-item" onClick={() => openTestPopup(test)}>
-                                    <div className="test-icon">
-                                        <i className={`fas ${
-                                            test.name.includes('Machine') ? 'fa-robot' :
-                                            test.name.includes('Deep') ? 'fa-brain' :
-                                            test.name.includes('Cloud') ? 'fa-cloud' : 'fa-magic'
-                                        }`}></i>
-                                    </div>
-                                    <span className="test-name">{test.name}</span>
-                                    {test.isPro && <span className="pro-badge">PRO</span>}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Activities History */}
-                    <div className="dashboard-card">
-                        <h3><i className="fas fa-history"></i> Recent Activities</h3>
-                        <div className="activity-list">
-                            <div className="activity-item">
-                                <div className="activity-icon success">
-                                    <i className="fas fa-check"></i>
-                                </div>
-                                <div className="activity-details">
-                                    <span className="activity-title">ML Quiz Completed</span>
-                                    <span className="activity-time">2 hours ago</span>
-                                </div>
-                                <span className="activity-score">92%</span>
-                            </div>
-                            <div className="activity-item">
-                                <div className="activity-icon info">
-                                    <i className="fas fa-play"></i>
-                                </div>
-                                <div className="activity-details">
-                                    <span className="activity-title">Started Cloud Computing</span>
-                                    <span className="activity-time">1 day ago</span>
-                                </div>
-                            </div>
-                            <div className="activity-item">
-                                <div className="activity-icon warning">
-                                    <i className="fas fa-clock"></i>
-                                </div>
-                                <div className="activity-details">
-                                    <span className="activity-title">Python Practice Due</span>
-                                    <span className="activity-time">Tomorrow</span>
-                                </div>
-                            </div>
-                        </div>
-                        <button className="card-btn">View All Activities</button>
-                    </div>
-
-                    {/* Gen-AI Agent */}
-                    <div className="dashboard-card">
-                        <h3><i className="fas fa-robot"></i> Gen-AI Assistant</h3>
-                        <div className="ai-suggestions">
-                            <div className="suggestion-item">
-                                <i className="fas fa-lightbulb"></i>
-                                <span>Try the new Neural Networks quiz</span>
-                            </div>
-                            <div className="suggestion-item">
-                                <i className="fas fa-target"></i>
-                                <span>Focus on Cloud Security topics</span>
-                            </div>
-                            <div className="suggestion-item">
-                                <i className="fas fa-chart-line"></i>
-                                <span>Your ML progress is excellent!</span>
-                            </div>
-                        </div>
-                        <Link to="/activities">
-                            <button className="card-btn">Chat with AI</button>
-                        </Link>
-                    </div>
-
-                    {/* User Profile Summary */}
-                    <div className="dashboard-card profile-summary">
-                        <h3><i className="fas fa-user"></i> Profile Summary</h3>
-                        <div className="profile-info">
-                            <div className="profile-avatar-small">
-                                <i className="fas fa-user"></i>
-                            </div>
-                            <div className="profile-details">
-                                <h4>{userData.Name || "Student"}</h4>
-                                <p>{userData.program || "B.Tech Student"}</p>
-                                <p>{userData.branch || "Computer Science"}</p>
-                                <div className={`user-badge ${userData.user_type === 'free' ? 'free' : 'pro'}`}>
-                                    {userData.user_type?.toUpperCase() || "FREE"} USER
-                                </div>
-                            </div>
-                        </div>
+                    <div className="interested-fields">
                         {userData.user_type === 'free' && (
                             <Link to="/pro-plans">
-                                <button className="upgrade-btn">🚀 Upgrade to Pro</button>
+                                <button className="btn">🚀 Upgrade to Pro</button>
                             </Link>
                         )}
                     </div>

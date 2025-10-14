@@ -1,0 +1,208 @@
+.practice-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.practice-header {
+    background: white;
+    border-bottom: 1px solid #e2e8f0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.logo-icon {
+    width: 32px;
+    height: 32px;
+    background: #3b82f6;
+    border-radius: 8px;
+}
+
+.logo-text {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #1f2937;
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #6b7280;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.nav-links a:hover {
+    color: #1f2937;
+}
+
+.nav-links a.active {
+    color: #3b82f6;
+    font-weight: 600;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.notification-btn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.notification-btn:hover {
+    background: #f3f4f6;
+}
+
+.profile-avatar {
+    width: 40px;
+    height: 40px;
+    background: #e5e7eb;
+    border-radius: 50%;
+}
+
+.main-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
+
+.content-header {
+    margin-bottom: 2rem;
+}
+
+.content-header h1 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.content-header p {
+    color: #6b7280;
+    font-size: 1.1rem;
+}
+
+.practice-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.practice-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.practice-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+    border-color: #3b82f6;
+}
+
+.card-icon {
+    width: 64px;
+    height: 64px;
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.card-icon span {
+    font-size: 2rem;
+}
+
+.practice-card h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.practice-card p {
+    color: #6b7280;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+}
+
+.card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.start-btn {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.start-btn:hover {
+    background: #2563eb;
+}
+
+.duration {
+    font-family: 'Courier New', monospace;
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .header-content {
+        padding: 1rem;
+    }
+    
+    .nav-links {
+        display: none;
+    }
+    
+    .content-header h1 {
+        font-size: 2rem;
+    }
+    
+    .practice-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .main-content {
+        padding: 1rem;
+    }
+}

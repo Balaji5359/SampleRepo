@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import "./dashboard-navbar.css";
 
 function Login_Navbar() {
     const [menuOpen, setMenuOpen] = useState(false);
     const [userName, setUserName] = useState("");
     const [streakCount] = useState(7); // Mock streak data
-    const navigate = useNavigate();
 
     useEffect(() => {
         // Get user email from localStorage
@@ -45,54 +43,17 @@ function Login_Navbar() {
             <div className="navbar-container">
                 <div className="navbar-logo" onClick={goToProfile} style={{cursor: 'pointer'}}>
                     <span className="logo-text">Skill Route</span>
-                    <span className="logo-subtitle">Placement Guidance App</span>
+                    <span className="logo-subtitle">Placement Preparation App</span>
                 </div>
                 
                 <div className="mobile-menu-icon" onClick={toggleMenu}>
                     <i className={`fas ${menuOpen ? 'fa-times' : 'fa-bars'}`}></i>
                 </div>
-                
-                <div className={`nav-links ${menuOpen ? 'active' : ''}`}>
-                    <div 
-                        className="nav-link active"
-                        onClick={() => {
-                            setMenuOpen(false);
-                            goToProfile();
-                        }}
-                        style={{cursor: 'pointer'}}
-                    >
-                        <i className="fas fa-home"></i>
-                        <span>Home</span>
-                    </div>
+                    <a href="/profiledata" className="text-gray-600 hover:text-gray-900 transition-colors">Home</a>
+                    <a href="/test" className="text-gray-600 hover:text-gray-900 transition-colors">Test</a>
+                    <a href="/pratice" className="text-gray-600 hover:text-gray-900 transition-colors">Pratice</a>
+                    <a href="/profiledata" className="text-gray-600 hover:text-gray-900 transition-colors">Profile</a>
 
-                    <Link 
-                        to="/tests" 
-                        className="nav-link"
-                        onClick={() => setMenuOpen(false)}
-                    >
-                        <i className="fas fa-clipboard-list"></i>
-                        <span>Test</span>
-                    </Link>
-
-                    <Link 
-                        to="/practice" 
-                        className="nav-link"
-                        onClick={() => setMenuOpen(false)}
-                    >
-                        <i className="fas fa-dumbbell"></i>
-                        <span>Practice</span>
-                    </Link>
-
-                    <Link 
-                        to="/profile" 
-                        className="nav-link"
-                        onClick={() => setMenuOpen(false)}
-                    >
-                        <i className="fas fa-user"></i>
-                        <span>Profile</span>
-                    </Link>
-                </div>
-                
                 <div className="navbar-right">
                     <div className="streak-counter">
                         <i className="fas fa-fire"></i>

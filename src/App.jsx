@@ -28,6 +28,9 @@ const Skill_Guide = lazy(() => import("./Main/Skill_Guide.jsx"));
 const Skill_Dev = lazy(() => import("./Main/Skill_Dev.jsx"));
 const Skill_Route = lazy(() => import("./Main/Skill_Route.jsx"));
 const SkillRouteModern = lazy(() => import("./Main/SkillRouteModern.jsx"));
+const Practice = lazy(() => import("./Main/Pratice.jsx"))
+const Home = lazy(() => import("./Main/Home.jsx"));
+const Test = lazy(() => import("./Main/Test.jsx"));
 // const Services = lazy(() => import("./Main/Services.jsx"));
 
 // Auth components
@@ -40,8 +43,8 @@ const ProfileData = lazy(() => import("./StudentProfileFiles/ProfileData.jsx"));
 const Progress = lazy(() => import("./StudentProfileFiles/Progress.jsx"));
 const RoadMap = lazy(() => import("./StudentProfileFiles/RoadMap.jsx"));
 
-//Mentor Profile components
 
+//Mentor Profile components
 const Mentor = lazy(() => import("./MentorProfilefiles/Mentor.jsx"));
 const MentorProfile = lazy(() => import("./MentorProfilefiles/MentorProfile.jsx"));
 const MentorProfileCreate = lazy(() => import("./MentorProfilefiles/MentorProfileCreate.jsx"));
@@ -292,6 +295,30 @@ function App() {
               </DashboardLayout>
             </ProtectedRoute>
           } />
+
+          <Route path="/pratice" element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <Practice />
+              </DashboardLayout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/home" element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <Home />
+              </DashboardLayout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/test" element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <Test />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }/>
 
           <Route path="/progress" element={
             <ProtectedRoute>
