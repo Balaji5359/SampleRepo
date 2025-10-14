@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import Login_Navbar from "../RegisterFiles/Login_Navbar";
 import "./profile.css";
 
 function ProfileData() {
@@ -8,6 +9,8 @@ function ProfileData() {
     const [loading, setLoading] = useState(true);
     const [subscriptionData, setSubscriptionData] = useState(null);
     const [daysLeft, setDaysLeft] = useState(0);
+    const [showPopup, setShowPopup] = useState(false);
+    const [selectedTest, setSelectedTest] = useState(null);
     const [userData, setUserData] = useState({
         Name: "",
         gender: "",
@@ -29,6 +32,47 @@ function ProfileData() {
         account_create_date: "",
         account_create_time: "",
     });
+
+    const testModules = [
+        {
+            id: 1,
+            name: "Machine Learning Fundamentals",
+            description: "Master the basics of ML algorithms, supervised and unsupervised learning.",
+            videoId: "aircAruvnKk",
+            isPro: false
+        },
+        {
+            id: 2,
+            name: "Deep Learning with Neural Networks",
+            description: "Dive deep into neural networks, backpropagation, and deep learning frameworks.",
+            videoId: "CS4cs9xVecI",
+            isPro: true
+        },
+        {
+            id: 3,
+            name: "Cloud Computing Essentials",
+            description: "Learn AWS, Azure, and Google Cloud fundamentals for modern applications.",
+            videoId: "M988_fsOSWo",
+            isPro: false
+        },
+        {
+            id: 4,
+            name: "Generative AI & LLMs",
+            description: "Explore GPT, BERT, and other transformer models for AI applications.",
+            videoId: "kCc8FmEb1nY",
+            isPro: true
+        }
+    ];
+
+    const openTestPopup = (test) => {
+        setSelectedTest(test);
+        setShowPopup(true);
+    };
+
+    const closePopup = () => {
+        setShowPopup(false);
+        setSelectedTest(null);
+    };
 
     useEffect(() => {
         setLoading(true);
@@ -106,136 +150,186 @@ function ProfileData() {
 
     if (loading) {
         return (
-            <div className="loading-container">
-                <div className="loading-spinner"></div>
-                <p>Loading your profile...</p>
-            </div>
+            <>
+                <Login_Navbar />
+                <div className="loading-container">
+                    <div className="loading-spinner"></div>
+                    <p>Loading your dashboard...</p>
+                </div>
+            </>
         );
     }
-    // console.log(JSON.stringify(userData.data))
+
     return (
-        <div className="profile-container">
-            {/* Account Creation Info */}
-            <div className="account-info">
-                <small>Account created: {userData.account_create_date} at {userData.account_create_time}</small>
-                <br />
-                <small>Student-Skill-Route-Id: {userData.student_id || "Not provided"}</small>
-            </div>
-            
-            <div className="profile-header">
-                <div className="profile-avatar">
-                    <i className="fa-solid fa-user user"></i>
-                </div>
-                <h2>{userData.Name || "Not provided"}</h2>
-                <span className="profile-role">{userData.program || "Student"}</span>
-                
-                {/* User Type */}
-                <div className="profile-badges">
-                    <div className={`user-type-badge ${userData.user_type === 'free' ? 'free-user' : 'pro-user'}`}>
-                        <strong>{userData.user_type?.toUpperCase() || "FREE"} USER</strong>
+        <>
+            <Login_Navbar />
+            <div className="dashboard-container">
+                {/* Welcome Section */}
+                <div className="welcome-section">
+                    <div className="welcome-content">
+                        <h1>Welcome back, {userData.Name || "Student"}!</h1>
+                        <p>Continue your journey in Communication with Lingua AI</p>
                     </div>
                 </div>
-                
-                {/* Subscription Status */}
-                {subscriptionData && daysLeft > 0 ? (
-                    <div style={{marginTop: '15px', padding: '10px', backgroundColor: '#10b981', color: 'white', borderRadius: '8px', textAlign: 'center'}}>
-                        <div style={{fontSize: '14px', fontWeight: 'bold'}}>✅ Pro Plan Active</div>
-                        <div style={{fontSize: '12px', marginTop: '5px'}}>Plan: {subscriptionData.subscription_plan}</div>
-                        <div style={{fontSize: '12px'}}>{daysLeft} days remaining</div>
-                        <div style={{fontSize: '10px', marginTop: '5px'}}>Payment ID: {subscriptionData.payment_id}</div>
+
+                {/* Main Dashboard Grid */}
+                <div className="dashboard-grid">
+                    {/* Interested Fields */}
+                    <div className="dashboard-card">
+                        
                     </div>
-                ) : subscriptionData && daysLeft === 0 ? (
-                    <div style={{marginTop: '15px', padding: '10px', backgroundColor: '#dc2626', color: 'white', borderRadius: '8px', textAlign: 'center'}}>
-                        <div style={{fontSize: '14px', fontWeight: 'bold'}}>⚠️ Plan Expired</div>
-                        <div style={{fontSize: '12px', marginTop: '5px'}}>Your {subscriptionData.subscription_plan} plan has expired</div>
-                        <button 
-                            onClick={() => navigate('/pro-plans')}
-                            className="bg-white text-red-600 px-4 py-2 rounded-lg font-semibold hover:bg-red-50 transition-colors text-sm"
-                            style={{marginTop: '8px', cursor: 'pointer'}}
-                        >
-                            Renew Plan
-                        </button>
+
+                    {/* RoadMap */}
+                    <div className="dashboard-card">
+                        
                     </div>
-                ) : (
-                    <div style={{marginTop: '15px', padding: '10px', backgroundColor: '#8b5cf6', color: 'white', borderRadius: '8px', textAlign: 'center'}}>
-                        <div style={{fontSize: '17px', fontWeight: 'bold'}}>🚀 Upgrade to Pro</div>
-                        <div style={{fontSize: '15px', marginTop: '5px'}}>To have more access to GenAI Sessions</div>
-                        <Link to="/pro-plans">
-                            <button type="button" className="btn btn-primary">Buy pro now</button>
+
+                    {/* Test Modules */}
+                    <div className="dashboard-card test-modules">
+                        <h3><i className="fas fa-graduation-cap"></i> Practice & Tests</h3>
+                        <div className="test-grid">
+                            {testModules.map(test => (
+                                <div key={test.id} className="test-item" onClick={() => openTestPopup(test)}>
+                                    <div className="test-icon">
+                                        <i className={`fas ${
+                                            test.name.includes('Machine') ? 'fa-robot' :
+                                            test.name.includes('Deep') ? 'fa-brain' :
+                                            test.name.includes('Cloud') ? 'fa-cloud' : 'fa-magic'
+                                        }`}></i>
+                                    </div>
+                                    <span className="test-name">{test.name}</span>
+                                    {test.isPro && <span className="pro-badge">PRO</span>}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Activities History */}
+                    <div className="dashboard-card">
+                        <h3><i className="fas fa-history"></i> Recent Activities</h3>
+                        <div className="activity-list">
+                            <div className="activity-item">
+                                <div className="activity-icon success">
+                                    <i className="fas fa-check"></i>
+                                </div>
+                                <div className="activity-details">
+                                    <span className="activity-title">ML Quiz Completed</span>
+                                    <span className="activity-time">2 hours ago</span>
+                                </div>
+                                <span className="activity-score">92%</span>
+                            </div>
+                            <div className="activity-item">
+                                <div className="activity-icon info">
+                                    <i className="fas fa-play"></i>
+                                </div>
+                                <div className="activity-details">
+                                    <span className="activity-title">Started Cloud Computing</span>
+                                    <span className="activity-time">1 day ago</span>
+                                </div>
+                            </div>
+                            <div className="activity-item">
+                                <div className="activity-icon warning">
+                                    <i className="fas fa-clock"></i>
+                                </div>
+                                <div className="activity-details">
+                                    <span className="activity-title">Python Practice Due</span>
+                                    <span className="activity-time">Tomorrow</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button className="card-btn">View All Activities</button>
+                    </div>
+
+                    {/* Gen-AI Agent */}
+                    <div className="dashboard-card">
+                        <h3><i className="fas fa-robot"></i> Gen-AI Assistant</h3>
+                        <div className="ai-suggestions">
+                            <div className="suggestion-item">
+                                <i className="fas fa-lightbulb"></i>
+                                <span>Try the new Neural Networks quiz</span>
+                            </div>
+                            <div className="suggestion-item">
+                                <i className="fas fa-target"></i>
+                                <span>Focus on Cloud Security topics</span>
+                            </div>
+                            <div className="suggestion-item">
+                                <i className="fas fa-chart-line"></i>
+                                <span>Your ML progress is excellent!</span>
+                            </div>
+                        </div>
+                        <Link to="/activities">
+                            <button className="card-btn">Chat with AI</button>
                         </Link>
+                    </div>
+
+                    {/* User Profile Summary */}
+                    <div className="dashboard-card profile-summary">
+                        <h3><i className="fas fa-user"></i> Profile Summary</h3>
+                        <div className="profile-info">
+                            <div className="profile-avatar-small">
+                                <i className="fas fa-user"></i>
+                            </div>
+                            <div className="profile-details">
+                                <h4>{userData.Name || "Student"}</h4>
+                                <p>{userData.program || "B.Tech Student"}</p>
+                                <p>{userData.branch || "Computer Science"}</p>
+                                <div className={`user-badge ${userData.user_type === 'free' ? 'free' : 'pro'}`}>
+                                    {userData.user_type?.toUpperCase() || "FREE"} USER
+                                </div>
+                            </div>
+                        </div>
+                        {userData.user_type === 'free' && (
+                            <Link to="/pro-plans">
+                                <button className="upgrade-btn">🚀 Upgrade to Pro</button>
+                            </Link>
+                        )}
+                    </div>
+                </div>
+
+                {/* Test Popup */}
+                {showPopup && selectedTest && (
+                    <div className="popup-overlay" onClick={closePopup}>
+                        <div className="test-popup" onClick={(e) => e.stopPropagation()}>
+                            <div className="popup-header">
+                                <h3>{selectedTest.name}</h3>
+                                <button className="close-btn" onClick={closePopup}>
+                                    <i className="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div className="popup-content">
+                                <p>{selectedTest.description}</p>
+                                <div className="video-container">
+                                    <iframe
+                                        src={`https://www.youtube.com/embed/${selectedTest.videoId}`}
+                                        title={selectedTest.name}
+                                        frameBorder="0"
+                                        allowFullScreen
+                                    ></iframe>
+                                </div>
+                                <div className="popup-actions">
+                                    <button className="start-challenge-btn">
+                                        <i className="fas fa-play"></i>
+                                        Start Challenge
+                                    </button>
+                                    <button className="back-btn" onClick={closePopup}>
+                                        <i className="fas fa-arrow-left"></i>
+                                        Back
+                                    </button>
+                                </div>
+                                {selectedTest.isPro && userData.user_type === 'free' && (
+                                    <div className="pro-notice">
+                                        <span className="pro-label">By Pro</span>
+                                        <Link to="/pro-plans">
+                                            <button className="buy-pro-btn">Buy Pro</button>
+                                        </Link>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>
-            <div className="profile-section">
-                <h3 className="info-heading">About Me</h3>
-                <div className="info-data"><span>{userData.about || "Not provided"}</span></div>
-            </div>
-            <br></br>
-            <div className="profile-columns">
-                <div>
-                    <div className="profile-section">
-                        <h3 className="info-heading">Personal Information</h3>
-                        <div className="info-data"><strong>Gender:</strong> <span>{userData.gender || "Not provided"}</span></div>
-                        <div className="info-data"><strong>Date of Birth:</strong> <span>{userData.dob || "Not provided"}</span></div>
-                        <div className="info-data"><strong>Age:</strong> <span>{userData.age || "Not provided"}</span></div>
-                        <div className="info-data"><strong>Address:</strong> <span>{userData.address || "Not provided"}</span></div>
-                        <div className="info-data"><strong>City:</strong> <span>{userData.city || "Not provided"}</span></div>
-                        <div className="info-data"><strong>State:</strong> <span>{userData.state || "Not provided"}</span></div>
-                    </div>
-                    <div className="profile-section">
-                        <h3 className="info-heading">Contact Information</h3>
-                        <div className="info-data"><strong>College Email:</strong> <span>{userData.email || "Not provided"}</span></div>
-                        <div className="info-data"><strong>Phone Number:</strong> <span>{userData.phone || "Not provided"}</span></div>
-                        <div className="info-data"><strong>Username:</strong> <span>{userData.username || "Not provided"}</span></div>
-                    </div>
-                </div>
-                <div>
-                    <div className="profile-section">
-                        <h3 className="info-heading">Academic Information</h3>
-                        <div className="info-data"><strong>College Name:</strong> <span>{userData.collegeName || "Not provided"}</span></div>
-                        <div className="info-data"><strong>Program:</strong> <span>{userData.program || "Not provided"}</span></div>
-                        <div className="info-data"><strong>Branch:</strong> <span>{userData.branch || "Not provided"}</span></div>
-                        <div className="info-data"><strong>Year of Study:</strong> <span>{userData.yearOfStudy || "Not provided"}</span></div>
-                    </div>
-                    <div className="profile-section">
-                        <h3 className="info-heading">Additional Information</h3>
-                        <div className="info-data"><strong>Hobbies:</strong> <span>{userData.hobbies || "Not provided"}</span></div>
-                    </div>
-                </div>
-            </div>
-            <div className="profile-actions">
-                <div>
-                    <h3 className="info-heading">Interested Field</h3>
-                    <Link to="/profiledata">
-                        <button type="button" className="btn btn-primary">Click Here To Select</button>
-                    </Link>
-                </div>
-                <div>
-                    <h3 className="info-heading">Interested Field RoadMap</h3>
-                    <Link to="/profiledata">
-                        <button type="button" className="btn btn-primary">Click Here To Start</button>
-                    </Link>
-                </div>
-                <div>
-                    <h3 className="info-heading">Your Progress</h3>
-                    <Link to="/profiledata">
-                        <button type="button" className="btn btn-primary">Click Here To View</button>
-                    </Link>
-                </div>
-                <div>
-                    <h3 className="info-heading">Your Activities History</h3>
-                        <button type="button" className="btn btn-primary">Click Here To View</button>
-                    <Link to="/profiledata">
-                    </Link>
-                </div>
-                <div>
-                    <h3 className="info-heading">Gen-AI Agent Activities</h3>
-                    <Link to="/activities">
-                        <button type="button" className="btn btn-primary">Click Here To View</button>
-                    </Link>
-                </div>
-            </div>
-        </div>
+        </>
     );
 }
 

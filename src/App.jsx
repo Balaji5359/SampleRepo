@@ -26,7 +26,8 @@ const Footer = lazy(() => import("./Main/Footer.jsx"));
 const AI_Skill_Dev = lazy(() => import("./Main/AI_Skill_Dev.jsx"));
 const Skill_Guide = lazy(() => import("./Main/Skill_Guide.jsx"));
 const Skill_Dev = lazy(() => import("./Main/Skill_Dev.jsx"));
-const Skill_Route = lazy(() => import("./Main/Skill_Route.jsx"))
+const Skill_Route = lazy(() => import("./Main/Skill_Route.jsx"));
+const SkillRouteModern = lazy(() => import("./Main/SkillRouteModern.jsx"));
 // const Services = lazy(() => import("./Main/Services.jsx"));
 
 // Auth components
@@ -84,6 +85,8 @@ const GenAI_Test_Tech = lazy(() => import('./GenAI_Folders/AI_InterviewToolsFold
 const GenAI_QueryHandler = lazy(() => import("./GenAI_Folders/AI_InterviewToolsFolder/GenAI_QueryHandler.jsx"));
 const GenAI_CarrerGuide = lazy(() => import("./GenAI_Folders/AI_InterviewToolsFolder/GenAI_CarrerGuide.jsx"));
 
+
+
 const MainLayout = ({ children }) => (
   <>
     <main className="main-content">
@@ -104,6 +107,17 @@ const AuthLayout = ({ children }) => (
 const DashboardLayout = ({ children }) => (
   <>
     <Login_Navbar />
+    <main className="dashboard-content">
+      <Suspense fallback={<LoadingSpinner />}>
+        {children}
+      </Suspense>
+    </main>
+  </>
+);
+
+
+const CommunicationPraticeLayout = ({ children }) => (
+  <>
     <main className="dashboard-content">
       <Suspense fallback={<LoadingSpinner />}>
         {children}
@@ -168,6 +182,12 @@ function App() {
               <>
               <Skill_Route />
               </>
+            </MainLayout>
+          }/>
+          
+          <Route path="/skill-route-modern" element={
+            <MainLayout>
+              <SkillRouteModern />
             </MainLayout>
           }/>
 
@@ -486,12 +506,15 @@ function App() {
           } />
           <Route path="/genai-test-tech" element={
             <ProtectedRoute>
-              <DashboardLayout>
+              <CommunicationPraticeLayout>
                 <GenAI_Test_Tech />
-              </DashboardLayout>
+              </CommunicationPraticeLayout>
             </ProtectedRoute>
           } />
-          
+
+
+  
+
           {/* Fallback route */}
 
           {/* Catch all route */}

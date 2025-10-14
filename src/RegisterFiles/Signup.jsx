@@ -126,122 +126,121 @@ function SignUp() {
     };
 
     return (
-        <div className="auth-page">
-            <div className="container">
-                <div className="form-container">
-                    <form id="signupForm" onSubmit={handleSubmit}>
-                        <div className="form-header">
-                            <h1>Welcome to Skill Route</h1>
-                            <h2>{isLogin ? 'Student Login' : 'Student Signup'}</h2>
-                            <div className="toggle-buttons">
-                                {/* Swapped the order of Login and Signup buttons */}
-                                <button
-                                    className={isLogin ? 'active' : ''}
-                                    onClick={() => setIsLogin(true)}
-                                    type="button"
-                                >
-                                    Login
-                                </button>
-                                <button
-                                    className={!isLogin ? 'active' : ''}
-                                    onClick={() => setIsLogin(false)}
-                                    type="button"
-                                >
-                                    Signup
-                                </button>
-                            </div>
+        <div className="auth-container">
+            <div className="auth-layout">
+                {/* Welcome Section - Desktop Only */}
+                <div className="welcome-section">
+                    <div className="welcome-content">
+                        <h1>Welcome Back!</h1>
+                        <p>Discover our administrator advisory and exciting new features designed to enhance your experience.</p>
+                        <div className="cta-buttons">
+                            <button className="btn-outline">Learn More</button>
+                            <button className="btn-outline">Watch Demo</button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Form Section */}
+                <div className="form-section">
+                    <div className="form-container">
+                        <div className="brand-header">
+                            <h2>Welcome to Company</h2>
+                            <p>{isLogin ? 'Sign in to continue' : 'Register now'}</p>
                         </div>
 
-                        {/* Removed Google signup/login button */}
-                        {/* Info text for signup and login */}
-                        {!isLogin ? (
-                            <div className="info-text" style={{ marginBottom: "1rem", color: "#333", textAlign: "center" }}>
-                                <div><b>Enter your details below and create one.</b></div>
-                                <div style={{ marginTop: "0.5rem" }}>
-                                    If you have an account, <span style={{ color: "#007bff", cursor: "pointer" }} onClick={() => setIsLogin(true)}>click here to login</span>.
+                        <div className="form-tabs">
+                            <button
+                                className={!isLogin ? 'tab active' : 'tab'}
+                                onClick={() => setIsLogin(false)}
+                                type="button"
+                            >
+                                Sign Up
+                            </button>
+                            <button
+                                className={isLogin ? 'tab active' : 'tab'}
+                                onClick={() => setIsLogin(true)}
+                                type="button"
+                            >
+                                Login
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleSubmit} className="auth-form">
+                            {!isLogin && (
+                                <div className="input-group">
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        value={formData.name}
+                                        onChange={handleInputChange}
+                                        placeholder="Full Name"
+                                        required
+                                    />
                                 </div>
-                            </div>
-                        ) : (
-                            <div className="info-text" style={{ marginBottom: "1rem", color: "#333", textAlign: "center" }}>
-                                <b>Enter your credentials to login.</b>
-                                <br/>If you don't have an account, <span style={{ color: "#007bff", cursor: "pointer" }} onClick={() => setIsLogin(false)}>click here to signup</span>.
-                            </div>
-                        )}
+                            )}
 
-                        <div className="divider">
-                            <span>or</span>
-                        </div>
-
-                        {!isLogin && (
-                            <div className="input-field">
-                                <i className="fas fa-user"></i>
-                                <input 
-                                    type="text"
-                                    name="name"
-                                    id="name" 
-                                    value={formData.name}
+                            <div className="input-group">
+                                <input
+                                    type="email"
+                                    name="email"
+                                    value={formData.email}
                                     onChange={handleInputChange}
-                                    placeholder="Enter Full Name" 
+                                    placeholder="Email"
                                     required
                                 />
                             </div>
-                        )}
 
-                        <div className="input-field">
-                            <i className="fas fa-envelope"></i>
-                            <input 
-                                type="email"
-                                name="email"
-                                id="email"
-                                value={formData.email}
-                                onChange={handleInputChange}
-                                placeholder="Enter you college email" 
-                                required
-                            />
-                        </div>
-
-                        <div className="input-field">
-                            <i className="fas fa-lock"></i>
-                            <input 
-                                type="password" 
-                                name="password"
-                                id="password" 
-                                value={formData.password}
-                                onChange={handleInputChange}
-                                placeholder="Password" 
-                                required
-                            />
-                            <i className="fas fa-eye-slash toggle-password"></i>
-                        </div>
-                        <center>
-                        <button 
-                            type="submit" 
-                            id="submitBtn" 
-                            className="auth-btn signup-btn"
-                            disabled={isLoading}
-                        >
-                            <span className="btn-text">{isLoading ? (isLogin ? 'Logging in...' : 'Creating Account...') : (isLogin ? 'Login' : 'Create Account')}</span>
-                            {isLoading && <div className="spinner"></div>}
-                        </button></center>
-
-                        {apiMessage && (
-                            <div className="message-box">
-                                <p className="login-link" style={{ color: "green" }}>{apiMessage}</p>
+                            <div className="input-group">
+                                <input
+                                    type="password"
+                                    name="password"
+                                    value={formData.password}
+                                    onChange={handleInputChange}
+                                    placeholder="Password"
+                                    required
+                                />
                             </div>
-                        )}
-                        
-                        {error && (
-                            <div className="message-box">
-                                <p className="login-link" style={{ color: "red" }}>{error}</p>
-                            </div>
-                        )}
 
-                        <br></br>
-                        <center>
-                        <div className="btn">
-                            <Link to="/">Back to Home</Link>
-                        </div></center>
-                    </form>
+                            {isLogin && (
+                                <div className="remember-me">
+                                    <input type="checkbox" id="remember" />
+                                    <label htmlFor="remember">Remember me</label>
+                                </div>
+                            )}
+
+                            <button
+                                type="submit"
+                                className="submit-btn"
+                                disabled={isLoading}
+                            >
+                                {isLoading ? (isLogin ? 'Logging in...' : 'Creating Account...') : (isLogin ? 'Login' : 'Sign Up')}
+                            </button>
+
+                            {!isLogin && (
+                                <p className="switch-text">
+                                    Already have an account? <button type="button" onClick={() => setIsLogin(true)} className="link-btn">Sign in</button>
+                                </p>
+                            )}
+                            
+                            {isLogin && (
+                                <p className="switch-text">
+                                    Don't have an account? <button type="button" onClick={() => setIsLogin(false)} className="link-btn">Sign up</button>
+                                </p>
+                            )}
+
+                            {apiMessage && (
+                                <div className="message success">{apiMessage}</div>
+                            )}
+
+                            {error && (
+                                <div className="message error">{error}</div>
+                            )}
+                        </form>
+
+                        <div className="brand-footer">
+                            <p>ZAK Company</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

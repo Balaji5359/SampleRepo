@@ -5,6 +5,7 @@ import "./dashboard-navbar.css";
 function Login_Navbar() {
     const [menuOpen, setMenuOpen] = useState(false);
     const [userName, setUserName] = useState("");
+    const [streakCount] = useState(7); // Mock streak data
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -31,80 +32,87 @@ function Login_Navbar() {
         window.location.href = "/";
     };
 
-
-const goToProfile = () => {
-    // Reset body styles before navigating to home
-    document.body.style = "";
-    document.body.className = "";
-    // Navigate to home
-    window.location.href = "/profiledata";
-};
-
-
+    const goToProfile = () => {
+        // Reset body styles before navigating to home
+        document.body.style = "";
+        document.body.className = "";
+        // Navigate to home
+        window.location.href = "/profiledata";
+    };
 
     return (
-        <nav className="dashboard-navbar1">
-            <div className="dashboard-container">
-                <div className="dashboard-logo" style={{cursor: 'pointer'}}>
+        <nav className="skill-route-navbar">
+            <div className="navbar-container">
+                <div className="navbar-logo" onClick={goToProfile} style={{cursor: 'pointer'}}>
                     <span className="logo-text">Skill Route</span>
+                    <span className="logo-subtitle">Placement Guidance App</span>
                 </div>
                 
                 <div className="mobile-menu-icon" onClick={toggleMenu}>
                     <i className={`fas ${menuOpen ? 'fa-times' : 'fa-bars'}`}></i>
                 </div>
                 
-                <div className={`dashboard-nav-links ${menuOpen ? 'active' : ''}`}>
-                    
-
+                <div className={`nav-links ${menuOpen ? 'active' : ''}`}>
                     <div 
-                        className="dashboard-nav-link"
+                        className="nav-link active"
                         onClick={() => {
                             setMenuOpen(false);
                             goToProfile();
                         }}
                         style={{cursor: 'pointer'}}
                     >
-                        <i className="fas fa-home"></i> Home
+                        <i className="fas fa-home"></i>
+                        <span>Home</span>
                     </div>
 
+                    <Link 
+                        to="/tests" 
+                        className="nav-link"
+                        onClick={() => setMenuOpen(false)}
+                    >
+                        <i className="fas fa-clipboard-list"></i>
+                        <span>Test</span>
+                    </Link>
 
                     <Link 
-                        to="/profiledata" 
-                        className="dashboard-nav-link"
+                        to="/practice" 
+                        className="nav-link"
                         onClick={() => setMenuOpen(false)}
                     >
-                        <i className="fas fa-chart-line"></i> Progress
+                        <i className="fas fa-dumbbell"></i>
+                        <span>Practice</span>
                     </Link>
+
                     <Link 
-                        to="/profiledata" 
-                        className="dashboard-nav-link"
+                        to="/profile" 
+                        className="nav-link"
                         onClick={() => setMenuOpen(false)}
                     >
-                        <i className="fas fa-user"></i> Profile
-                    </Link>
-                    <Link 
-                        to="/profiledata" 
-                        className="dashboard-nav-link"
-                        onClick={() => setMenuOpen(false)}
-                    >
-                        <i className="fas fa-laptop-code"></i> Fields
+                        <i className="fas fa-user"></i>
+                        <span>Profile</span>
                     </Link>
                 </div>
                 
-                <div className="user-menu">
-                    <div className="user-info">
-                        <span className="user-name">{userName || "User"}</span>
-                        <div className="user-avatar">
+                <div className="navbar-right">
+                    <div className="streak-counter">
+                        <i className="fas fa-fire"></i>
+                        <span className="streak-number">{streakCount}</span>
+                    </div>
+                    
+                    <div className="user-profile">
+                        <div className="profile-avatar">
                             <i className="fas fa-user-circle"></i>
                         </div>
+                        <span className="user-name">{userName || "User"}</span>
                     </div>
-                    <Link 
-                        to="/" 
+                    
+                    <button 
                         className="logout-btn"
                         onClick={handleLogout}
+                        title="Logout"
                     >
-                        <i className="fas fa-sign-out-alt"></i> Logout
-                    </Link>
+                        <i className="fas fa-sign-out-alt"></i>
+                    </button>
                 </div>
             </div>
         </nav>

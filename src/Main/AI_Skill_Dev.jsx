@@ -125,7 +125,7 @@ function AI_Skill_Dev() {
             </section>
 
             {/* Products Section */}
-            <section id="programs" className="programs-section">
+            {/* <section id="programs" className="programs-section">
                 <div className="container">
                     <h2 className="section-title">About US</h2>
                     <div className="programs-grid">
@@ -196,7 +196,7 @@ function AI_Skill_Dev() {
                         ))}
                     </div>
                 </div>
-            </section>
+            </section> */}
 
             <section className="features-section">
                 <div className="container">
