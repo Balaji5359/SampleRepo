@@ -90,6 +90,14 @@ const GenAI_CarrerGuide = lazy(() => import("./GenAI_Folders/AI_InterviewToolsFo
 
 
 
+// Communication practice files
+const JAM = lazy(() => import("./CommunicationPraticeFiles/JAM.jsx"));
+const Pronunciation = lazy(() => import("./CommunicationPraticeFiles/Pronunciation.jsx"));
+const StoryBuilding = lazy(() => import("./CommunicationPraticeFiles/StoryBuilding.jsx"));
+const TranslateSpeak = lazy(() => import("./CommunicationPraticeFiles/TranslateSpeak.jsx"));
+const ImageSpeak = lazy(() => import("./CommunicationPraticeFiles/ImageSpeak.jsx"));
+
+
 const MainLayout = ({ children }) => (
   <>
     <main className="main-content">
@@ -539,10 +547,44 @@ function App() {
             </ProtectedRoute>
           } />
 
+          <Route path="/jam" element={
+            <ProtectedRoute>
+              <CommunicationPraticeLayout>
+                <JAM />
+              </CommunicationPraticeLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/pronunciation" element={
+            <ProtectedRoute>
+              <CommunicationPraticeLayout>
+                <Pronunciation />
+              </CommunicationPraticeLayout>
+            </ProtectedRoute>
+          } />
 
-  
+          <Route path="/story-building" element={
+            <ProtectedRoute>
+              <CommunicationPraticeLayout>
+                <StoryBuilding />
+              </CommunicationPraticeLayout>
+            </ProtectedRoute>
+          } />
 
-          {/* Fallback route */}
+          <Route path="/translate-speak" element={
+            <ProtectedRoute>
+              <CommunicationPraticeLayout>
+                <TranslateSpeak />
+              </CommunicationPraticeLayout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/image-speak" element={
+            <ProtectedRoute>
+              <CommunicationPraticeLayout>
+                <ImageSpeak />
+              </CommunicationPraticeLayout>
+            </ProtectedRoute>
+          } />
 
           {/* Catch all route */}
           <Route path="*" element={<Navigate to="/" replace />} />

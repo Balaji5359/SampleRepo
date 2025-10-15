@@ -206,3 +206,74 @@
         padding: 1rem;
     }
 }
+.blurred {
+    filter: blur(2px);
+    pointer-events: none;
+    opacity: 0.4;
+}
+
+.overlay-card {
+    position: absolute;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    width: 90%;
+    max-width: 600px;
+}
+
+.challenge-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    padding: 2rem;
+    position: relative;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.video-container {
+    margin-top: 1rem;
+    border-radius: 8px;
+    overflow: hidden;
+}
+.navigation-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+}
+
+.navigation-buttons button {
+    padding: 0.5rem 1rem;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.instruction-content {
+    margin-top: 1rem;
+}
+.navigation-buttons button {
+    margin-right: 0.5rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.navigation-buttons button:hover {
+    background-color: #0056b3;
+}

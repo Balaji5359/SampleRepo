@@ -26,8 +26,8 @@ function Login_Navbar() {
         // Reset body styles before logout
         document.body.style = "";
         document.body.className = "";
-        // Force a complete page reload to restore original home page
-        window.location.href = "/";
+        // Navigate to signup page
+        window.location.href = "/signup";
     };
 
     const goToProfile = () => {
@@ -67,12 +67,12 @@ function Login_Navbar() {
                         <span className="user-name">{userName || "User"}</span>
                     </div>
                     
-                    <button 
+                    <button
                         className="logout-btn"
                         onClick={handleLogout}
                         title="Logout"
                     >
-                        <i className="fas fa-sign-out-alt"></i>
+                        <i className="fas fa-sign-out-alt"></i> Logout
                     </button>
                 </div>
             </div>
