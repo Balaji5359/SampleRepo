@@ -131,7 +131,7 @@ function SignUp() {
                 {/* Welcome Section - Desktop Only */}
                 <div className="welcome-section">
                     <div className="welcome-content">
-                        <h1>Welcome Back!</h1>
+                        <h1>Welcome to Skill Route!</h1>
                         <p>Discover our administrator advisory and exciting new features designed to enhance your experience.</p>
                         <div className="cta-buttons">
                             <button className="btn-outline">Learn More</button>
@@ -144,7 +144,6 @@ function SignUp() {
                 <div className="form-section">
                     <div className="form-container">
                         <div className="brand-header">
-                            <h2>Welcome to Company</h2>
                             <p>{isLogin ? 'Sign in to continue' : 'Register now'}</p>
                         </div>
 
@@ -218,7 +217,7 @@ function SignUp() {
 
                             {!isLogin && (
                                 <p className="switch-text">
-                                    Already have an account? <button type="button" onClick={() => setIsLogin(true)} className="link-btn">Sign in</button>
+                                    Already have an account? <button type="button" onClick={() => setIsLogin(true)} className="link-btn">Log in</button>
                                 </p>
                             )}
                             
@@ -236,10 +235,6 @@ function SignUp() {
                                 <div className="message error">{error}</div>
                             )}
                         </form>
-
-                        <div className="brand-footer">
-                            <p>ZAK Company</p>
-                        </div>
                     </div>
                 </div>
             </div>
