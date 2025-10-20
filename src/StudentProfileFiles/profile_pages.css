@@ -533,30 +533,65 @@ select:focus, .gender-select:focus {
     100% { transform: rotate(360deg); }
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .header-div {
-        flex-wrap: wrap;
+    /* Survey Cards */
+    .survey-cards {
+    padding: 2rem 2.5rem;
     }
-    
-    .nav-link {
-        margin: 5px;
+
+    .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    margin-top: 1rem;
     }
-    
-    .circle {
-        width: 100px;
-        height: 100px;
+
+    .card {
+    background: linear-gradient(180deg, #ffffff, #fbfdff);
+    border: 1px solid rgba(67,97,238,0.06);
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
     }
-    
-    .user {
-        font-size: 2.5rem;
+
+    .card h3 {
+    margin: 0 0 0.75rem 0;
+    font-size: 1.05rem;
+    color: var(--primary-color);
     }
-    
-    .info-heading {
-        font-size: 1.2rem;
+
+    .options {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
     }
-    
-    .info-data {
-        font-size: 0.9rem;
+
+    .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(67,97,238,0.08);
+    cursor: pointer;
+    background: #fff;
+    transition: var(--transition);
     }
-}
+
+    .pill input { display:none; }
+    .pill.active { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; border-color: transparent; }
+
+    .checkbox-grid, .checkbox-grid .chk { display:flex; flex-direction:column; gap:8px; }
+
+    .chk input { margin-right: 8px; }
+
+    /* responsive */
+    @media (max-width: 992px) {
+    .cards-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 600px) {
+    .profile-creation-container { margin: 1rem; }
+    .cards-grid { grid-template-columns: 1fr; }
+    .profile-header { padding: 2rem 1rem; }
+    .profile-form { padding: 1rem; }
+    }

@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import "./profile_pages.css";
+import SurveyCards from "./SurveyCards";
+
+
 function ProfileCreation() {
-    const navigate = useNavigate();
     const [statusCode,setStatusCode] = useState(0)
     const [message,setMessage] = useState("")
     const user_email = localStorage.getItem("email");
@@ -10,7 +11,7 @@ function ProfileCreation() {
     // Ensure consistent CSS styling and cleanup GSAP
     useEffect(() => {
         document.body.classList.add("profile-page");
-        
+
         // Kill all GSAP animations to prevent errors
         if (window.gsap) {
             window.gsap.killTweensOf("*");
@@ -18,7 +19,7 @@ function ProfileCreation() {
         if (window.ScrollTrigger) {
             window.ScrollTrigger.killAll();
         }
-        
+
         return () => {
             document.body.classList.remove("profile-page");
         };
@@ -41,6 +42,30 @@ function ProfileCreation() {
         city: "",
         hobbies: "",
         bio: "",
+    });
+
+    // Survey state (saved separately)
+    const [survey, setSurvey] = useState(() => {
+        try {
+            const raw = localStorage.getItem("profile_survey");
+            return raw ? JSON.parse(raw) : {
+                englishLevel: "",
+                timeSpent: "",
+                goals: {},
+                speakingLevel: "",
+                frequency: "",
+                reasons: {}
+            };
+        } catch (e) {
+            return {
+                englishLevel: "",
+                timeSpent: "",
+                goals: {},
+                speakingLevel: "",
+                frequency: "",
+                reasons: {}
+            };
+        }
     });
 
     // Calculate age from dob
@@ -74,6 +99,12 @@ function ProfileCreation() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        // basic validation: age must be >= 16
+        const numericAge = Number(form.age);
+        if (!numericAge || numericAge < 16) {
+            setMessage("You must be at least 16 years old to create a profile.");
+            return;
+        }
         const url = 'https://jaumunpkj2.execute-api.ap-south-1.amazonaws.com/dev/signup/login/profile_data';
 
         const data = {
@@ -94,6 +125,7 @@ function ProfileCreation() {
             city: form.city,
             hobbies: form.hobbies,
             about: form.bio,
+            survey: survey,
         };
         try {
             const response = await fetch(url, {
@@ -108,6 +140,8 @@ function ProfileCreation() {
                 setMessage("Profile Created Successfully! Please login to continue.");
                 // Wait for message to show, then navigate to login
                 setTimeout(() => {
+                    // clear saved drafts
+                    try { localStorage.removeItem("profile_form"); localStorage.removeItem("profile_survey"); } catch(e) {}
                     navigate("/signup", { state: { showLogin: true } });
                 }, 2000);
             } else {

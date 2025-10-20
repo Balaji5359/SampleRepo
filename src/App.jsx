@@ -12,6 +12,9 @@ import Activities2 from "./GenAI_Folders/Activities2.jsx";
 import ProPlans from "./GenAI_Folders/ProPlans.jsx";
 import ProPlanPayment from "./GenAI_Folders/ProPlanPayment.jsx";
 
+// Landing page components
+const LandingPage = lazy(() => import("./LandingPageFiles/LandingPage.jsx"));
+
 // Main page components
 const WelcomeSection = lazy(() => import("./Main/WelcomeSection.jsx"));
 const AboutSection = lazy(() => import("./Main/AboutSection.jsx"));
@@ -42,7 +45,7 @@ const ProfileCreation = lazy(() => import("./StudentProfileFiles/ProfileCreation
 const ProfileData = lazy(() => import("./StudentProfileFiles/ProfileData.jsx"));
 const Progress = lazy(() => import("./StudentProfileFiles/Progress.jsx"));
 const RoadMap = lazy(() => import("./StudentProfileFiles/RoadMap.jsx"));
-
+const ProfileCreation_Survey = lazy(() => import("./ProfileCreation/ProfileCreation.jsx"));
 
 //Mentor Profile components
 const Mentor = lazy(() => import("./MentorProfilefiles/Mentor.jsx"));
@@ -191,7 +194,7 @@ function App() {
           <Route path="/skill-route" element={
             <MainLayout>
               <>
-              <Skill_Route />
+              <LandingPage />
               </>
             </MainLayout>
           }/>
@@ -245,6 +248,12 @@ function App() {
           <Route path="/signup" element={
             <AuthLayout>
               <Signup />
+            </AuthLayout>
+          } />
+
+          <Route path="/profile-creation-survey" element={
+            <AuthLayout>
+              <ProfileCreation_Survey />
             </AuthLayout>
           } />
           

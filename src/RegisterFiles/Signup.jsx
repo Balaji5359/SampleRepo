@@ -4,7 +4,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 
 function SignUp() {
     const location = useLocation();
-    const [isLogin, setIsLogin] = useState(location.state?.showLogin || false);
+    const [isLogin, setIsLogin] = useState(location.state?.showLogin || true);
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -15,6 +15,8 @@ function SignUp() {
     const [isLoading, setIsLoading] = useState(false);
     const [apiMessage, setApiMessage] = useState("");
     const [error, setError] = useState("");
+    const [showErrorCard, setShowErrorCard] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -75,9 +77,15 @@ function SignUp() {
                 if (data.statusCode === 200) {
                     localStorage.setItem("email", formData.email);
                     navigate("/profiledata");
+                } else {
+                    // Show error card for login failures
+                    setErrorMessage("Invalid email or password. Please try again.");
+                    setShowErrorCard(true);
                 }
             } catch (error) {
                 setError("Failed to connect to server. Please try again.");
+                setErrorMessage("Network error. Please check your connection.");
+                setShowErrorCard(true);
             } finally {
                 setIsLoading(false);
             }
@@ -115,10 +123,16 @@ function SignUp() {
                 
                 if (data.statusCode === 200) {
                     localStorage.setItem("email", formData.email);
-                    navigate("/profilecreation");
+                    navigate("/profile-creation-survey");
+                } else {
+                    // Show error card for signup failures (e.g., invalid college email)
+                    setErrorMessage("Invalid college email. Please use your college email address.");
+                    setShowErrorCard(true);
                 }
             } catch (error) {
                 setError("Failed to connect to server. Please try again.");
+                setErrorMessage("Network error. Please check your connection.");
+                setShowErrorCard(true);
             } finally {
                 setIsLoading(false);
             }
@@ -143,8 +157,8 @@ function SignUp() {
                 {/* Form Section */}
                 <div className="form-section">
                     <div className="form-container">
-                        <center><h2 style={{ color: '#07797fff' }}>Welcome to Skill Route!</h2></center>
                         <div className="brand-header">
+                            <h2>Welcome to Skill Route!</h2>
                             <p>{isLogin ? 'Sign in to continue' : 'Register now'}</p>
                         </div>
 
@@ -215,27 +229,29 @@ function SignUp() {
                             >
                                 {isLoading ? (isLogin ? 'Logging in...' : 'Creating Account...') : (isLogin ? 'Login' : 'Sign Up')}
                             </button>
+                        </form>
 
+                        {apiMessage && (
+                            <div className="message success">{apiMessage}</div>
+                        )}
+
+                        {error && (
+                            <div className="message error">{error}</div>
+                        )}
+                        
+                        {/* switch controls placed inside the card and centered */}
+                        <div className="switch-in-card">
                             {!isLogin && (
                                 <p className="switch-text">
                                     Already have an account? <button type="button" onClick={() => setIsLogin(true)} className="link-btn">Log in</button>
                                 </p>
                             )}
-                            
                             {isLogin && (
                                 <p className="switch-text">
                                     Don't have an account? <button type="button" onClick={() => setIsLogin(false)} className="link-btn">Sign up</button>
                                 </p>
                             )}
-
-                            {apiMessage && (
-                                <div className="message success">{apiMessage}</div>
-                            )}
-
-                            {error && (
-                                <div className="message error">{error}</div>
-                            )}
-                        </form>
+                        </div>
                     </div>
                 </div>
             </div>
