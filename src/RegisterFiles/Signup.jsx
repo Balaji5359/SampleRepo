@@ -143,6 +143,7 @@ function SignUp() {
                 {/* Form Section */}
                 <div className="form-section">
                     <div className="form-container">
+                        <center><h2 style={{ color: '#07797fff' }}>Welcome to Skill Route!</h2></center>
                         <div className="brand-header">
                             <p>{isLogin ? 'Sign in to continue' : 'Register now'}</p>
                         </div>
