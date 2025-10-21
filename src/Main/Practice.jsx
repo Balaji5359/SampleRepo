@@ -1,6 +1,10 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import "./Practice.css";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import Login_Navbar from "../RegisterFiles/Login_Navbar";
+// import "./profile.css";
+import '../LandingPageFiles/landing.css';
+import "./Practice.css"
+
 
 function Practice() {
     const [activeChallenge, setActiveChallenge] = useState(null);
@@ -8,12 +12,12 @@ function Practice() {
     const navigate = useNavigate();
 
     const practices = [
-        { id: "jam", title: "JAM Session", description: "Speak on a random topic for 60 seconds.", icon: "🎤" },
+        { id: "jam", title: "JAM Test", description: "Speak on a random topic for 60 seconds.", icon: "🎤" },
         { id: "pronunciation", title: "Pronunciation Test", description: "Improve your pronunciation.", icon: "👂" },
         { id: "image-speaking", title: "Image-Based Speaking", description: "Describe images.", icon: "🖼️" },
-        { id: "translate-speak", title: "Translate & Speak", description: "Practice translation.", icon: "🌐" },
-        { id: "story-building", title: "Story Building", description: "Create stories.", icon: "📖" },
-        { id: "vocabulary", title: "Vocabulary Builder", description: "Expand vocabulary.", icon: "📝" }
+        { id: "situation-speak", title: "Situation-Based Speak", description: "Practice translation.", icon: "🌐" },
+        { id: "translate-speak", title: "Translate & Speak", description: "Practice translation.", icon: "📝" },
+        { id: "story-building", title: "Image-Story Building", description: "Create stories.", icon: "📖" }
     ];
 
     const jamInstructions = [
@@ -168,6 +172,43 @@ function Practice() {
         }
     ];
 
+    const situationSpeakInstructions = [
+        {
+            title: "Instructions",
+            content: "Respond to real-life situations with appropriate communication. Practice workplace, social, and academic scenarios."
+        },
+        {
+            title: "Context Understanding",
+            content: "Analyze the given situation and understand the context before responding."
+        },
+        {
+            title: "Appropriate Response",
+            content: "Use suitable tone, vocabulary, and formality level for the situation."
+        },
+        {
+            title: "Problem Solving",
+            content: "Address the situation effectively with clear communication."
+        },
+        {
+            title: "Confidence",
+            content: "Speak with confidence and maintain composure in challenging situations."
+        },
+        {
+            title: "How to Practice",
+            content: (
+                <iframe
+                    width="100%"
+                    height="250"
+                    src="https://www.youtube.com/embed/ReZgqLI3Hq0"
+                    title="How to Practice Situation-Based Speaking"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                ></iframe>
+            )
+        }
+    ];
+
     const storyBuildingInstructions = [
         {
             title: "Instructions",
@@ -227,6 +268,7 @@ function Practice() {
             jam: "/jam",
             pronunciation: "/pronunciation",
             "image-speaking": "/image-speak",
+            "situation-speak": "/situation-speak",
             "translate-speak": "/translate-speak",
             "story-building": "/story-building"
         };
@@ -234,26 +276,27 @@ function Practice() {
     };
 
     return (
-        <div className="practice-container"><br></br><br></br><br></br><br></br>
-            <div className={`practice-grid ${activeChallenge ? "blurred" : ""}`}>
-                {practices.map((practice) => (
-                    <div
-                        key={practice.id}
-                        className="practice-card"
-                        onClick={() => handleStartChallenge(practice.id)}
-                    >
-                        <div className="card-icon"><span>{practice.icon}</span></div>
-                        <h3>{practice.title}</h3>
-                        <p>{practice.description}</p>
-                        <div className="card-footer">
-                            <button className="start-btn">Start Challenge</button>
-                            <span className="duration">01:00</span>
+        <>
+            <Login_Navbar />
+            <div className="practice-container">
+                <div className={`practice-grid ${activeChallenge ? "blurred" : ""}`}>
+                    {practices.map((practice) => (
+                        <div
+                            key={practice.id}
+                            className="practice-card"
+                            onClick={() => handleStartChallenge(practice.id)}
+                        >
+                            <div className="card-icon"><span>{practice.icon}</span></div>
+                            <h3>{practice.title}</h3>
+                            <p>{practice.description}</p>
+                            <div className="card-footer">
+                                <button className="start-btn">Start Challenge</button>
+                                <span className="duration">01:00</span>
+                            </div>
                         </div>
-                    </div>
-                ))}
-            </div>
-
-            {activeChallenge === "pronunciation" && (
+                    ))}
+                </div>
+                {activeChallenge === "pronunciation" && (
                 <div className="overlay-card">
                     <div className="challenge-card">
                         <button className="close-btn" onClick={() => setActiveChallenge(null)}>✖</button>
@@ -331,6 +374,32 @@ function Practice() {
                 </div>
             )}
 
+            {activeChallenge === "situation-speak" && (
+                <div className="overlay-card">
+                    <div className="challenge-card">
+                        <button className="close-btn" onClick={() => setActiveChallenge(null)}>✖</button>
+                        <h2>{situationSpeakInstructions[instructionIndex].title}</h2>
+                        <div className="instruction-content">
+                            {typeof situationSpeakInstructions[instructionIndex].content === "string"
+                                ? <p>{situationSpeakInstructions[instructionIndex].content}</p>
+                                : situationSpeakInstructions[instructionIndex].content}
+                        </div>
+                        <div className="navigation-buttons">
+                            {instructionIndex > 0 && <button onClick={handlePrev}>← Previous</button>}
+                            
+                            {instructionIndex < situationSpeakInstructions.length - 1 ? (
+                                <>
+                                    <button onClick={handleNext}>Next →</button>
+                                    <button onClick={() => setInstructionIndex(situationSpeakInstructions.length - 1)}>Skip</button>
+                                </>
+                            ) : (
+                                <button onClick={handleLaunchChallenge}>Start Challenge</button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {activeChallenge === "story-building" && (
                 <div className="overlay-card">
                     <div className="challenge-card">
@@ -383,7 +452,8 @@ function Practice() {
                     </div>
                 </div>
             )}
-        </div>
+            </div>
+        </>
     );
 }
 

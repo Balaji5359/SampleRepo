@@ -14,29 +14,29 @@ function LandingPage() {
       id: 'jam',
       title: 'JAM Sessions',
       description: 'Just A Minute speaking sessions to improve spontaneous communication',
-      icon: '⏱️',
-      color: '#3b82f6'
+      icon: <img src="https://cdn2.iconfinder.com/data/icons/timer-flat/64/timer-11-512.png" alt="timer" style={{ width: 80, height: 75 }} />,
+      color: '#aeb5c0ff'
     },
     {
       id: 'pronunciation',
       title: 'Pronunciation Test',
       description: 'Perfect your pronunciation with AI-powered feedback',
-      icon: '🗣️',
-      color: '#10b981'
+      icon: <img src="https://cdn1.iconfinder.com/data/icons/miscellaneous-306-solid/128/accent_pronunciation_talk_pronouncing_diction_parlance_language-128.png" alt="timer" style={{ width: 70, height: 70 }} />,
+      color: '#aeb5c0ff'
     },
     {
       id: 'image',
       title: 'Image-Based Speaking',
       description: 'Describe images to enhance vocabulary and fluency',
-      icon: '🖼️',
-      color: '#f59e0b'
+      icon: <img src="https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-image-128.png" alt="timer" style={{ width: 80, height: 75 }} />,
+      color: '#aeb5c0ff'
     },
     {
       id: 'story',
       title: 'Story Building',
       description: 'Create and narrate stories to boost creative communication',
-      icon: '📚',
-      color: '#8b5cf6'
+      icon: <img src="https://cdn2.iconfinder.com/data/icons/refugee-crisis/64/storytelling-story-teach-method-plan-128.png" alt="timer" style={{ width: 80, height: 75 }} />,
+      color: '#aeb5c0ff'
     }
   ];
 
@@ -52,8 +52,8 @@ function LandingPage() {
               <a href="#home">Home</a>
               <a href="#features">Features</a>
               <a href="#activities">Activities</a>
-              <a href="#contact">Contact</a>
-              <a href="#pricing">Pricing</a>    
+              <a href="#pricing">Pricing</a>
+              <a href="#contact">Contact</a>    
             </div>       
           </div>
 

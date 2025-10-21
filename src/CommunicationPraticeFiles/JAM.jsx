@@ -23,7 +23,7 @@ function JAMPractice() {
         <div className="jam-practice-container">
             <div className="jam-practice-header">
                 {/* Navigate Back to /pratice */}
-                <button className='back-btn' onClick={() => window.location.href = '/pratice'}>← Back</button>
+                <button className='back-btn' onClick={() => window.location.href = '/practice'}>← Back</button>
 
                 <h2>JAM Practice</h2>
                 <div className="score-display">Score Earned: {Math.floor(Math.random() * 1000)}</div>

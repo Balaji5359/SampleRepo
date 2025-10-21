@@ -31,7 +31,7 @@ const Skill_Guide = lazy(() => import("./Main/Skill_Guide.jsx"));
 const Skill_Dev = lazy(() => import("./Main/Skill_Dev.jsx"));
 const Skill_Route = lazy(() => import("./Main/Skill_Route.jsx"));
 const SkillRouteModern = lazy(() => import("./Main/SkillRouteModern.jsx"));
-const Practice = lazy(() => import("./Main/Pratice.jsx"))
+const Practice = lazy(() => import("./Main/Practice.jsx"))
 const Home = lazy(() => import("./Main/Home.jsx"));
 const Test = lazy(() => import("./Main/Test.jsx"));
 // const Services = lazy(() => import("./Main/Services.jsx"));
@@ -313,7 +313,7 @@ function App() {
             </ProtectedRoute>
           } />
 
-          <Route path="/pratice" element={
+          <Route path="/practice" element={
             <ProtectedRoute>
               <DashboardLayout>
                 <Practice />
