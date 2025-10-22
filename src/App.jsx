@@ -96,17 +96,14 @@ const GenAI_CarrerGuide = lazy(() => import("./GenAI_Folders/AI_InterviewToolsFo
 // Communication practice files
 const JAM = lazy(() => import("./CommunicationPraticeFiles/JAM.jsx"));
 const Pronunciation = lazy(() => import("./CommunicationPraticeFiles/Pronunciation.jsx"));
-const StoryBuilding = lazy(() => import("./CommunicationPraticeFiles/StoryBuilding.jsx"));
+const ImageStory = lazy(() => import("./CommunicationPraticeFiles/ImageStory.jsx"));
 const TranslateSpeak = lazy(() => import("./CommunicationPraticeFiles/TranslateSpeak.jsx"));
 const ImageSpeak = lazy(() => import("./CommunicationPraticeFiles/ImageSpeak.jsx"));
-<<<<<<< HEAD
 
 // Dashboard and Leaderboard files
 const Dashboard = lazy(() => import("./Dashboard_LeaderboardFiles/Dashboard.jsx"));
 const Leaderboard = lazy(() => import("./Dashboard_LeaderboardFiles/Leaderboard.jsx"))
-=======
 const SituationSpeak = lazy(() => import("./CommunicationPraticeFiles/SituationSpeak.jsx"));
->>>>>>> 469fde8 (22-10 3rdcommit)
 
 const MainLayout = ({ children }) => (
   <>
@@ -592,10 +589,10 @@ function App() {
             </ProtectedRoute>
           } />
 
-          <Route path="/story-building" element={
+          <Route path="/image-story" element={
             <ProtectedRoute>
               <CommunicationPraticeLayout>
-                <StoryBuilding />
+                <ImageStory />
               </CommunicationPraticeLayout>
             </ProtectedRoute>
           } />

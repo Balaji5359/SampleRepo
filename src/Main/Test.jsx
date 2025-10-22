@@ -270,7 +270,7 @@ function Test() {
             "image-speaking": "/image-speak",
             "situation-speak": "/situation-speak",
             "translate-speak": "/translate-speak",
-            "story-building": "/story-building"
+            "story-building": "/image-story"
         };
         navigate(routes[activeChallenge]);
     };

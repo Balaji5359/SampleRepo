@@ -471,19 +471,86 @@
                 </div>
                 </div>
 
-                <div className="card" style={{ minHeight:320 }}>
-                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10 }}>
-                    <div>
-                    <div style={{ fontWeight:700 }}>Performance Over Time</div>
-                    <div style={{ fontSize:13, color:'var(--muted)' }}>Score & Words — last {data.trends.length} days</div>
-                    </div>
-                    <div style={{ fontSize:13, color:'var(--muted)' }}>
-                    <small>Interactive</small>
-                    </div>
-                </div>
+                <div className="card mic-area" role="region" aria-label="Microphone chatbot" style={{ minHeight:'600px' }}>
+                <div style={{ fontWeight:700, fontSize:20, marginBottom:10 }}>AI ChatBot</div>
+                <div style={{ fontSize:15, color:'var(--muted)', marginBottom:20 }}>Press the microphone and speak clearly</div>
 
-                <div className="chart-area card" style={{ padding:8 }}>
-                    <ChartArea />
+                <div style={{ marginTop:20, display:'flex', flexDirection:'column', alignItems:'center', gap:20 }}>
+                    <div style={{ minHeight:50, fontSize:16, textAlign:'center', padding:'10px' }}>
+                    {recording ?
+                        <div style={{ color:'#4ade80', fontWeight:600 }}>🎙️ Listening... Speak now!</div> :
+                        interim ?
+                        <div style={{ color:'var(--muted)', fontStyle:'italic' }}>Processing: "{interim}"</div> :
+                        <div style={{ color:'var(--muted)' }}>Ready to listen - Click the mic!</div>
+                    }
+                    </div>
+
+                    <button
+                    className={`mic-btn ${recording ? 'recording' : ''}`}
+                    aria-label={recording ? 'Stop recording' : 'Start recording'}
+                    aria-pressed={recording}
+                    onClick={toggleMic}
+                    title={recording ? 'Stop Recording' : 'Start Recording'}
+                    >
+                    {recording ? (
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
+                        <rect x="6" y="6" width="12" height="12" rx="2"/>
+                        </svg>
+                    ) : (
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3Z"/>
+                        <path d="M19 10v1a7 7 0 0 1-14 0v-1"/>
+                        <line x1="12" y1="19" x2="12" y2="23"/>
+                        <line x1="8" y1="23" x2="16" y2="23"/>
+                        </svg>
+                    )}
+                    </button>
+
+                    {recording && (
+                    <div className="waveform" aria-hidden style={{ marginTop:10 }}>
+                        <span style={{ height:12 }} />
+                        <span style={{ height:24 }} />
+                        <span style={{ height:18 }} />
+                        <span style={{ height:30 }} />
+                        <span style={{ height:16 }} />
+                    </div>
+                    )}
+
+                    <form onSubmit={handleManualSubmit} style={{ marginTop:20, display: 'flex', gap:10, width:'100%' }}>
+                    <input
+                        aria-label="Type if speech not available"
+                        name="manual"
+                        placeholder="Or type your message here..."
+                        style={{
+                        flex:1,
+                        borderRadius:12,
+                        padding:'12px 16px',
+                        border:'none',
+                        background:'rgba(255,255,255,0.08)',
+                        color:'inherit',
+                        fontSize:14
+                        }}
+                    />
+                    <button type="submit" className="small-btn" style={{ minWidth:80, padding:'12px 16px', borderRadius:12, background:'var(--accent)', color:'white' }}>Send</button>
+                    </form>
+
+                    <div style={{ width:'100%', marginTop:20 }}>
+                    <div style={{ fontSize:14, color:'var(--muted)', marginBottom:10, fontWeight:600 }}>Recent Conversations</div>
+                    <div className="utter-list" role="list" style={{ maxHeight:'200px', overflowY:'auto' }}>
+                        {utterances.length ? utterances.map((u) => (
+                        <div key={u.id} className="utter-item" role="listitem" style={{ padding:'12px', borderRadius:10, marginBottom:8 }}>
+                            <div style={{ textAlign:'left', maxWidth:'75%' }}>
+                            <div style={{ fontWeight:600, fontSize:14, marginBottom:4 }}>{u.text}</div>
+                            <div style={{ fontSize:12, color:'var(--muted)' }}>{new Date(u.datetime).toLocaleString()}</div>
+                            </div>
+                            <div style={{ textAlign:'right' }}>
+                            <div style={{ fontWeight:800, fontSize:16, color:'#4ade80' }}>{u.score ?? '-'}</div>
+                            <div style={{ fontSize:11, color:'var(--muted)' }}>score</div>
+                            </div>
+                        </div>
+                        )) : <div style={{ color:'var(--muted)', textAlign:'center', padding:20 }}>No conversations yet - Start speaking!</div>}
+                    </div>
+                    </div>
                 </div>
                 </div>
 
@@ -591,86 +658,19 @@
             </div>
 
             <div className="jam-right">
-                <div className="card mic-area" role="region" aria-label="Microphone chatbot" style={{ minHeight:'600px' }}>
-                <div style={{ fontWeight:700, fontSize:20, marginBottom:10 }}>AI ChatBot</div>
-                <div style={{ fontSize:15, color:'var(--muted)', marginBottom:20 }}>Press the microphone and speak clearly</div>
-
-                <div style={{ marginTop:20, display:'flex', flexDirection:'column', alignItems:'center', gap:20 }}>
-                    <div style={{ minHeight:50, fontSize:16, textAlign:'center', padding:'10px' }}>
-                    {recording ?
-                        <div style={{ color:'#4ade80', fontWeight:600 }}>🎙️ Listening... Speak now!</div> :
-                        interim ?
-                        <div style={{ color:'var(--muted)', fontStyle:'italic' }}>Processing: "{interim}"</div> :
-                        <div style={{ color:'var(--muted)' }}>Ready to listen - Click the mic!</div>
-                    }
+                <div className="card" style={{ minHeight:320 }}>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10 }}>
+                    <div>
+                    <div style={{ fontWeight:700 }}>Performance Over Time</div>
+                    <div style={{ fontSize:13, color:'var(--muted)' }}>Score & Words — last {data.trends.length} days</div>
                     </div>
-
-                    <button
-                    className={`mic-btn ${recording ? 'recording' : ''}`}
-                    aria-label={recording ? 'Stop recording' : 'Start recording'}
-                    aria-pressed={recording}
-                    onClick={toggleMic}
-                    title={recording ? 'Stop Recording' : 'Start Recording'}
-                    >
-                    {recording ? (
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
-                        <rect x="6" y="6" width="12" height="12" rx="2"/>
-                        </svg>
-                    ) : (
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3Z"/>
-                        <path d="M19 10v1a7 7 0 0 1-14 0v-1"/>
-                        <line x1="12" y1="19" x2="12" y2="23"/>
-                        <line x1="8" y1="23" x2="16" y2="23"/>
-                        </svg>
-                    )}
-                    </button>
-
-                    {recording && (
-                    <div className="waveform" aria-hidden style={{ marginTop:10 }}>
-                        <span style={{ height:12 }} />
-                        <span style={{ height:24 }} />
-                        <span style={{ height:18 }} />
-                        <span style={{ height:30 }} />
-                        <span style={{ height:16 }} />
+                    <div style={{ fontSize:13, color:'var(--muted)' }}>
+                    <small>Interactive</small>
                     </div>
-                    )}
+                </div>
 
-                    <form onSubmit={handleManualSubmit} style={{ marginTop:20, display: 'flex', gap:10, width:'100%' }}>
-                    <input
-                        aria-label="Type if speech not available"
-                        name="manual"
-                        placeholder="Or type your message here..."
-                        style={{
-                        flex:1,
-                        borderRadius:12,
-                        padding:'12px 16px',
-                        border:'none',
-                        background:'rgba(255,255,255,0.08)',
-                        color:'inherit',
-                        fontSize:14
-                        }}
-                    />
-                    <button type="submit" className="small-btn" style={{ minWidth:80, padding:'12px 16px', borderRadius:12, background:'var(--accent)', color:'white' }}>Send</button>
-                    </form>
-
-                    <div style={{ width:'100%', marginTop:20 }}>
-                    <div style={{ fontSize:14, color:'var(--muted)', marginBottom:10, fontWeight:600 }}>Recent Conversations</div>
-                    <div className="utter-list" role="list" style={{ maxHeight:'200px', overflowY:'auto' }}>
-                        {utterances.length ? utterances.map((u) => (
-                        <div key={u.id} className="utter-item" role="listitem" style={{ padding:'12px', borderRadius:10, marginBottom:8 }}>
-                            <div style={{ textAlign:'left', maxWidth:'75%' }}>
-                            <div style={{ fontWeight:600, fontSize:14, marginBottom:4 }}>{u.text}</div>
-                            <div style={{ fontSize:12, color:'var(--muted)' }}>{new Date(u.datetime).toLocaleString()}</div>
-                            </div>
-                            <div style={{ textAlign:'right' }}>
-                            <div style={{ fontWeight:800, fontSize:16, color:'#4ade80' }}>{u.score ?? '-'}</div>
-                            <div style={{ fontSize:11, color:'var(--muted)' }}>score</div>
-                            </div>
-                        </div>
-                        )) : <div style={{ color:'var(--muted)', textAlign:'center', padding:20 }}>No conversations yet - Start speaking!</div>}
-                    </div>
-                    </div>
+                <div className="chart-area card" style={{ padding:8 }}>
+                    <ChartArea />
                 </div>
                 </div>
 

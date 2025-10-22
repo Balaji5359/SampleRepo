@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-function ImageSpeak() {
+function ImageStory() {
   const [recording, setRecording] = useState(false);
   const [theme, setTheme] = useState('dark');
   const [vocabInput, setVocabInput] = useState('');
@@ -367,7 +367,7 @@ function ImageSpeak() {
       <div className="imagespeak-topnav">
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <div className="imagespeak-title">
-            Image-Based Speaking Test
+            Image-Based Story Telling
           </div>
           <div className="imagespeak-nav">
             <button onClick={() => window.history.back()}>Back</button>
@@ -376,13 +376,13 @@ function ImageSpeak() {
               className={activeTab === 'ImageSpeak Dashboard' ? 'active' : ''}
               onClick={() => setActiveTab('ImageSpeak Dashboard')}
             >
-              ImageSpeak Dashboard
+              ImageStory Dashboard
             </button>
             <button 
               className={activeTab === 'ImageSpeak Leaderboard' ? 'active' : ''}
               onClick={() => setActiveTab('ImageSpeak Leaderboard')}
             >
-              ImageSpeak Leaderboard
+              ImageStory Leaderboard
             </button>
           </div>
         </div>
@@ -416,7 +416,7 @@ function ImageSpeak() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
             <div>
               <div style={{ fontSize: '12px', color: 'var(--muted)', fontWeight: '700' }}>Overview</div>
-              <div style={{ fontSize: '18px', fontWeight: '800' }}>Your ImageSpeak Summary</div>
+              <div style={{ fontSize: '18px', fontWeight: '800' }}>Your ImageStory Summary</div>
             </div>
             <div style={{ textAlign: 'right', color: 'var(--muted)', fontSize: '12px' }}>
               <div>Last updated: {new Date().toLocaleString()}</div>
@@ -487,7 +487,7 @@ function ImageSpeak() {
               className="practice-image"
             />
             <p className="instruction">
-              Describe the image in as much detail as possible. You have 60 seconds.
+              Watch the image carefully in as much detail as possible, frame a story and speak. You have 60 seconds.
             </p>
           </div>
 
@@ -552,4 +552,4 @@ function ImageSpeak() {
   );
 }
 
-export default ImageSpeak;
+export default ImageStory;
