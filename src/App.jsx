@@ -100,6 +100,9 @@ const StoryBuilding = lazy(() => import("./CommunicationPraticeFiles/StoryBuildi
 const TranslateSpeak = lazy(() => import("./CommunicationPraticeFiles/TranslateSpeak.jsx"));
 const ImageSpeak = lazy(() => import("./CommunicationPraticeFiles/ImageSpeak.jsx"));
 
+// Dashboard and Leaderboard files
+const Dashboard = lazy(() => import("./Dashboard_LeaderboardFiles/Dashboard.jsx"));
+const Leaderboard = lazy(() => import("./Dashboard_LeaderboardFiles/Leaderboard.jsx"))
 
 const MainLayout = ({ children }) => (
   <>
@@ -343,6 +346,20 @@ function App() {
                 <Progress />
               </DashboardLayout>
             </ProtectedRoute>
+          } />
+
+          <Route path="/student-dashboard" element={
+            <ProtectedRoute>
+                <Dashboard />
+            </ProtectedRoute>
+
+          } />
+
+          <Route path="/student-leaderboard" element={
+            <ProtectedRoute>
+                <Leaderboard />
+            </ProtectedRoute>
+
           } />
 
           <Route path="/roadmap" element={

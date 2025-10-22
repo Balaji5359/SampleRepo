@@ -308,7 +308,7 @@ function ProfileData() {
                                 </div>
                             </div>
                         </div>
-                        <button className="view-analytics-btn" onClick={() => navigate('/analytics')}>
+                        <button className="view-analytics-btn" onClick={() => navigate('/dashboard')}>
                             View Full Analytics →
                         </button>
                     </div>
