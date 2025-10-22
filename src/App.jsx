@@ -99,10 +99,14 @@ const Pronunciation = lazy(() => import("./CommunicationPraticeFiles/Pronunciati
 const StoryBuilding = lazy(() => import("./CommunicationPraticeFiles/StoryBuilding.jsx"));
 const TranslateSpeak = lazy(() => import("./CommunicationPraticeFiles/TranslateSpeak.jsx"));
 const ImageSpeak = lazy(() => import("./CommunicationPraticeFiles/ImageSpeak.jsx"));
+<<<<<<< HEAD
 
 // Dashboard and Leaderboard files
 const Dashboard = lazy(() => import("./Dashboard_LeaderboardFiles/Dashboard.jsx"));
 const Leaderboard = lazy(() => import("./Dashboard_LeaderboardFiles/Leaderboard.jsx"))
+=======
+const SituationSpeak = lazy(() => import("./CommunicationPraticeFiles/SituationSpeak.jsx"));
+>>>>>>> 469fde8 (22-10 3rdcommit)
 
 const MainLayout = ({ children }) => (
   <>
@@ -175,7 +179,7 @@ function App() {
           <Route path="/" element={
             <MainLayout>
               <>
-                <AI_Skill_Dev />
+                <LandingPage/>
               </>
             </MainLayout>
           } />
@@ -608,6 +612,13 @@ function App() {
             <ProtectedRoute>
               <CommunicationPraticeLayout>
                 <ImageSpeak />
+              </CommunicationPraticeLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/situation-speak" element={
+            <ProtectedRoute>
+              <CommunicationPraticeLayout>
+                <SituationSpeak />
               </CommunicationPraticeLayout>
             </ProtectedRoute>
           } />
