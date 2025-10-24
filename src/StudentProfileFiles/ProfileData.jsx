@@ -264,7 +264,7 @@ function ProfileData() {
 
                 {/* Action Buttons */}
                 <div className="action-buttons">
-                    <button className="action-btn practice-btn" onClick={() => navigate('/pratice')}>
+                    <button className="action-btn practice-btn" onClick={() => navigate('/practice')}>
                         <div className="btn-icon">🎯</div>
                         <div className="btn-content">
                             <h3>Practice</h3>
@@ -308,7 +308,7 @@ function ProfileData() {
                                 </div>
                             </div>
                         </div>
-                        <button className="view-analytics-btn" onClick={() => navigate('/analytics')}>
+                        <button className="view-analytics-btn" onClick={() => navigate('/dashboard')}>
                             View Full Analytics →
                         </button>
                     </div>
@@ -343,21 +343,21 @@ function ProfileData() {
 
                     {/* Quick Actions Card */}
                     <div className="quick-actions-card">
-                        <h3>Quick Actions</h3>
+                        <h3>Quick Actions - Tests</h3>
                         <div className="quick-actions-grid">
-                            <button className="quick-action-item" onClick={() => navigate('/jam-session')}>
+                            <button className="quick-action-item" onClick={() => navigate('/test')}>
                                 <div className="action-icon">⏱️</div>
                                 <span>JAM Session</span>
                             </button>
-                            <button className="quick-action-item" onClick={() => navigate('/pronunciation')}>
+                            <button className="quick-action-item" onClick={() => navigate('/test')}>
                                 <div className="action-icon">🗣️</div>
                                 <span>Pronunciation</span>
                             </button>
-                            <button className="quick-action-item" onClick={() => navigate('/vocabulary')}>
+                            <button className="quick-action-item" onClick={() => navigate('/test')}>
                                 <div className="action-icon">📚</div>
                                 <span>Vocabulary</span>
                             </button>
-                            <button className="quick-action-item" onClick={() => navigate('/speaking-test')}>
+                            <button className="quick-action-item" onClick={() => navigate('/test')}>
                                 <div className="action-icon">🎤</div>
                                 <span>Speaking Test</span>
                             </button>

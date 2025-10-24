@@ -96,10 +96,14 @@ const GenAI_CarrerGuide = lazy(() => import("./GenAI_Folders/AI_InterviewToolsFo
 // Communication practice files
 const JAM = lazy(() => import("./CommunicationPraticeFiles/JAM.jsx"));
 const Pronunciation = lazy(() => import("./CommunicationPraticeFiles/Pronunciation.jsx"));
-const StoryBuilding = lazy(() => import("./CommunicationPraticeFiles/StoryBuilding.jsx"));
+const ImageStory = lazy(() => import("./CommunicationPraticeFiles/ImageStory.jsx"));
 const TranslateSpeak = lazy(() => import("./CommunicationPraticeFiles/TranslateSpeak.jsx"));
 const ImageSpeak = lazy(() => import("./CommunicationPraticeFiles/ImageSpeak.jsx"));
 
+// Dashboard and Leaderboard files
+const Dashboard = lazy(() => import("./Dashboard_LeaderboardFiles/Dashboard.jsx"));
+const Leaderboard = lazy(() => import("./Dashboard_LeaderboardFiles/Leaderboard.jsx"))
+const SituationSpeak = lazy(() => import("./CommunicationPraticeFiles/SituationSpeak.jsx"));
 
 const MainLayout = ({ children }) => (
   <>
@@ -172,7 +176,7 @@ function App() {
           <Route path="/" element={
             <MainLayout>
               <>
-                <AI_Skill_Dev />
+                <LandingPage/>
               </>
             </MainLayout>
           } />
@@ -343,6 +347,20 @@ function App() {
                 <Progress />
               </DashboardLayout>
             </ProtectedRoute>
+          } />
+
+          <Route path="/student-dashboard" element={
+            <ProtectedRoute>
+                <Dashboard />
+            </ProtectedRoute>
+
+          } />
+
+          <Route path="/student-leaderboard" element={
+            <ProtectedRoute>
+                <Leaderboard />
+            </ProtectedRoute>
+
           } />
 
           <Route path="/roadmap" element={
@@ -571,10 +589,10 @@ function App() {
             </ProtectedRoute>
           } />
 
-          <Route path="/story-building" element={
+          <Route path="/image-story" element={
             <ProtectedRoute>
               <CommunicationPraticeLayout>
-                <StoryBuilding />
+                <ImageStory />
               </CommunicationPraticeLayout>
             </ProtectedRoute>
           } />
@@ -591,6 +609,13 @@ function App() {
             <ProtectedRoute>
               <CommunicationPraticeLayout>
                 <ImageSpeak />
+              </CommunicationPraticeLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/situation-speak" element={
+            <ProtectedRoute>
+              <CommunicationPraticeLayout>
+                <SituationSpeak />
               </CommunicationPraticeLayout>
             </ProtectedRoute>
           } />

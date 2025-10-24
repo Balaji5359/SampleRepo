@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './landing.css';
 
-import LandingPageImage from './landingpageimage.jpg'
-import LandingPageImage1 from './landingpageimage1.jpg';
-import LandingPageImage2 from './landingpageimage2.jpg';
-import LandingPageImage3 from './landingpageimage3.jpg';
+
 
 function LandingPage() {
   const [activeModal, setActiveModal] = useState(null);

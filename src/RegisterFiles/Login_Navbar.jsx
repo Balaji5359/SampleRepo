@@ -95,26 +95,26 @@ function Login_Navbar() {
                     </a>
 
                     <a
-                        href="/profiledata"
+                        href="/student-dashboard"
                         className="text-gray-600 hover:text-gray-900 transition-colors"
                         onClick={(e) => {
                             e.preventDefault();
                             document.body.style = "";
                             document.body.className = "";
-                            window.location.href = "/profiledata";
+                            window.location.href = "/student-dashboard";
                         }}
                     >
                         Dashboard
                     </a>
 
                     <a
-                        href="/leaderboard"
-                        className="text-white bg-blue-600 hover:bg-blue-700 transition-colors px-3 py-1 rounded-md font-medium"
+                        href="/student-leaderboard"
+                        className="text-white bg-600 hover:bg-blue-700 transition-colors px-3 py-1 rounded-md font-medium"
                         onClick={(e) => {
                             e.preventDefault();
                             document.body.style = "";
                             document.body.className = "";
-                            window.location.href = "/profiledata";
+                            window.location.href = "/student-leaderboard";
                         }}
                         title="Leaderboard"
                     >
