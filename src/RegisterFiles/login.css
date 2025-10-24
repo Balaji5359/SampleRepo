@@ -14,10 +14,9 @@
 
 body.auth-page {
   font-family: 'Inter', 'Poppins', sans-serif;
-  background: linear-gradient(135deg, #0f4c4c 0%, #2d6a6a 25%, #3B9797 50%, #5bb5b5 75%, #7dd3d3 100%);
+  background: transparent;
   min-height: 100vh;
   overflow-x: hidden;
-  animation: gradientShift 8s ease-in-out infinite;
 }
 
 /* smoother root-level entry animation */
@@ -28,10 +27,6 @@ body.auth-page {
   align-items: center;
   justify-content: center;
   padding: 20px;
-  animation: entryRoot var(--entry-duration) var(--easing) both;
-  will-change: opacity, transform;
-  /* keep transitions for hover interactions separate and snappy */
-  transition: transform 300ms var(--easing), box-shadow 300ms var(--easing);
 }
 
 @keyframes entryRoot {
@@ -55,12 +50,20 @@ body.auth-page {
   -webkit-backdrop-filter: blur(25px);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 30px;
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(59, 151, 151, 0.1);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.25);
   overflow: hidden;
   min-height: 600px;
-  animation: layoutEntry calc(var(--entry-duration) + 200ms) var(--easing) both;
-  transition: transform 300ms var(--easing), box-shadow 300ms var(--easing);
-  will-change: transform, opacity;
+  transition: all 1.5s ease;
+}
+
+.auth-layout.form-focused {
+  display: flex;
+  max-width: 450px;
+  background: rgba(255, 255, 255, 0.95);
+  min-height: auto;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 @keyframes layoutEntry {
@@ -84,6 +87,16 @@ body.auth-page {
   justify-content: center;
   color: white;
   position: relative;
+  overflow: hidden;
+  transition: width 1.5s ease, padding 1.5s ease, opacity 1.5s ease;
+  width: 100%;
+  opacity: 1;
+}
+
+.auth-layout.form-focused .welcome-section {
+  width: 0;
+  padding: 0;
+  opacity: 0;
   overflow: hidden;
 }
 
@@ -196,8 +209,36 @@ body.auth-page {
   background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  /* staggered but subtle */
-  animation: contentEntry 600ms var(--easing) calc(var(--stagger) + 240ms) both;
+  transition: all 1.5s ease;
+}
+
+.auth-layout.form-focused .form-section {
+  padding: 0;
+  min-height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.auth-layout.form-focused .form-container {
+  padding: 20px;
+  margin: 0;
+  width: 100%;
+  background: transparent;
+}
+
+.auth-layout.form-focused .brand-header {
+  margin-bottom: 15px;
+  margin-top: 0;
+}
+
+.auth-layout.form-focused .brand-header h2 {
+  margin-bottom: 5px;
+}
+
+.auth-layout.form-focused .brand-header p {
+  margin-bottom: 15px;
 }
 
 @keyframes slideInRight {
@@ -369,7 +410,7 @@ body.auth-page {
 }
 
 .input-group {
-  animation: slideInUp 0.6s ease-out calc(1s + var(--delay, 0s)) both;
+  animation: none;
 }
 
 .input-group:nth-child(1) { --delay: 0s; }
@@ -412,7 +453,7 @@ body.auth-page {
 }
 
 .remember-me {
-  animation: slideInUp 0.6s ease-out 1.3s both;
+  animation: none;
 }
 
 .remember-me label {

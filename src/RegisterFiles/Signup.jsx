@@ -17,6 +17,7 @@ function SignUp() {
     const [error, setError] = useState("");
     const [showErrorCard, setShowErrorCard] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
+    const [showForm, setShowForm] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -38,6 +39,10 @@ function SignUp() {
             ...formData,
             [e.target.name]: e.target.value
         });
+    };
+
+    const handleInputFocus = () => {
+        setShowForm(true);
     };
 
     const handleSubmit = async (e) => {
@@ -141,7 +146,7 @@ function SignUp() {
 
     return (
         <div className="auth-container">
-            <div className="auth-layout">
+            <div className={`auth-layout ${showForm ? 'form-focused' : ''}`}>
                 {/* Welcome Section - Desktop Only */}
                 <div className="welcome-section">
                     <div className="welcome-content">
@@ -170,6 +175,7 @@ function SignUp() {
                             >
                                 Sign Up
                             </button>
+                          
                             <button
                                 className={isLogin ? 'tab active' : 'tab'}
                                 onClick={() => setIsLogin(true)}
@@ -199,6 +205,7 @@ function SignUp() {
                                     name="email"
                                     value={formData.email}
                                     onChange={handleInputChange}
+                                    onFocus={handleInputFocus}
                                     placeholder="Email"
                                     required
                                 />
@@ -210,6 +217,7 @@ function SignUp() {
                                     name="password"
                                     value={formData.password}
                                     onChange={handleInputChange}
+                                    onFocus={handleInputFocus}
                                     placeholder="Password"
                                     required
                                 />

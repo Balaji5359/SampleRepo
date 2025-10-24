@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './landing.css';
 
 import LandingPageImage from './landingpageimage.jpg'
@@ -9,34 +9,75 @@ import LandingPageImage3 from './landingpageimage3.jpg';
 function LandingPage() {
   const [activeModal, setActiveModal] = useState(null);
 
+  useEffect(() => {
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-in');
+        }
+      });
+    }, observerOptions);
+
+    const animateElements = document.querySelectorAll('.stats, .features, .activities, .pricing');
+    animateElements.forEach(el => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, []);
+
+  const handleNavClick = (e, targetId) => {
+    e.preventDefault();
+    const element = document.getElementById(targetId);
+    if (element) {
+      const headerHeight = 120;
+      const elementPosition = element.offsetTop - headerHeight;
+      window.scrollTo({
+        top: elementPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   const activities = [
     {
       id: 'jam',
       title: 'JAM Sessions',
       description: 'Just A Minute speaking sessions to improve spontaneous communication',
-      icon: <img src="https://cdn2.iconfinder.com/data/icons/timer-flat/64/timer-11-512.png" alt="timer" style={{ width: 80, height: 75 }} />,
-      color: '#aeb5c0ff'
+      icon: <img src="https://cdn2.iconfinder.com/data/icons/timer-flat/64/timer-11-512.png" alt="timer" style={{ width: 50, height: 50 }} />
     },
     {
       id: 'pronunciation',
       title: 'Pronunciation Test',
       description: 'Perfect your pronunciation with AI-powered feedback',
-      icon: <img src="https://cdn1.iconfinder.com/data/icons/miscellaneous-306-solid/128/accent_pronunciation_talk_pronouncing_diction_parlance_language-128.png" alt="timer" style={{ width: 70, height: 70 }} />,
-      color: '#aeb5c0ff'
+      icon: <img src="https://cdn1.iconfinder.com/data/icons/miscellaneous-306-solid/128/accent_pronunciation_talk_pronouncing_diction_parlance_language-128.png" alt="pronunciation" style={{ width: 50, height: 50 }} />
     },
     {
       id: 'image',
       title: 'Image-Based Speaking',
       description: 'Describe images to enhance vocabulary and fluency',
-      icon: <img src="https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-image-128.png" alt="timer" style={{ width: 80, height: 75 }} />,
-      color: '#aeb5c0ff'
+      icon: <img src="https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-image-128.png" alt="image" style={{ width: 50, height: 50 }} />
     },
     {
       id: 'story',
       title: 'Story Building',
       description: 'Create and narrate stories to boost creative communication',
-      icon: <img src="https://cdn2.iconfinder.com/data/icons/refugee-crisis/64/storytelling-story-teach-method-plan-128.png" alt="timer" style={{ width: 80, height: 75 }} />,
-      color: '#aeb5c0ff'
+      icon: <img src="https://cdn2.iconfinder.com/data/icons/refugee-crisis/64/storytelling-story-teach-method-plan-128.png" alt="story" style={{ width: 50, height: 50 }} />
+    },
+    {
+      id: 'translate',
+      title: 'Translate & Speak',
+      description: 'Practice translation and speaking skills with real-time feedback',
+      icon: <img src="https://cdn2.iconfinder.com/data/icons/translation-1/513/translation-translate-language-international-translating_2_copy_14-512.png" alt="translate" style={{ width: 50, height: 50 }} />
+    },
+    {
+      id: 'vocabulary',
+      title: 'Vocabulary Builder',
+      description: 'Expand your vocabulary with interactive learning exercises',
+      icon: <img src="https://cdn1.iconfinder.com/data/icons/language-courses-3/504/vocabulary-language-translate-studying-learn-128.png" alt="vocabulary" style={{ width: 50, height: 50 }} />
     }
   ];
 
@@ -49,11 +90,11 @@ function LandingPage() {
             <span className="logo-icon">🚀</span>
             <span className="logo-text">Skill Route</span>
             <div className="nav-links">
-              <a href="#home">Home</a>
-              <a href="#features">Features</a>
-              <a href="#activities">Activities</a>
-              <a href="#pricing">Pricing</a>
-              <a href="#contact">Contact</a>    
+              <a href="#home" onClick={(e) => handleNavClick(e, 'home')}>Home</a>
+              <a href="#features" onClick={(e) => handleNavClick(e, 'features')}>Features</a>
+              <a href="#activities" onClick={(e) => handleNavClick(e, 'activities')}>Activities</a>
+              <a href="#pricing" onClick={(e) => handleNavClick(e, 'pricing')}>Pricing</a>
+              <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')}>Contact</a>    
             </div>       
           </div>
 
@@ -75,29 +116,37 @@ function LandingPage() {
                       >Get Started
               </button>
               
-              <h2 style={{color:"wheat"}}> - Speak you first word now!...</h2>
+              <h2 style={{color:"#FFD700", fontWeight: "bold", textShadow: "2px 2px 4px rgba(0,0,0,0.3)"}}> - Speak your first word now!...</h2>
             </div>
           </div>
           <div className="hero-visual">
             <div className="floating-card">
-              <div className="card-icon">🎯</div>
+              <div className="card-icon"><img src="https://cdn2.iconfinder.com/data/icons/xomo-basics/128/document-05-128.png" alt="feedback" style={{ width: 40, height: 40 }} /></div>
               <div className="card-text">
                 <h4>AI Feedback</h4>
                 <p>Real-time analysis</p>
               </div>
             </div>
             <div className="floating-card">
-              <div className="card-icon">📈</div>
+              <div className="card-icon"><img src="https://cdn0.iconfinder.com/data/icons/business-management-3-4/256/m-21-128.png" alt="progress" style={{ width: 40, height: 40 }} /></div>
               <div className="card-text">
                 <h4>Progress Tracking</h4>
                 <p>Visual insights</p>
               </div>
+            
             </div>
             <div className="floating-card">
-              <div className="card-icon">🏆</div>
+              <div className="card-icon"><img src="https://cdn0.iconfinder.com/data/icons/business-startup-10/50/33-128.png" alt="achievements" style={{ width: 40, height: 40 }} /></div>
               <div className="card-text">
                 <h4>Achievements</h4>
                 <p>Milestone rewards</p>
+              </div>
+            </div>
+            <div className="floating-card">
+              <div className="card-icon"><img src="https://cdn2.iconfinder.com/data/icons/artificial-intelligence-6/64/ArtificialIntelligence5-128.png" alt="speak with ai" style={{ width: 40, height: 40 }} /></div>
+              <div className="card-text">
+                <h4>Speak with AI</h4>
+                <p>Voice interaction</p>
               </div>
             </div>
           </div>
@@ -135,19 +184,31 @@ function LandingPage() {
         <div className="features-grid">
           <div className="feature-card">
             <div className="feature-number">01</div>
-            <div className="feature-icon">📊</div>
+            <div className="feature-icon">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
             <h3>Assess Your Level</h3>
             <p>Take our comprehensive assessment to understand your current speaking abilities and get personalized recommendations.</p>
           </div>
           <div className="feature-card">
             <div className="feature-number">02</div>
-            <div className="feature-icon">🎯</div>
+            <div className="feature-icon">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
             <h3>Practice Daily</h3>
             <p>Engage with interactive activities, JAM sessions, and AI-powered exercises tailored to your learning goals.</p>
           </div>
           <div className="feature-card">
             <div className="feature-number">03</div>
-            <div className="feature-icon">📈</div>
+            <div className="feature-icon">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" />
+              </svg>
+            </div>
             <h3>Track Progress</h3>
             <p>Monitor your improvement with detailed analytics, feedback, and milestone achievements to stay motivated.</p>
           </div>
@@ -167,7 +228,7 @@ function LandingPage() {
               className="activity-card"
               onClick={() => setActiveModal(activity.id)}
             >
-              <div className="activity-icon" style={{ backgroundColor: activity.color }}>
+              <div className="activity-icon">
                 {activity.icon}
               </div>
               <h3>{activity.title}</h3>
@@ -186,7 +247,7 @@ function LandingPage() {
           <h2>Choose Your Learning Path</h2>
           <p>Flexible plans designed for every learner's needs</p>
         </div>
-        <div className="pricing-grid">
+        <div className="pricing-container">
           <div className="pricing-card">
             <div className="plan-badge">Free</div>
             <div className="plan-price">
@@ -237,19 +298,6 @@ function LandingPage() {
             </ul>
             <button className="plan-btn">Go Premium</button>
           </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="cta-section">
-        <div className="cta-content">
-          <h2>Ready to Transform Your Communication Skills?</h2>
-          <p>Join thousands of learners who have improved their speaking confidence with Skill Route</p>
-          <button className="btn-profile">
-            <span className="sparkle">✨</span>
-            Complete Your Profile
-            <div className="btn-glow"></div>
-          </button>
         </div>
       </section>
 
