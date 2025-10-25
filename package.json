@@ -12,6 +12,7 @@
   "dependencies": {
     "@aws-sdk/client-polly": "^3.830.0",
     "@aws-sdk/client-transcribe-streaming": "^3.830.0",
+    "@tailwindcss/postcss": "^4.1.16",
     "axios": "^1.10.0",
     "lucide-react": "^0.539.0",
     "react": "^19.0.0",

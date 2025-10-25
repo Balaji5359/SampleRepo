@@ -247,12 +247,12 @@ body.auth-page {
 }
 
 .form-container {
-  width: 100%;
+  width: 200%;
   max-width: 450px;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border-radius: 20px;
+  border-radius: 10px;
   padding: 40px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -438,6 +438,45 @@ body.auth-page {
 .input-group input::placeholder {
   color: #6c757d;
   font-weight: 400;
+}
+
+.input-group select {
+  width: 100%;
+  padding: 18px 20px;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  font-size: 18px;
+  background: white;
+  color: #1a1a1a;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.input-group select:focus {
+  outline: none;
+  border-color: #3B9797;
+  box-shadow: 0 0 0 3px rgba(59, 151, 151, 0.1);
+}
+
+.password-group {
+  position: relative;
+}
+
+.eye-button {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #6c757d;
+  transition: color 0.3s ease;
+}
+
+.eye-button:hover {
+  color: #3B9797;
 }
 
 .remember-me {

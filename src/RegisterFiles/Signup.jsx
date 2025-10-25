@@ -8,8 +8,12 @@ function SignUp() {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
-        password: ''
+        password: '',
+        confirmPassword: '',
+        collegeName: ''
     });
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [message, setMessage] = useState("");
     const [statusCode, setStatusCode] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -53,10 +57,11 @@ function SignUp() {
 
         if (isLogin) {
             // Login API call
-            const url = "https://jaumunpkj2.execute-api.ap-south-1.amazonaws.com/dev/signup/login";
+            const url = process.env.REACT_APP_LOGIN_API_URL;
             const userdata = {
-                email: formData.email,
+                college_email: formData.email,
                 password: formData.password,
+                college_name: formData.collegeName
             };
             const headers = {
                 "Content-Type": "application/json",
@@ -81,6 +86,7 @@ function SignUp() {
 
                 if (data.statusCode === 200) {
                     localStorage.setItem("email", formData.email);
+                    alert("Welcome back to Skill Route!");
                     navigate("/profiledata");
                 } else {
                     // Show error card for login failures
@@ -95,16 +101,23 @@ function SignUp() {
                 setIsLoading(false);
             }
         } else {
+            // Check password confirmation
+            if (formData.password !== formData.confirmPassword) {
+                setErrorMessage("Passwords do not match.");
+                setShowErrorCard(true);
+                setIsLoading(false);
+                return;
+            }
+            
             // Signup API call
             const userData = {
-                body: {
-                    name: formData.name,
-                    email: formData.email,
-                    password: formData.password
-                }
+                college_email: formData.email,
+                full_name: formData.name,
+                password: formData.password,
+                college_name: formData.collegeName
             };
             
-            const url = 'https://jaumunpkj2.execute-api.ap-south-1.amazonaws.com/dev/signup';
+            const url = process.env.REACT_APP_SIGNUP_API_URL;
             const headers = {
                 'Content-Type': 'application/json'
             };
@@ -128,6 +141,7 @@ function SignUp() {
                 
                 if (data.statusCode === 200) {
                     localStorage.setItem("email", formData.email);
+                    alert("Welcome to Skill Route!");
                     navigate("/profile-creation-survey");
                 } else {
                     // Show error card for signup failures (e.g., invalid college email)
@@ -163,9 +177,10 @@ function SignUp() {
                 <div className="form-section">
                     <div className="form-container">
                         <div className="brand-header">
-                            <h2>Welcome to Skill Route!</h2>
+                            <h2>{isLogin ? 'Welcome Back' : 'Welcome to Skill Route'}</h2>
                             <p>{isLogin ? 'Sign in to continue' : 'Register now'}</p>
                         </div>
+
 
                         <div className="form-tabs">
                             <button
@@ -206,14 +221,28 @@ function SignUp() {
                                     value={formData.email}
                                     onChange={handleInputChange}
                                     onFocus={handleInputFocus}
-                                    placeholder="Email"
+                                    placeholder="College Email"
                                     required
                                 />
                             </div>
 
                             <div className="input-group">
+                                <select
+                                    name="collegeName"
+                                    value={formData.collegeName}
+                                    onChange={handleInputChange}
+                                    onFocus={handleInputFocus}
+                                    required
+                                >
+                                    <option value="">Select College</option>
+                                    <option value="MITS University">MITS University</option>
+                                    <option value="ABCD University">ABCD University</option>
+                                </select>
+                            </div>
+
+                            <div className="input-group password-group">
                                 <input
-                                    type="password"
+                                    type={showPassword ? "text" : "password"}
                                     name="password"
                                     value={formData.password}
                                     onChange={handleInputChange}
@@ -221,7 +250,35 @@ function SignUp() {
                                     placeholder="Password"
                                     required
                                 />
+                                <button
+                                    type="button"
+                                    className="eye-button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                >
+                                    {/* {showPassword ? '👁️' : '🙈'} */}
+                                </button>
                             </div>
+
+                            {!isLogin && (
+                                <div className="input-group password-group">
+                                    <input
+                                        type={showConfirmPassword ? "text" : "password"}
+                                        name="confirmPassword"
+                                        value={formData.confirmPassword}
+                                        onChange={handleInputChange}
+                                        onFocus={handleInputFocus}
+                                        placeholder="Confirm Password"
+                                        required
+                                    />
+                                    <button
+                                        type="button"
+                                        className="eye-button"
+                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    >
+                                        {/*showConfirmPassword ? '👁️' : '🙈'*/}
+                                    </button>
+                                </div>
+                            )}
 
                             {isLogin && (
                                 <div className="remember-me">
