@@ -272,7 +272,7 @@ function LandingPage() {
               </div>
               <h3>{activity.title}</h3>
               <p>{activity.description}</p>
-               <button className="activity-btn">
+              <button className="activity-btn">
                 WATCH DEMO <span>→</span>
               </button>
             </div>

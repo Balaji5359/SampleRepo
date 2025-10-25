@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import "./dashboard-navbar.css";
 
-function Login_Navbar() {
+function Login_Navbar({ onProfileClick }) {
     const [menuOpen, setMenuOpen] = useState(false);
     const [userName, setUserName] = useState("");
     const [streakCount] = useState(7); // Mock streak data
@@ -129,7 +129,7 @@ function Login_Navbar() {
                         <span className="streak-number">{streakCount}</span>
                     </div>
 
-                    <div className="user-profile">
+                    <div className="user-profile" onClick={onProfileClick} style={{ cursor: "pointer" }}>
                         <div className="profile-avatar">
                             <i className="fas fa-user-circle"></i>
                         </div>

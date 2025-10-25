@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Login_Navbar from "../RegisterFiles/Login_Navbar";
 import "./profile.css";
-import '../LandingPageFiles/landing.css';
+// import '../LandingPageFiles/landing.css';
 
 function ProfileData() {
     const navigate = useNavigate();
@@ -15,34 +15,36 @@ function ProfileData() {
     const [greeting, setGreeting] = useState("");
     const [motivationalQuote, setMotivationalQuote] = useState("");
     const [userData, setUserData] = useState({
-        Name: "",
+        full_name: "",
         gender: "",
-        dob: "",
+        date_of_birth: "",
         age: "",
-        email: "",
-        phone: "",
-        city: "",
-        state: "",
-        collegeName: "",
+        username: "",
+        roll_no: "",
+        user_type: "",
+        college_email: "",
+        college_name: "",
         program: "",
         branch: "",
-        yearOfStudy: "",
-        hobbies: "",
-        about: "",
-        username: "",
-        student_id: "",
-        user_type: "",
-        account_create_date: "",
-        account_create_time: "",
+        year: "",
+        sem: "",
+        section: "",
+        account_creation_date: "",
+        account_creation_time: "",
+        profile_last_updated: "",
+        unique_id: "",
     });
 
     // Mock data for analytics and leaderboard
-    const [analyticsData] = useState({
+    const [analyticsData, setAnalyticsData] = useState({
         averageJAMScore: 78,
         totalTests: 24,
         improvementRate: 15,
         weeklyProgress: [65, 70, 75, 78, 82, 85, 88]
     });
+    const [totalTests, setTotalTests] = useState(0);
+    const [profileApiData, setProfileApiData] = useState(null);
+    const [showProfilePopup, setShowProfilePopup] = useState(false);
 
     const [leaderboardData] = useState({
         overall: [
@@ -82,7 +84,7 @@ function ProfileData() {
 
         // Fetch user data
         setLoading(true);
-        const url = 'https://jaumunpkj2.execute-api.ap-south-1.amazonaws.com/dev/signup/login/profile_data/send_data';
+        const url = 'https://ntjkr8rnd6.execute-api.ap-south-1.amazonaws.com/dev/student_profilecreate/student_profile_senddata';
         const storedEmail = localStorage.getItem("email");
         if (!storedEmail) {
             setLoading(false);
@@ -93,7 +95,7 @@ function ProfileData() {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ email: storedEmail }),
+            body: JSON.stringify({ college_email: storedEmail }),
         })
             .then((response) => response.json())
             .then((data) => {
@@ -102,27 +104,26 @@ function ProfileData() {
                     try {
                         const parsedData = typeof data.body === "string" ? JSON.parse(data.body) : data.body;
                         setUserData({
-                            Name: parsedData.name || "",
+                            full_name: parsedData.full_name || "",
                             gender: parsedData.gender || "",
-                            dob: parsedData.dob || "",
+                            date_of_birth: parsedData.date_of_birth || "",
                             age: parsedData.age || "",
-                            email: parsedData.email || "",
-                            phone: parsedData.phone || "",
-                            city: parsedData.city || "",
-                            state: parsedData.state_of_student || "",
-                            collegeName: parsedData.collegename || "",
+                            username: parsedData.username || "",
+                            roll_no: parsedData.roll_no || "",
+                            user_type: parsedData.user_type || "",
+                            college_email: parsedData.college_email || "",
+                            college_name: parsedData.college_name || "",
                             program: parsedData.program || "",
                             branch: parsedData.branch || "",
-                            yearOfStudy: parsedData.year_of_study || "",
-                            hobbies: parsedData.hobbies || "",
-                            about: parsedData.about || "",
-                            username: parsedData.username || "",
-                            student_id: parsedData.student_id || "",
-                            user_type: parsedData.user_type || "",
-                            account_create_date: parsedData.account_create_date || "",
-                            account_create_time: parsedData.account_create_time || "",
+                            year: parsedData.year || "",
+                            sem: parsedData.sem || "",
+                            section: parsedData.section || "",
+                            account_creation_date: parsedData.account_creation_date || "",
+                            account_creation_time: parsedData.account_creation_time || "",
+                            profile_last_updated: parsedData.profile_last_updated || "",
+                            unique_id: parsedData.unique_id || "",
                         });
-                        
+
                         if (parsedData.subscription_plan && parsedData.payment_status === 'success') {
                             setSubscriptionData({
                                 subscription_plan: parsedData.subscription_plan,
@@ -131,13 +132,13 @@ function ProfileData() {
                                 payment_time: parsedData.payment_time,
                                 payment_id: parsedData.payment_id
                             });
-                            
+
                             const paymentDate = new Date(parsedData.payment_date);
                             const planDuration = parsedData.subscription_plan === '1 month' ? 30 : 90;
                             const expiryDate = new Date(paymentDate.getTime() + (planDuration * 24 * 60 * 60 * 1000));
                             const today = new Date();
                             const daysRemaining = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
-                            
+
                             setDaysLeft(Math.max(0, daysRemaining));
                         }
                     } catch (e) {
@@ -150,6 +151,37 @@ function ProfileData() {
                 console.error('Error fetching data:', error);
                 setLoading(false);
             });
+
+        // Fetch profile API data for popup
+        const profileUrl = 'https://ntjkr8rnd6.execute-api.ap-south-1.amazonaws.com/dev/student_profilecreate/student_profile_senddata';
+        fetch(profileUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ college_email: storedEmail }),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                setProfileApiData(data);
+                if (data && data.body) {
+                    const parsedProfileData = typeof data.body === "string" ? JSON.parse(data.body) : data.body;
+                    // Calculate total tests
+                    const testKeys = Object.keys(parsedProfileData).filter(key => key.includes('-Test-Id'));
+                    let total = 0;
+                    testKeys.forEach(key => {
+                        const tests = parsedProfileData[key];
+                        total += Object.keys(tests).length;
+                    });
+                    setTotalTests(total);
+                    setAnalyticsData(prev => ({ ...prev, totalTests: total }));
+                }
+            })
+
+            .catch((error) => {
+                console.error('Error fetching profile data:', error);
+            });
+
     }, []);
 
     if (loading) {
@@ -164,15 +196,23 @@ function ProfileData() {
         );
     }
 
+    const handleProfileClick = () => {
+        setShowProfilePopup(true);
+    };
+
+    const closeProfilePopup = () => {
+        setShowProfilePopup(false);
+    };
+
     return (
         <>
-            <Login_Navbar />
-            <div className="dashboard-container">
+            <Login_Navbar onProfileClick={handleProfileClick} />
+            <div className="dashboard-container"><br></br><br></br>
                 {/* Header Section */}
                 <div className="dashboard-header">
                     <div className="greeting-section">
                         <h1 className="greeting-text">
-                            {greeting}, {userData.Name || "Student"}! 👋
+                            {greeting}, {userData.full_name || "Student"}! 👋
                         </h1>
                         <p className="motivational-quote">"{motivationalQuote}"</p>
                     </div>
@@ -185,81 +225,109 @@ function ProfileData() {
 
 
                 {/* Subscription Status */}
-                {userData.user_type === 'free' && (
-                    <div className="upgrade-banner">
-                        <div className="banner-content">
-                            <div className="banner-icon">🚀</div>
-                            <div className="banner-text">
-                                <h4>Unlock Premium Features</h4>
-                                <p>Get unlimited access to all tests, detailed analytics, and personalized coaching</p>
+                {userData.user_type === "free" && (
+                    <>
+                    <div className="subscription-banner">
+                        <div className="subscription-content">
+                            <div className="subscription-icon">🎯</div>
+                            <div className="subscription-text">
+                                <h3>You're on the Free Plan</h3>
+                                <p>Upgrade to unlock unlimited access to all features and premium content</p>
                             </div>
-                            {/* <Link to="/pro-plans">
-                                <button className="upgrade-btn">Upgrade to Pro</button>
-                            </Link> */}
+                            <button className="upgrade-btn" onClick={() => navigate('/pricing')}>Upgrade Now</button>
                         </div>
-
-                    {/* Pricing Section */}
-                    <section id="pricing" className="pricing">
+                    </div>
+                    <div>
+                        <section id="pricing" className="pricing">
                         <div className="section-header">
-                        <h2>Choose Your Learning Path</h2>
-                        <p>Flexible plans designed for every learner's needs</p>
+                            <h2>Choose Your Learning Path</h2>
+                            <p>Flexible plans designed for every learner's needs</p>
                         </div>
-                        <div className="pricing-grid">
-                        <div className="pricing-card">
-                            <div className="plan-badge">Free</div>
-                            <div className="plan-price">
-                            <span className="currency">$</span>
-                            <span className="amount">0</span>
-                            <span className="period">/month</span>
+                        <div className="pricing-container">
+                            <div className="pricing-card current-plan">
+                                <div className="plan-badge current">Current Plan</div>
+                                <div className="plan-price">
+                                    <span className="currency">₹</span>
+                                    <span className="amount">0</span>
+                                    <span className="period">/Free Trial</span>
+                                </div>
+                                <ul className="plan-features">
+                                    <li>✓ 1 Free trial for JAM</li>
+                                    <li>✓ 1 Free trial for Image-Based Speaking</li>
+                                    <li>✓ Limited AI feedback</li>
+                                    <li>✓ Basic progress tracking</li>
+                                    <li>✗ Advanced analytics</li>
+                                    <li>✗ Premium activities</li>
+                                </ul>
+                                <button className="plan-btn current-btn" disabled>Current Plan</button>
                             </div>
-                            <ul className="plan-features">
-                            <li>✓ Basic JAM sessions</li>
-                            <li>✓ Limited AI feedback</li>
-                            <li>✓ Progress tracking</li>
-                            <li>✗ Advanced analytics</li>
-                            <li>✗ Premium activities</li>
-                            </ul>
-                            <button className="plan-btn">Start Free</button>
-                        </div>
-                        
-                        <div className="pricing-card featured">
-                            <div className="plan-badge popular">Most Popular</div>
-                            <div className="plan-price">
-                            <span className="currency">$</span>
-                            <span className="amount">9</span>
-                            <span className="period">/month</span>
+
+                            <div className="pricing-card">
+                                <div className="plan-badge">1 Month</div>
+                                <div className="plan-price">
+                                    <span className="currency">₹</span>
+                                    <span className="amount">199</span>
+                                    <span className="period">/month</span>
+                                </div>
+                                <ul className="plan-features">
+                                    <li>✓ Access to all activities</li>
+                                    <li>✓ 1 free trial for every test</li>
+                                    <li>✓ 10 min practice sessions</li>
+                                    <li>✓ 2 free Image-Based Speaking trials</li>
+                                    <li>✓ Basic AI feedback</li>
+                                    <li>✓ Progress tracking</li>
+                                </ul>
+                                <button className="plan-btn">Get Started</button>
                             </div>
-                            <ul className="plan-features">
-                            <li>✓ All free features</li>
-                            <li>✓ Advanced AI feedback</li>
-                            <li>✓ All practice activities</li>
-                            <li>✓ Detailed analytics</li>
-                            <li>✓ Priority support</li>
-                            </ul>
-                            <button className="plan-btn">Upgrade Now</button>
-                        </div>
-                        
-                        <div className="pricing-card">
-                            <div className="plan-badge">Premium</div>
-                            <div className="plan-price">
-                            <span className="currency">$</span>
-                            <span className="amount">19</span>
-                            <span className="period">/month</span>
+
+                            <div className="pricing-card featured">
+                                <div className="plan-badge popular">Most Popular</div>
+                                <div className="plan-price">
+                                    <span className="currency">₹</span>
+                                    <span className="amount">499</span>
+                                    <span className="period">/3 months</span>
+                                </div>
+                                <ul className="plan-features">
+                                    <li>✓ Access to all activities</li>
+                                    <li>✓ 2 free trials for every test</li>
+                                    <li>✓ 20 min practice sessions</li>
+                                    <li>✓ 3 free Image-Based Speaking trials</li>
+                                    <li>✓ Advanced AI feedback</li>
+                                    <li>✓ Detailed analytics</li>
+                                    <li>✓ Progress tracking</li>
+                                </ul>
+                                <button className="plan-btn">Upgrade Now</button>
                             </div>
-                            <ul className="plan-features">
-                            <li>✓ Everything in Pro</li>
-                            <li>✓ 1-on-1 coaching</li>
-                            <li>✓ Custom learning paths</li>
-                            <li>✓ Certification prep</li>
-                            <li>✓ 24/7 support</li>
-                            </ul>
-                            <button className="plan-btn">Go Premium</button>
-                        </div>
+
+                            <div className="pricing-card">
+                                <div className="plan-badge">Premium</div>
+                                <div className="plan-price">
+                                    <span className="currency">₹</span>
+                                    <span className="amount">1399</span>
+                                    <span className="period">/year 🌟</span>
+                                </div>
+                                <ul className="plan-features">
+                                    <li>✓ Everything in Pro</li>
+                                    <li>✓ Unlimited test trials</li>
+                                    <li>✓ 40 min practice sessions</li>
+                                    <li>✓ 5 free Image-Based Speaking trials</li>
+                                    <li>✓ Premium AI feedback</li>
+                                    <li>✓ 24/7 support</li>
+                                </ul>
+                                <button className="plan-btn">Go Premium</button>
+                            </div>
                         </div>
                     </section>
-
                     </div>
+                    </>
                 )}
+
+                {/* Debug user type */}
+                {/* <div style={{padding: '1rem', background: '#f0f0f0', margin: '1rem 0'}}>
+                    <p>Debug: User Type = "{userData.user_type}"</p>
+                    <p>Show Pricing: {userData.user_type === "free" ? "Yes" : "No"}</p>
+                </div> */}
+
 
 
                 {/* Action Buttons */}
@@ -279,8 +347,8 @@ function ProfileData() {
                         </div>
                     </button>
                 </div>
-                
-                
+
+
                 {/* Dashboard Grid */}
                 <div className="dashboard-grid">
                     {/* Analytics Card */}
@@ -370,8 +438,8 @@ function ProfileData() {
                         <div className="progress-chart">
                             {analyticsData.weeklyProgress.map((score, index) => (
                                 <div key={index} className="progress-bar">
-                                    <div 
-                                        className="progress-fill" 
+                                    <div
+                                        className="progress-fill"
                                         style={{ height: `${score}%` }}
                                     ></div>
                                     <span className="day-label">
@@ -383,7 +451,7 @@ function ProfileData() {
                     </div>
                 </div>
 
-                
+
 
                 {/* Chatbot */}
                 {/* <div className="chatbot-container">
@@ -393,6 +461,100 @@ function ProfileData() {
                     </button>
                 </div> */}
             </div>
+
+            {/* Profile Popup */}
+            {showProfilePopup && (
+                <div className="profile-popup-overlay" onClick={closeProfilePopup}>
+                    <div className="profile-popup" onClick={(e) => e.stopPropagation()}>
+                        <div className="profile-popup-header">
+                            <h2>User Profile</h2>
+                            <button className="close-popup-btn" onClick={closeProfilePopup}>×</button>
+                        </div>
+                        <div className="profile-popup-content">
+                            <div className="profile-avatar-section">
+                                <div className="profile-avatar-circle">
+                                    {userData.full_name ? userData.full_name.charAt(0).toUpperCase() : "U"}
+                                </div>
+                                <h3>{userData.full_name || "User"}</h3>
+                            </div>
+                            <div className="profile-details">
+                                <div className="profile-detail-item">
+                                    <span className="detail-label">Full Name:</span>
+                                    <span className="detail-value">{userData.full_name}</span>
+                                </div>
+                                <div className="profile-detail-item">
+                                    <span className="detail-label">Gender:</span>
+                                    <span className="detail-value">{userData.gender}</span>
+                                </div>
+                                <div className="profile-detail-item">
+                                    <span className="detail-label">Date of Birth:</span>
+                                    <span className="detail-value">{userData.date_of_birth}</span>
+                                </div>
+                                <div className="profile-detail-item">
+                                    <span className="detail-label">Age:</span>
+                                    <span className="detail-value">{userData.age}</span>
+                                </div>
+                                <div className="profile-detail-item">
+                                    <span className="detail-label">Username:</span>
+                                    <span className="detail-value">{userData.username}</span>
+                                </div>
+                                <div className="profile-detail-item">
+                                    <span className="detail-label">Roll No:</span>
+                                    <span className="detail-value">{userData.roll_no}</span>
+                                </div>
+                                <div className="profile-detail-item">
+                                    <span className="detail-label">User Type:</span>
+                                    <span className="detail-value">{userData.user_type}</span>
+                                </div>
+                                <div className="profile-detail-item">
+                                    <span className="detail-label">College Email:</span>
+                                    <span className="detail-value">{userData.college_email}</span>
+                                </div>
+                                <div className="profile-detail-item">
+                                    <span className="detail-label">College Name:</span>
+                                    <span className="detail-value">{userData.college_name}</span>
+                                </div>
+                                <div className="profile-detail-item">
+                                    <span className="detail-label">Program:</span>
+                                    <span className="detail-value">{userData.program}</span>
+                                </div>
+                                <div className="profile-detail-item">
+                                    <span className="detail-label">Branch:</span>
+                                    <span className="detail-value">{userData.branch}</span>
+                                </div>
+                                <div className="profile-detail-item">
+                                    <span className="detail-label">Year:</span>
+                                    <span className="detail-value">{userData.year}</span>
+                                </div>
+                                <div className="profile-detail-item">
+                                    <span className="detail-label">Semester:</span>
+                                    <span className="detail-value">{userData.sem}</span>
+                                </div>
+                                <div className="profile-detail-item">
+                                    <span className="detail-label">Section:</span>
+                                    <span className="detail-value">{userData.section}</span>
+                                </div>
+                                <div className="profile-detail-item">
+                                    <span className="detail-label">Account Creation Date:</span>
+                                    <span className="detail-value">{userData.account_creation_date}</span>
+                                </div>
+                                <div className="profile-detail-item">
+                                    <span className="detail-label">Account Creation Time:</span>
+                                    <span className="detail-value">{userData.account_creation_time}</span>
+                                </div>
+                                <div className="profile-detail-item">
+                                    <span className="detail-label">Profile Last Updated:</span>
+                                    <span className="detail-value">{userData.profile_last_updated}</span>
+                                </div>
+                                <div className="profile-detail-item">
+                                    <span className="detail-label">Unique ID:</span>
+                                    <span className="detail-value">{userData.unique_id}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 }
