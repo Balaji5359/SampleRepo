@@ -12,10 +12,9 @@ function Practice() {
     const navigate = useNavigate();
 
     const practices = [
-        { id: "jam", title: "JAM Test", description: "Speak on a random topic for 60 seconds.", icon: "🎤" },
-        { id: "pronunciation", title: "Pronunciation Test", description: "Improve your pronunciation.", icon: "👂" },
+        { id: "jam", title: "JAM Practice", description: "Speak on a random topic for 60 seconds.", icon: "🎤" },
         { id: "image-speaking", title: "Image-Based Speaking", description: "Describe images.", icon: "🖼️" },
-        { id: "situation-speak", title: "Situation-Based Speak", description: "Practice translation.", icon: "🌐" },
+        { id: "situation-speak", title: "Situation-Based Speaking", description: "Practice translation.", icon: "🌐" },
         { id: "translate-speak", title: "Translate & Speak", description: "Practice translation.", icon: "📝" },
         { id: "story-building", title: "Image-Story Building", description: "Create stories.", icon: "📖" }
     ];
@@ -279,6 +278,7 @@ function Practice() {
         <>
             <Login_Navbar />
             <div className="practice-container">
+                <h1>Communication Practice Activities</h1>
                 <div className={`practice-grid ${activeChallenge ? "blurred" : ""}`}>
                     {practices.map((practice) => (
                         <div

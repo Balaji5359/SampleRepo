@@ -40,8 +40,8 @@ const Test = lazy(() => import("./Main/Test.jsx"));
 const Signup = lazy(() => import("./RegisterFiles/Signup.jsx"));
 
 
-// Profile components
-const ProfileCreation = lazy(() => import("./StudentProfileFiles/ProfileCreation.jsx"));
+// // Profile components
+// const ProfileCreation = lazy(() => import("./StudentProfileFiles/ProfileCreation.jsx"));
 const ProfileData = lazy(() => import("./StudentProfileFiles/ProfileData.jsx"));
 const Progress = lazy(() => import("./StudentProfileFiles/Progress.jsx"));
 const RoadMap = lazy(() => import("./StudentProfileFiles/RoadMap.jsx"));
@@ -94,16 +94,15 @@ const GenAI_CarrerGuide = lazy(() => import("./GenAI_Folders/AI_InterviewToolsFo
 
 
 // Communication practice files
-const JAM = lazy(() => import("./CommunicationPraticeFiles/JAM.jsx"));
-const Pronunciation = lazy(() => import("./CommunicationPraticeFiles/Pronunciation.jsx"));
-const ImageStory = lazy(() => import("./CommunicationPraticeFiles/ImageStory.jsx"));
-const TranslateSpeak = lazy(() => import("./CommunicationPraticeFiles/TranslateSpeak.jsx"));
-const ImageSpeak = lazy(() => import("./CommunicationPraticeFiles/ImageSpeak.jsx"));
-
+const JAM = lazy(() => import("./CommunicationTestsFiles/JAM.jsx"));
+const Pronunciation = lazy(() => import("./CommunicationTestsFiles/Pronunciation.jsx"));
+const ImageStory = lazy(() => import("./CommunicationTestsFiles/ImageStory.jsx"));
+const TranslateSpeak = lazy(() => import("./CommunicationTestsFiles/TranslateSpeak.jsx"));
+const ImageSpeak = lazy(() => import("./CommunicationTestsFiles/ImageSpeak.jsx"));
+const SituationSpeak = lazy(() => import("./CommunicationTestsFiles/SituationSpeak.jsx"));
 // Dashboard and Leaderboard files
 const Dashboard = lazy(() => import("./Dashboard_LeaderboardFiles/Dashboard.jsx"));
 const Leaderboard = lazy(() => import("./Dashboard_LeaderboardFiles/Leaderboard.jsx"))
-const SituationSpeak = lazy(() => import("./CommunicationPraticeFiles/SituationSpeak.jsx"));
 
 const MainLayout = ({ children }) => (
   <>
@@ -303,11 +302,11 @@ function App() {
 
 
           {/* Protected routes */}
-          <Route path="/profilecreation" element={
+          {/* <Route path="/profilecreation" element={
             <MainLayout>
               <ProfileCreation />
             </MainLayout>
-          } />
+          } /> */}
           
           <Route path="/profiledata" element={
             <ProtectedRoute>

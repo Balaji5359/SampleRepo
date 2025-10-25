@@ -22,6 +22,7 @@ function SignUp() {
     const [showErrorCard, setShowErrorCard] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [showForm, setShowForm] = useState(false);
+    const [passwordMismatch, setPasswordMismatch] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -39,10 +40,18 @@ function SignUp() {
     }, [location.state]);
 
     const handleInputChange = (e) => {
+        const { name, value } = e.target;
         setFormData({
             ...formData,
-            [e.target.name]: e.target.value
+            [name]: value
         });
+        
+        // Check password confirmation in real-time
+        if (name === 'confirmPassword' || name === 'password') {
+            const password = name === 'password' ? value : formData.password;
+            const confirmPassword = name === 'confirmPassword' ? value : formData.confirmPassword;
+            setPasswordMismatch(password !== confirmPassword && confirmPassword !== '');
+        }
     };
 
     const handleInputFocus = () => {
@@ -57,7 +66,7 @@ function SignUp() {
 
         if (isLogin) {
             // Login API call
-            const url = process.env.REACT_APP_LOGIN_API_URL;
+            const url = "https://ntjkr8rnd6.execute-api.ap-south-1.amazonaws.com/dev/student_login";
             const userdata = {
                 college_email: formData.email,
                 password: formData.password,
@@ -67,33 +76,41 @@ function SignUp() {
                 "Content-Type": "application/json",
             };
 
+            // console.log('Login API URL:', url);
+            // console.log('Login Request Data:', userdata);
+
             try {
                 const response = await fetch(url, {
                     method: "POST",
                     headers: headers,
                     body: JSON.stringify(userdata),
                 });
+                // console.log('Login Response Status:', response.status);
                 const data = await response.json();
+                // console.log('Login Response Data:', data);
                 setStatusCode(data.statusCode);
                 setMessage(data.body);
 
+                // Parse the quoted string in data.body
+                let errorMsg = "";
                 try {
-                    const parsedBody = JSON.parse(data.body);
-                    setApiMessage(parsedBody.message || "");
+                    errorMsg = JSON.parse(data.body);
                 } catch (e) {
-                    setApiMessage(data.body || "");
+                    errorMsg = data.body;
                 }
+                setApiMessage(errorMsg);
 
                 if (data.statusCode === 200) {
                     localStorage.setItem("email", formData.email);
-                    alert("Welcome back to Skill Route!");
+                    // alert("Welcome back to Skill Route!");
                     navigate("/profiledata");
                 } else {
-                    // Show error card for login failures
-                    setErrorMessage("Invalid email or password. Please try again.");
+                    // Show specific error message from API
+                    setErrorMessage(errorMsg || "Login failed. Please try again.");
                     setShowErrorCard(true);
                 }
             } catch (error) {
+                console.log('Login API Error:', error);
                 setError("Failed to connect to server. Please try again.");
                 setErrorMessage("Network error. Please check your connection.");
                 setShowErrorCard(true);
@@ -117,10 +134,13 @@ function SignUp() {
                 college_name: formData.collegeName
             };
             
-            const url = process.env.REACT_APP_SIGNUP_API_URL;
+            const url = "https://ntjkr8rnd6.execute-api.ap-south-1.amazonaws.com/dev/student_signup";
             const headers = {
                 'Content-Type': 'application/json'
             };
+
+            // console.log('Signup API URL:', url);
+            // console.log('Signup Request Data:', userData);
 
             try {
                 const response = await fetch(url, {
@@ -128,27 +148,33 @@ function SignUp() {
                     headers: headers,
                     body: JSON.stringify(userData),
                 });
+                // console.log('Signup Response Status:', response.status);
                 const data = await response.json();
+                // console.log('Signup Response Data:', data);
                 setStatusCode(data.statusCode);
                 setMessage(data.body);
                 
+                // Parse the quoted string in data.body
+                let errorMsg = "";
                 try {
-                    const parsedBody = JSON.parse(data.body);
-                    setApiMessage(parsedBody.message || "");
+                    errorMsg = JSON.parse(data.body);
                 } catch (e) {
-                    setApiMessage(data.body || "");
+                    errorMsg = data.body;
                 }
+                setApiMessage(errorMsg);
                 
                 if (data.statusCode === 200) {
                     localStorage.setItem("email", formData.email);
-                    alert("Welcome to Skill Route!");
+                    localStorage.setItem("fullName", formData.name);
+                    // alert("Welcome to Skill Route!");
                     navigate("/profile-creation-survey");
                 } else {
-                    // Show error card for signup failures (e.g., invalid college email)
-                    setErrorMessage("Invalid college email. Please use your college email address.");
+                    // Show specific error message from API
+                    setErrorMessage(errorMsg || "Signup failed. Please try again.");
                     setShowErrorCard(true);
                 }
             } catch (error) {
+                console.log('Signup API Error:', error);
                 setError("Failed to connect to server. Please try again.");
                 setErrorMessage("Network error. Please check your connection.");
                 setShowErrorCard(true);
@@ -190,7 +216,7 @@ function SignUp() {
                             >
                                 Sign Up
                             </button>
-                          
+                        
                             <button
                                 className={isLogin ? 'tab active' : 'tab'}
                                 onClick={() => setIsLogin(true)}
@@ -226,19 +252,7 @@ function SignUp() {
                                 />
                             </div>
 
-                            <div className="input-group">
-                                <select
-                                    name="collegeName"
-                                    value={formData.collegeName}
-                                    onChange={handleInputChange}
-                                    onFocus={handleInputFocus}
-                                    required
-                                >
-                                    <option value="">Select College</option>
-                                    <option value="MITS University">MITS University</option>
-                                    <option value="ABCD University">ABCD University</option>
-                                </select>
-                            </div>
+                            
 
                             <div className="input-group password-group">
                                 <input
@@ -277,15 +291,25 @@ function SignUp() {
                                     >
                                         {/*showConfirmPassword ? '👁️' : '🙈'*/}
                                     </button>
+                                    {passwordMismatch && (
+                                        <div className="error-text">Passwords do not match</div>
+                                    )}
                                 </div>
                             )}
+                            <div className="input-group"><div className="input-group">
+                                <select
+                                    name="collegeName"
+                                    value={formData.collegeName}
+                                    onChange={handleInputChange}
+                                    onFocus={handleInputFocus}
+                                    required
+                                >
+                                    <option value="">Select College</option>
+                                    <option value="MITS University">MITS University</option>
+                                    <option value="ABCD University">ABCD University</option>
+                                </select>
+                            </div></div>
 
-                            {isLogin && (
-                                <div className="remember-me">
-                                    <input type="checkbox" id="remember" />
-                                    <label htmlFor="remember">Remember me</label>
-                                </div>
-                            )}
 
                             <button
                                 type="submit"

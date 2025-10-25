@@ -279,6 +279,7 @@ function Test() {
         <>
             <Login_Navbar />
             <div className="practice-container">
+                <h1>Communication Tests</h1>
                 <div className={`practice-grid ${activeChallenge ? "blurred" : ""}`}>
                     {practices.map((practice) => (
                         <div
