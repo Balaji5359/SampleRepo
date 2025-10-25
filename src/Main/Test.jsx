@@ -277,7 +277,7 @@ function Test() {
 
     return (
         <>
-            <Login_Navbar />
+            {/* <Login_Navbar /> */}
             <div className="practice-container">
                 <h1>Communication Tests</h1>
                 <div className={`practice-grid ${activeChallenge ? "blurred" : ""}`}>

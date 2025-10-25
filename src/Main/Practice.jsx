@@ -276,7 +276,7 @@ function Practice() {
 
     return (
         <>
-            <Login_Navbar />
+        //     <Login_Navbar />
             <div className="practice-container">
                 <h1>Communication Practice Activities</h1>
                 <div className={`practice-grid ${activeChallenge ? "blurred" : ""}`}>

@@ -307,7 +307,6 @@ function App() {
               <ProfileCreation />
             </MainLayout>
           } /> */}
-          
           <Route path="/profiledata" element={
             <ProtectedRoute>
               <DashboardLayout>
@@ -315,6 +314,7 @@ function App() {
               </DashboardLayout>
             </ProtectedRoute>
           } />
+          
 
           <Route path="/practice" element={
             <ProtectedRoute>

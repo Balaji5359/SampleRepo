@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Login_Navbar from "../RegisterFiles/Login_Navbar";
 import "./profile.css";
-// import '../LandingPageFiles/landing.css';
 
 function ProfileData() {
     const navigate = useNavigate();
@@ -187,7 +186,7 @@ function ProfileData() {
     if (loading) {
         return (
             <>
-                <Login_Navbar />
+                
                 <div className="loading-container">
                     <div className="loading-spinner"></div>
                     <p>Loading your dashboard...</p>
@@ -206,8 +205,8 @@ function ProfileData() {
 
     return (
         <>
-            <Login_Navbar onProfileClick={handleProfileClick} />
-            <div className="dashboard-container"><br></br><br></br>
+            {/* <Login_Navbar onProfileClick={handleProfileClick} /> */}
+            <div className="dashboard-container">
                 {/* Header Section */}
                 <div className="dashboard-header">
                     <div className="greeting-section">
@@ -238,13 +237,13 @@ function ProfileData() {
                         </div>
                     </div>
                     <div>
-                        <section id="pricing" className="pricing">
+                        <section id="pricing" className="pricing-section">
                         <div className="section-header">
                             <h2>Choose Your Learning Path</h2>
                             <p>Flexible plans designed for every learner's needs</p>
                         </div>
                         <div className="pricing-container">
-                            <div className="pricing-card current-plan">
+                            <div className="pricing-card-item current-plan">
                                 <div className="plan-badge current">Current Plan</div>
                                 <div className="plan-price">
                                     <span className="currency">₹</span>
@@ -259,10 +258,10 @@ function ProfileData() {
                                     <li>✗ Advanced analytics</li>
                                     <li>✗ Premium activities</li>
                                 </ul>
-                                <button className="plan-btn current-btn" disabled>Current Plan</button>
+                                <button className="plan-btn" disabled>Current Plan</button>
                             </div>
 
-                            <div className="pricing-card">
+                            <div className="pricing-card-item">
                                 <div className="plan-badge">1 Month</div>
                                 <div className="plan-price">
                                     <span className="currency">₹</span>
@@ -280,7 +279,7 @@ function ProfileData() {
                                 <button className="plan-btn">Get Started</button>
                             </div>
 
-                            <div className="pricing-card featured">
+                            <div className="pricing-card-item featured">
                                 <div className="plan-badge popular">Most Popular</div>
                                 <div className="plan-price">
                                     <span className="currency">₹</span>
@@ -299,7 +298,7 @@ function ProfileData() {
                                 <button className="plan-btn">Upgrade Now</button>
                             </div>
 
-                            <div className="pricing-card">
+                            <div className="pricing-card-item">
                                 <div className="plan-badge">Premium</div>
                                 <div className="plan-price">
                                     <span className="currency">₹</span>
