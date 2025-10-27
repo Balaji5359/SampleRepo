@@ -187,6 +187,7 @@ export default function JAM1({
     const [theme, setTheme] = useState('custom'); // 'dark' | 'light' | 'custom'
     const [bgIndex, setBgIndex] = useState(0);
     const [recording, setRecording] = useState(false);
+    const [recordingDisabled, setRecordingDisabled] = useState(false);
     const [interim, setInterim] = useState('');
     const [utterances, setUtterances] = useState([]);
     const [displayCounts, setDisplayCounts] = useState({
@@ -221,11 +222,19 @@ export default function JAM1({
     const [showTestPopup, setShowTestPopup] = useState(false);
     const [testActive, setTestActive] = useState(false);
     const [timeLeft, setTimeLeft] = useState(120); // 2 minutes
-    const [micTimeLeft, setMicTimeLeft] = useState(60); // 1 minute for recording
+    const [micTimeLeft, setMicTimeLeft] = useState(50); // 50 seconds for recording
+    const chatContainerRef = useRef(null);
     const [currentRecording, setCurrentRecording] = useState('');
     const timerRef = useRef(null);
     const micTimerRef = useRef(null);
     const testTimerRef = useRef(null);
+
+    // Auto-scroll to bottom when new messages arrive
+    useEffect(() => {
+        if (chatContainerRef.current) {
+            chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+        }
+    }, [chatMessages]);
 
     useEffect(() => {
         // inject styles into head once
@@ -332,8 +341,8 @@ export default function JAM1({
             mediaRecorder.start();
             setRecording(true);
 
-            // Start 60-second mic timer
-            setMicTimeLeft(60);
+            // Start 50-second mic timer
+            setMicTimeLeft(50);
             micTimerRef.current = setInterval(() => {
                 setMicTimeLeft(prev => {
                     if (prev <= 1) {
@@ -356,7 +365,7 @@ export default function JAM1({
         }
 
         setRecording(false);
-        setMicTimeLeft(60);
+        setMicTimeLeft(50);
 
         if (micTimerRef.current) {
             clearInterval(micTimerRef.current);
@@ -380,15 +389,19 @@ export default function JAM1({
                 console.log('Session ID:', sessionId);
                 console.log('Base64 preview:', base64Audio.substring(0, 50) + '...');
 
-                const requestBody = {
+                const innerBody = {
                     data: base64Audio,
                     sessionId: sessionId
                 };
 
+                const requestBody = {
+                    body: JSON.stringify(innerBody)
+                };
+
                 console.log('Request body structure:', {
-                    hasData: !!requestBody.data,
-                    dataLength: requestBody.data?.length,
-                    sessionId: requestBody.sessionId,
+                    hasData: !!innerBody.data,
+                    dataLength: innerBody.data?.length,
+                    sessionId: innerBody.sessionId,
                     fullBody: JSON.stringify(requestBody).substring(0, 200)
                 });
 
@@ -417,26 +430,28 @@ export default function JAM1({
                     const response2 = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/studentcommunicationtests_retrivalapi/studentcommunicationtests_transcribeapi', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ sessionId })
+                        body: JSON.stringify({ body: JSON.stringify({ sessionId }) })
                     });
 
                     const data2 = await response2.json();
                     const responseData = typeof data2.body === 'string' ? JSON.parse(data2.body) : data2.body || data2;
 
-                    if (responseData.transcript) {
+                    if (responseData.status === 'completed' && responseData.transcript) {
                         await sendMessageToJAM(responseData.transcript);
-                    } else if (attempts < maxAttempts) {
+                        setIsLoading(false);
+                    } else if (responseData.status === 'processing' && attempts < maxAttempts) {
                         attempts++;
                         setTimeout(pollTranscript, 2000);
-                    } else {
+                    }
+                    else {
                         setChatMessages(prev => [...prev,
-                        { type: 'ai', content: 'Audio processing timeout. Please try again.', timestamp: Date.now() }
+                        { type: 'ai', content: responseData.status === 'error' ? 'Audio processing failed. Please try again.' : 'Audio processing timeout. Please try again.', timestamp: Date.now() }
                         ]);
                         setIsLoading(false);
                     }
                 };
 
-                setTimeout(pollTranscript, 3000);
+                pollTranscript();
             };
 
         } catch (error) {
@@ -904,145 +919,181 @@ export default function JAM1({
                             <option value="light">Light</option>
                             <option value="custom">Custom</option>
                         </select>
-                        {/* <label htmlFor="bg-select" style={{ marginLeft:8 }}>Background</label>
-                <select id="bg-select" value={bgIndex} onChange={(e) => { setBgIndex(Number(e.target.value)); setTheme('custom'); }} aria-label="Select background">
-                {backgroundOptions.map(b => <option key={b.id} value={b.id}>{b.label}</option>)}
-                </select> */}
-                    </div>
-                </div>
-            </div>
+                        <label htmlFor="bg-select" style={{ marginLeft: 8 }}>Background</label>
+                        <select
+                            id="bg-select"
+                            value={bgIndex}
+                            onChange={(e) => { setBgIndex(Number(e.target.value)); setTheme('custom'); }}
+                            aria-label="Select background"
+                        >
+                            {backgroundOptions.map(b => <option key={b.id} value={b.id}>{b.label}</option>)}
+                        </select>
+                        </div>
+                        </div>
+                        </div>
 
-            <div className="jam-container">
-                <div className="jam-layout" style={{ width: '100%' }}>
-                    <div className="jam-left">
-                        {!showTestPopup && (
-                            <div className="card" style={{ textAlign: 'center', padding: 60 }}>
-                                <div style={{ fontWeight: 700, fontSize: 32, marginBottom: 20, color: 'var(--accent)' }}>JAM Practice Test</div>
-                                <div style={{ fontSize: 18, color: 'var(--muted)', marginBottom: 40 }}>Test your Just A Minute speaking skills</div>
+                        <div className="jam-container">
+                            <div className="jam-layout" style={{ width: '100%' }}>
+                                <div className="jam-left">
+                                    {!showTestPopup && (
+                                        <div className="card" style={{ textAlign: 'center', padding: 60 }}>
+                                            <div style={{ fontWeight: 700, fontSize: 32, marginBottom: 20, color: 'var(--accent)' }}>JAM Practice Test</div>
+                                            <div style={{ fontSize: 18, color: 'var(--muted)', marginBottom: 40 }}>Test your Just A Minute speaking skills</div>
 
-                                <button className="start-btn" onClick={startTest}>
-                                    Start JAM Test
-                                </button>
+                                            <button className="start-btn" onClick={startTest}>
+                                                Start JAM Test
+                                            </button>
 
-                                {jamData && (
-                                    <>
-                                        <div style={{ marginTop: 40, display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 20, maxWidth: 600, margin: '40px auto 0' }}>
-                                            <div className="stat card" style={{ padding: 20 }}>
-                                                <div className="label">Average Score</div>
-                                                <div className="value">{(displayCounts.jamPoints / 100).toFixed(1)}/10</div>
+                                            {jamData && (
+                                                <>
+                                                    <div style={{ marginTop: 40, display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 20, maxWidth: 600, margin: '40px auto 0' }}>
+                                                        <div className="stat card" style={{ padding: 20 }}>
+                                                            <div className="label">Average Score</div>
+                                                            <div className="value">{(displayCounts.jamPoints / 100).toFixed(1)}/10</div>
+                                                        </div>
+                                                        <div className="stat card" style={{ padding: 20 }}>
+                                                            <div className="label">Tests Taken</div>
+                                                            <div className="value">{displayCounts.totalTests}</div>
+                                                        </div>
+                                                        <div className="stat card" style={{ padding: 20 }}>
+                                                            <div className="label">Words Spoken</div>
+                                                            <div className="value">{formatNumber(displayCounts.wordsSpoken)}</div>
+                                                        </div>
+                                                    </div>
+                                                </>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="jam-right">
+                                    <div className="card" style={{
+                                        minHeight: 320,
+                                        background: theme === 'light' ? 'linear-gradient(135deg, #ffffff, #f8fafc)' :
+                                            theme === 'custom' ? 'linear-gradient(135deg, rgba(59,151,151,0.1), rgba(91,181,181,0.1))' :
+                                                'var(--card-bg)',
+                                        border: theme === 'light' ? '1px solid rgba(14,165,164,0.2)' :
+                                            theme === 'custom' ? '1px solid rgba(255,255,255,0.2)' :
+                                                '1px solid rgba(255,255,255,0.04)'
+                                    }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                                            <div>
+                                                <div style={{
+                                                    fontWeight: 700,
+                                                    color: theme === 'light' ? '#0ea5a4' : theme === 'custom' ? '#043e4a' : 'var(--text-color)',
+                                                    fontSize: theme === 'custom' ? '18px' : '16px'
+                                                }}>
+                                                    {theme === 'light' ? '📊 Progress Analytics' :
+                                                        theme === 'custom' ? '✨ Excellence Metrics' :
+                                                            'Performance Over Time'}
+                                                </div>
+                                                <div style={{
+                                                    fontSize: 13,
+                                                    color: theme === 'light' ? '#6b7280' : theme === 'custom' ? 'rgba(4,62,74,0.8)' : 'var(--muted)',
+                                                    fontStyle: theme === 'custom' ? 'italic' : 'normal'
+                                                }}>
+                                                    {theme === 'light' ? 'Track your speaking journey & improvement trends' :
+                                                        theme === 'custom' ? 'Monitor your premium performance evolution' :
+                                                            `Score & Words — last ${data.trends.length} days`}
+                                                </div>
                                             </div>
-                                            <div className="stat card" style={{ padding: 20 }}>
-                                                <div className="label">Tests Taken</div>
-                                                <div className="value">{displayCounts.totalTests}</div>
-                                            </div>
-                                            <div className="stat card" style={{ padding: 20 }}>
-                                                <div className="label">Words Spoken</div>
-                                                <div className="value">{formatNumber(displayCounts.wordsSpoken)}</div>
+                                            <div style={{
+                                                fontSize: 13,
+                                                color: theme === 'light' ? '#10b981' : theme === 'custom' ? '#043e4a' : 'var(--muted)',
+                                                fontWeight: theme === 'custom' ? '600' : 'normal'
+                                            }}>
+                                                <small>{theme === 'custom' ? '🎯 Live' : 'Interactive'}</small>
                                             </div>
                                         </div>
-                                    </>
-                                )}
-                            </div>
-                        )}
-                    </div>
 
-                    <div className="jam-right">
-                        <div className="card" style={{
-                            minHeight: 320,
-                            background: theme === 'light' ? 'linear-gradient(135deg, #ffffff, #f8fafc)' :
-                                theme === 'custom' ? 'linear-gradient(135deg, rgba(59,151,151,0.1), rgba(91,181,181,0.1))' :
-                                    'var(--card-bg)',
-                            border: theme === 'light' ? '1px solid rgba(14,165,164,0.2)' :
-                                theme === 'custom' ? '1px solid rgba(255,255,255,0.2)' :
-                                    '1px solid rgba(255,255,255,0.04)'
-                        }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                                <div>
-                                    <div style={{
-                                        fontWeight: 700,
-                                        color: theme === 'light' ? '#0ea5a4' : theme === 'custom' ? '#043e4a' : 'var(--text-color)',
-                                        fontSize: theme === 'custom' ? '18px' : '16px'
-                                    }}>
-                                        {theme === 'light' ? '📊 Progress Analytics' :
-                                            theme === 'custom' ? '✨ Excellence Metrics' :
-                                                'Performance Over Time'}
-                                    </div>
-                                    <div style={{
-                                        fontSize: 13,
-                                        color: theme === 'light' ? '#6b7280' : theme === 'custom' ? 'rgba(4,62,74,0.8)' : 'var(--muted)',
-                                        fontStyle: theme === 'custom' ? 'italic' : 'normal'
-                                    }}>
-                                        {theme === 'light' ? 'Track your speaking journey & improvement trends' :
-                                            theme === 'custom' ? 'Monitor your premium performance evolution' :
-                                                `Score & Words — last ${data.trends.length} days`}
+                                        <div className="chart-area card" style={{
+                                            padding: 8,
+                                            background: theme === 'light' ? 'rgba(243,244,246,0.3)' :
+                                                theme === 'custom' ? 'rgba(255,255,255,0.05)' :
+                                                    'var(--card-bg)'
+                                        }}>
+                                            <ChartArea />
+                                        </div>
                                     </div>
                                 </div>
-                                <div style={{
-                                    fontSize: 13,
-                                    color: theme === 'light' ? '#10b981' : theme === 'custom' ? '#043e4a' : 'var(--muted)',
-                                    fontWeight: theme === 'custom' ? '600' : 'normal'
-                                }}>
-                                    <small>{theme === 'custom' ? '🎯 Live' : 'Interactive'}</small>
-                                </div>
-                            </div>
 
-                            <div className="chart-area card" style={{
-                                padding: 8,
-                                background: theme === 'light' ? 'rgba(243,244,246,0.3)' :
-                                    theme === 'custom' ? 'rgba(255,255,255,0.05)' :
-                                        'var(--card-bg)'
-                            }}>
-                                <ChartArea />
+                                <div className="jam-right">
+                                    <div className="card">
+                                        <h3 style={{ margin: '0 0 16px 0', color: 'var(--text-color)' }}>Score Distribution</h3>
+                                        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
+                                            <Donut percent={data.averageScore} />
+                                        </div>
+                                    </div>
+
+                                    <div className="card">
+                                        <h3 style={{ margin: '0 0 16px 0', color: 'var(--text-color)' }}>Recent Utterances</h3>
+                                        <div className="utter-list">
+                                            {utterances.length > 0 ? utterances.map((u) => (
+                                                <div key={u.id} className="utter-item">
+                                                    <span style={{ flex: 1, fontSize: 13 }}>{u.text}</span>
+                                                    <span style={{ color: 'var(--accent)', fontWeight: 600 }}>{u.score}%</span>
+                                                </div>
+                                            )) : (
+                                                <div style={{ color: 'var(--muted)', textAlign: 'center', padding: 20 }}>
+                                                    No recent utterances
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                    </div>
-                </div>
-            </div>
+                        {activeTab === 'JAM Leaderboard' && (
+                            <div style={{ width: '100%', textAlign: 'center', padding: 40 }}>
+                                <h2 style={{ color: 'var(--text-color)', marginBottom: 20 }}>JAM Leaderboard</h2>
+                                <p style={{ color: 'var(--muted)' }}>Coming soon - compete with other students!</p>
+                            </div>
+                        )}
 
-            {showTestPopup && (
-                <div className="popup-overlay">
-                    <div className="popup-content" style={{
-                        maxWidth: '800px',
-                        width: '95%',
-                        background: theme === 'light' ? 'linear-gradient(135deg, #ffffff, #f0f9ff)' :
-                            theme === 'custom' ? 'linear-gradient(135deg, rgba(59,151,151,0.95), rgba(91,181,181,0.95))' :
-                                'var(--card-bg)',
-                        color: theme === 'light' ? '#1f2937' : theme === 'custom' ? '#ffffff' : 'var(--text-color)'
-                    }}>
-                        <div style={{ display: 'flex', gap: 30 }}>
-                            <div style={{ flex: 1 }}>
-                                <h2 style={{
-                                    color: theme === 'light' ? '#0ea5a4' : theme === 'custom' ? '#ffffff' : 'var(--accent)',
-                                    marginBottom: 16,
-                                    textShadow: theme === 'custom' ? '0 2px 4px rgba(0,0,0,0.3)' : 'none'
+                        {showTestPopup && (
+                            <div className="popup-overlay">
+                                <div className="popup-content" style={{
+                                    maxWidth: '1200px',
+                                    width: '95%',
+                                    background: theme === 'light' ? 'linear-gradient(135deg, #ffffff, #f0f9ff)' :
+                                        theme === 'custom' ? 'linear-gradient(135deg, rgba(59,151,151,0.95), rgba(91,181,181,0.95))' :
+                                            'var(--card-bg)',
+                                    color: theme === 'light' ? '#1f2937' : theme === 'custom' ? '#ffffff' : 'var(--text-color)'
                                 }}>
-                                    {theme === 'light' ? '🎯 JAM Speaking Challenge' :
-                                        theme === 'custom' ? '✨ JAM Excellence Mode' :
-                                            '🚀 JAM Test in Progress'}
-                                </h2>
-                                <p style={{
-                                    fontSize: 14,
-                                    marginBottom: 20,
-                                    color: theme === 'light' ? '#6b7280' : theme === 'custom' ? 'rgba(255,255,255,0.9)' : 'var(--muted)',
-                                    fontStyle: theme === 'custom' ? 'italic' : 'normal'
-                                }}>
-                                    {theme === 'light' ? 'Showcase your communication skills in this focused speaking session.' :
-                                        theme === 'custom' ? 'Elevate your speaking prowess in this premium JAM experience.' :
-                                            'Express your thoughts clearly and confidently.'}
-                                </p>
+                                    <div style={{ display: 'flex', gap: 30 }}>
+                                        <div style={{ flex: 1 }}>
+                                            <h2 style={{
+                                                color: theme === 'light' ? '#0ea5a4' : theme === 'custom' ? '#ffffff' : 'var(--accent)',
+                                                marginBottom: 16,
+                                                textShadow: theme === 'custom' ? '0 2px 4px rgba(0,0,0,0.3)' : 'none'
+                                            }}>
+                                                {theme === 'light' ? '🎯 JAM Speaking Challenge' :
+                                                    theme === 'custom' ? '✨ JAM Excellence Mode' :
+                                                        '🚀 JAM Test in Progress'}
+                                            </h2>
+                                            <p style={{
+                                                fontSize: 14,
+                                                marginBottom: 20,
+                                                color: theme === 'light' ? '#6b7280' : theme === 'custom' ? 'rgba(255,255,255,0.9)' : 'var(--muted)',
+                                                fontStyle: theme === 'custom' ? 'italic' : 'normal'
+                                            }}>
+                                                {theme === 'light' ? 'Showcase your communication skills in this focused speaking session.' :
+                                                    theme === 'custom' ? 'Elevate your speaking prowess in this premium JAM experience.' :
+                                                        'Express your thoughts clearly and confidently.'}
+                                            </p>
 
-                                <div className="chat-container" style={{
-                                    height: '300px',
-                                    marginBottom: 20,
-                                    background: theme === 'light' ? 'rgba(243,244,246,0.5)' :
-                                        theme === 'custom' ? 'rgba(255,255,255,0.1)' :
-                                            'rgba(255,255,255,0.02)',
-                                    border: theme === 'light' ? '1px solid rgba(156,163,175,0.3)' :
-                                        theme === 'custom' ? '1px solid rgba(255,255,255,0.2)' :
-                                            '1px solid rgba(255,255,255,0.1)'
-                                }}>
-                                    {chatMessages.map((msg, index) => {
+                                            <div className="chat-container" style={{
+                                                height: '300px',
+                                                marginBottom: 20,
+                                                background: theme === 'light' ? 'rgba(243,244,246,0.5)' :
+                                                    theme === 'custom' ? 'rgba(255,255,255,0.1)' :
+                                                        'rgba(255,255,255,0.02)',
+                                                border: theme === 'light' ? '1px solid rgba(156,163,175,0.3)' :
+                                                    theme === 'custom' ? '1px solid rgba(255,255,255,0.2)' :
+                                                        '1px solid rgba(255,255,255,0.1)'
+                                            }}>
+                                                {chatMessages.map((msg, index) => {
                                         const { cleanText, buttons } = extractButtons(msg.content);
                                         return (
                                             <div key={index} className={`chat-message ${msg.type}`}>
@@ -1076,12 +1127,44 @@ export default function JAM1({
                                         </div>
                                     )}
                                 </div>
+
+                                <form onSubmit={handleManualSubmit} style={{ display: 'flex', gap: 8 }}>
+                                    <input
+                                        name="manual"
+                                        type="text"
+                                        placeholder="Type your response..."
+                                        disabled={isLoading}
+                                        style={{
+                                            flex: 1,
+                                            padding: '8px 12px',
+                                            borderRadius: '8px',
+                                            border: '1px solid rgba(255,255,255,0.2)',
+                                            background: 'rgba(255,255,255,0.05)',
+                                            color: 'var(--text-color)',
+                                            fontSize: '14px'
+                                        }}
+                                    />
+                                    <button
+                                        type="submit"
+                                        disabled={isLoading}
+                                        style={{
+                                            padding: '8px 16px',
+                                            borderRadius: '8px',
+                                            border: 'none',
+                                            background: 'var(--accent)',
+                                            color: 'white',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        Send
+                                    </button>
+                                </form>
                             </div>
 
                             <div style={{ flex: 1, textAlign: 'center' }}>
                                 <div style={{ display: 'flex', gap: 40, justifyContent: 'center', marginBottom: 30 }}>
                                     <TimerCircle time={timeLeft} maxTime={120} label="Test Time" />
-                                    {recording && <TimerCircle time={micTimeLeft} maxTime={60} label="Recording" />}
+                                    {recording && <TimerCircle time={micTimeLeft} maxTime={50} label="Recording" />}
                                 </div>
 
                                 <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
