@@ -95,6 +95,7 @@ const GenAI_CarrerGuide = lazy(() => import("./GenAI_Folders/AI_InterviewToolsFo
 
 // Communication practice files
 const JAM = lazy(() => import("./CommunicationTestsFiles/JAM.jsx"));
+const JAM1 = lazy(() => import("./CommunicationTestsFiles/JAM1.jsx"))
 const Pronunciation = lazy(() => import("./CommunicationTestsFiles/Pronunciation.jsx"));
 const ImageStory = lazy(() => import("./CommunicationTestsFiles/ImageStory.jsx"));
 const TranslateSpeak = lazy(() => import("./CommunicationTestsFiles/TranslateSpeak.jsx"));
@@ -580,6 +581,16 @@ function App() {
               </CommunicationPraticeLayout>
             </ProtectedRoute>
           } />
+
+          <Route path="/jam1" element={
+            <ProtectedRoute>
+              <CommunicationPraticeLayout>
+                <JAM1 />
+              </CommunicationPraticeLayout>
+            </ProtectedRoute>
+          } />
+
+
           <Route path="/pronunciation" element={
             <ProtectedRoute>
               <CommunicationPraticeLayout>

@@ -155,7 +155,7 @@
     `;
 
     /* ---------- Component ---------- */
-    export default function JAM({
+    export default function JAM1({
     initialData = null,
     onUtterance = () => {},
     onThemeChange = () => {},
@@ -200,11 +200,14 @@
     // references for speech recognition and chat
     const recognitionRef = useRef(null);
     const mountedRef = useRef(true);
+    const mediaRecorderRef = useRef(null);
+    const audioChunksRef = useRef([]);
+    const streamRef = useRef(null);
     
     // Chat state
     const [chatMessages, setChatMessages] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [sessionId] = useState(`jam-test-${Math.floor(Math.random() * 10000000)}`);
+    const [sessionId] = useState(`jam-test-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`);
     const [userEmail] = useState(localStorage.getItem('email'));
     const [jamData, setJamData] = useState(null);
     const [data, setData] = useState(placeholder);
@@ -299,6 +302,170 @@
         onThemeChange({ theme, bgIndex });
     }, [theme, bgIndex, onThemeChange]);
 
+    /* ---------- Audio Recording ---------- */
+    const startAudioRecording = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            streamRef.current = stream;
+            audioChunksRef.current = [];
+            
+            const mediaRecorder = new MediaRecorder(stream);
+            mediaRecorderRef.current = mediaRecorder;
+            
+            mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    audioChunksRef.current.push(event.data);
+                }
+            };
+            
+            mediaRecorder.onstop = async () => {
+                const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+                await sendAudioToLambda(audioBlob);
+                
+                // Stop all tracks
+                if (streamRef.current) {
+                    streamRef.current.getTracks().forEach(track => track.stop());
+                    streamRef.current = null;
+                }
+            };
+            
+            mediaRecorder.start();
+            setRecording(true);
+            
+            // Start 60-second mic timer
+            setMicTimeLeft(60);
+            micTimerRef.current = setInterval(() => {
+                setMicTimeLeft(prev => {
+                    if (prev <= 1) {
+                        stopAudioRecording();
+                        return 0;
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
+            
+        } catch (error) {
+            console.error('Error starting audio recording:', error);
+            alert('Failed to start audio recording. Please check microphone permissions.');
+        }
+    };
+    
+    const stopAudioRecording = () => {
+        if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+            mediaRecorderRef.current.stop();
+        }
+        
+        setRecording(false);
+        setMicTimeLeft(60);
+        
+        if (micTimerRef.current) {
+            clearInterval(micTimerRef.current);
+            micTimerRef.current = null;
+        }
+    };
+    
+    const sendAudioToLambda = async (audioBlob) => {
+        try {
+            setIsLoading(true);
+            
+            // Validate sessionId
+            if (!sessionId) {
+                console.error('SessionId is missing:', sessionId);
+                setChatMessages(prev => [...prev, 
+                    { type: 'ai', content: 'Session ID is missing. Please refresh and try again.', timestamp: Date.now() }
+                ]);
+                setIsLoading(false);
+                return;
+            }
+            
+            console.log('Current sessionId:', sessionId);
+            
+            // Convert blob to base64
+            const reader = new FileReader();
+            reader.readAsDataURL(audioBlob);
+            
+            reader.onloadend = async () => {
+                const base64Audio = reader.result.split(',')[1]; // Remove data:audio/wav;base64, prefix
+                
+                const requestBody = {
+                    sessionId: sessionId,
+                    data: base64Audio,
+                    filename: `${sessionId}.wav`,
+                    contentType: 'audio/wav'
+                };
+                
+                console.log('Sending to Lambda:', {
+                    sessionId: sessionId,
+                    sessionIdType: typeof sessionId,
+                    dataLength: base64Audio ? base64Audio.length : 0,
+                    dataType: typeof base64Audio,
+                    filename: `${sessionId}.wav`,
+                    requestBodyKeys: Object.keys(requestBody),
+                    fullRequestBody: requestBody
+                });
+                
+                // Test with minimal data first
+                const testBody = {
+                    sessionId: sessionId,
+                    data: base64Audio.substring(0, 100), // Send just first 100 chars for testing
+                    filename: `${sessionId}.wav`,
+                    contentType: 'audio/wav'
+                };
+                
+                console.log('Test body:', testBody);
+                
+                const response = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/studentcommunicationtests_retrivalapi/studentcommunicationtests_recordingapi', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Lambda response:', data);
+                
+                // Parse the response body if it's a string
+                let responseData = data;
+                if (typeof data.body === 'string') {
+                    responseData = JSON.parse(data.body);
+                } else if (data.body) {
+                    responseData = data.body;
+                }
+                
+                // Send transcribed text to JAM agent
+                if (responseData.transcript) {
+                    // Check if it's a fallback message or actual transcript
+                    if (responseData.transcript.includes('Transcription completed but could not retrieve text') || 
+                        responseData.transcript.includes('Audio processed successfully')) {
+                        // For now, send a generic response to continue the conversation
+                        await sendMessageToJAM('I spoke something but the audio processing had issues. Please continue.');
+                    } else {
+                        // Send actual transcript
+                        await sendMessageToJAM(responseData.transcript);
+                    }
+                } else {
+                    console.warn('No transcript received from Lambda', responseData);
+                    // Fallback: show what we received
+                    setChatMessages(prev => [...prev, 
+                        { type: 'ai', content: 'Audio received but no transcript available. Please try speaking again.', timestamp: Date.now() }
+                    ]);
+                }
+            };
+            
+        } catch (error) {
+            console.error('Error sending audio to Lambda:', error);
+            setChatMessages(prev => [...prev, 
+                { type: 'ai', content: `Audio processing failed: ${error.message}. Please try again.`, timestamp: Date.now() }
+            ]);
+            setIsLoading(false);
+        }
+    };
+
     /* ---------- Speech recognition ---------- */
     const startRecognition = () => {
         const win = window;
@@ -383,28 +550,12 @@
     const startTest = async () => {
         setShowTestPopup(true);
         setTestActive(true);
-        setTimeLeft(120);
         setCurrentRecording('');
         await sendMessageToJAM('hi');
-        
-        // Start 2-minute test timer
-        testTimerRef.current = setInterval(() => {
-            setTimeLeft(prev => {
-                if (prev <= 1) {
-                    endTest();
-                    return 0;
-                }
-                return prev - 1;
-            });
-        }, 1000);
     };
     
     const endTest = () => {
-        // Clear all timers
-        if (testTimerRef.current) {
-            clearInterval(testTimerRef.current);
-            testTimerRef.current = null;
-        }
+        // Clear mic timer if recording
         if (micTimerRef.current) {
             clearInterval(micTimerRef.current);
             micTimerRef.current = null;
@@ -608,8 +759,11 @@
 
     /* ---------- UI helpers ---------- */
     const toggleMic = () => {
-        if (recording) stopRecognition();
-        else startRecognition();
+        if (recording) {
+            stopAudioRecording();
+        } else {
+            startAudioRecording();
+        }
     };
 
     const handleManualSubmit = (e) => {
