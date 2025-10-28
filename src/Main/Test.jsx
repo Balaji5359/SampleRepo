@@ -265,7 +265,7 @@ function Test() {
 
     const handleLaunchChallenge = () => {
         const routes = {
-            jam: "/jam",
+            jam: "/jam1",
             pronunciation: "/pronunciation",
             "image-speaking": "/image-speak",
             "situation-speak": "/situation-speak",

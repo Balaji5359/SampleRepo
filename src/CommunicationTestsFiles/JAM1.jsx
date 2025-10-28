@@ -188,6 +188,7 @@ export default function JAM1({
     const [bgIndex, setBgIndex] = useState(0);
     const [recording, setRecording] = useState(false);
     const [recordingDisabled, setRecordingDisabled] = useState(false);
+    const [recordingUsed, setRecordingUsed] = useState(false);
     const [interim, setInterim] = useState('');
     const [utterances, setUtterances] = useState([]);
     const [displayCounts, setDisplayCounts] = useState({
@@ -208,7 +209,7 @@ export default function JAM1({
     // Chat state
     const [chatMessages, setChatMessages] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [sessionId] = useState(`jam-test-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`);
+    const [sessionId] = useState(`jam-test-${String(Math.floor(Math.random() * 10000000)).padStart(7, '0')}`);
     const [userEmail] = useState(localStorage.getItem('email'));
     const [jamData, setJamData] = useState(null);
     const [data, setData] = useState(placeholder);
@@ -340,6 +341,7 @@ export default function JAM1({
 
             mediaRecorder.start();
             setRecording(true);
+            setRecordingDisabled(true);
 
             // Start 50-second mic timer
             setMicTimeLeft(50);
@@ -364,13 +366,30 @@ export default function JAM1({
             mediaRecorderRef.current.stop();
         }
 
+        // Stop all audio tracks
+        if (streamRef.current) {
+            streamRef.current.getTracks().forEach(track => track.stop());
+            streamRef.current = null;
+        }
+
         setRecording(false);
         setMicTimeLeft(50);
+        setRecordingUsed(true); // Mark recording as used
 
         if (micTimerRef.current) {
             clearInterval(micTimerRef.current);
             micTimerRef.current = null;
         }
+
+        // Permanently disable recording after first use
+        setRecordingDisabled(true);
+    };
+
+    // Helper function to decode HTML entities
+    const decodeHtmlEntities = (text) => {
+        const textarea = document.createElement('textarea');
+        textarea.innerHTML = text;
+        return textarea.value;
     };
 
     const sendAudioToLambda = async (audioBlob) => {
@@ -383,30 +402,24 @@ export default function JAM1({
             reader.onloadend = async () => {
                 const base64Audio = reader.result.split(',')[1];
 
-                // Debug logging
                 console.log('Audio blob size:', audioBlob.size);
                 console.log('Base64 audio length:', base64Audio.length);
                 console.log('Session ID:', sessionId);
-                console.log('Base64 preview:', base64Audio.substring(0, 50) + '...');
 
-                const innerBody = {
-                    data: base64Audio,
-                    sessionId: sessionId
-                };
-
+                // Try different request formats to match API expectations
                 const requestBody = {
-                    body: JSON.stringify(innerBody)
+                    body: JSON.stringify({
+                        data: base64Audio,
+                        sessionId: sessionId
+                    })
                 };
 
-                console.log('Request body structure:', {
-                    hasData: !!innerBody.data,
-                    dataLength: innerBody.data?.length,
-                    sessionId: innerBody.sessionId,
-                    fullBody: JSON.stringify(requestBody).substring(0, 200)
+                console.log('Sending recording request with format:', {
+                    hasBody: !!requestBody.body,
+                    bodyKeys: Object.keys(JSON.parse(requestBody.body))
                 });
 
                 // Send to Lambda1 (recording API)
-                console.log('Sending request with body length:', JSON.stringify(requestBody).length);
                 const response1 = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/studentcommunicationtests_retrivalapi/studentcommunicationtests_recordingapi', {
                     method: 'POST',
                     headers: {
@@ -416,48 +429,104 @@ export default function JAM1({
                     body: JSON.stringify(requestBody)
                 });
 
-                console.log('Response status:', response1.status);
-                console.log('Response headers:', Object.fromEntries(response1.headers.entries()));
-
+                console.log('Recording response status:', response1.status);
                 const data1 = await response1.json();
                 console.log('Recording response:', data1);
 
                 // Poll Lambda2 (transcribe API) for transcript
                 let attempts = 0;
-                const maxAttempts = 10;
+                const maxAttempts = 12; // Allow up to 15 seconds (9s estimated + buffer)
+                let pollInterval = 2000; // Start with 2 seconds
 
                 const pollTranscript = async () => {
-                    const response2 = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/studentcommunicationtests_retrivalapi/studentcommunicationtests_transcribeapi', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ body: JSON.stringify({ sessionId }) })
-                    });
+                    try {
+                        const response2 = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/studentcommunicationtests_retrivalapi/studentcommunicationtests_transcribeapi', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ body: { sessionId: sessionId } })
+                        });
 
-                    const data2 = await response2.json();
-                    const responseData = typeof data2.body === 'string' ? JSON.parse(data2.body) : data2.body || data2;
+                        const data2 = await response2.json();
+                        console.log('Transcription poll response:', data2);
 
-                    if (responseData.status === 'completed' && responseData.transcript) {
-                        await sendMessageToJAM(responseData.transcript);
-                        setIsLoading(false);
-                    } else if (responseData.status === 'processing' && attempts < maxAttempts) {
-                        attempts++;
-                        setTimeout(pollTranscript, 2000);
-                    }
-                    else {
+                        console.log('Raw transcription response:', data2);
+
+                        // Parse the response - it has a nested JSON structure
+                        let responseData;
+                        if (data2.body && typeof data2.body === 'string') {
+                            try {
+                                responseData = JSON.parse(data2.body);
+                            } catch (e) {
+                                console.error('Failed to parse response body:', e);
+                                responseData = data2;
+                            }
+                        } else {
+                            responseData = data2.body || data2;
+                        }
+
+                        console.log('Parsed response data:', responseData);
+
+                        // Check if transcription is completed and has transcript
+                        if (responseData.status === 'completed' && responseData.transcript) {
+                            const transcript = responseData.transcript.trim();
+                            if (transcript) {
+                                console.log('Found transcript:', transcript);
+                                await sendMessageToJAM(transcript);
+                                return;
+                            }
+                        }
+
+                        // Handle 404 error (transcript not ready yet) or processing status
+                        if (responseData.error === 'Transcript JSON not found' || responseData.status === 'processing' || data2.statusCode === 404) {
+                            if (attempts < maxAttempts) {
+                                attempts++;
+                                console.log(`Polling attempt ${attempts}/${maxAttempts} - Transcript not ready yet`);
+                                // Increase wait time gradually
+                                if (attempts > 5) pollInterval = 3000;
+                                if (attempts > 10) pollInterval = 4000;
+                                setTimeout(pollTranscript, pollInterval);
+                                return;
+                            }
+                        }
+
+                        // Check for other error statuses
+                        if (responseData.status === 'error' || responseData.status === 'failed') {
+                            console.error('Transcription error:', responseData);
+                            setChatMessages(prev => [...prev,
+                                { type: 'ai', content: 'Audio transcription failed. Please try again.', timestamp: Date.now() }
+                            ]);
+                            setIsLoading(false);
+                            return;
+                        }
+
+                        // Timeout after max attempts
+                        console.log('Transcription timeout - max attempts reached');
                         setChatMessages(prev => [...prev,
-                        { type: 'ai', content: responseData.status === 'error' ? 'Audio processing failed. Please try again.' : 'Audio processing timeout. Please try again.', timestamp: Date.now() }
+                            { type: 'ai', content: 'Audio processing is taking longer than expected. Please try speaking again or type your response.', timestamp: Date.now() }
                         ]);
                         setIsLoading(false);
+                    } catch (pollError) {
+                        console.error('Polling error:', pollError);
+                        if (attempts < maxAttempts) {
+                            attempts++;
+                            setTimeout(pollTranscript, pollInterval);
+                        } else {
+                            setChatMessages(prev => [...prev,
+                                { type: 'ai', content: 'Error processing audio. Please try again.', timestamp: Date.now() }
+                            ]);
+                            setIsLoading(false);
+                        }
                     }
                 };
 
-                pollTranscript();
+                // Start polling after 3 seconds (test shows 9s total, so start earlier)
+                setTimeout(pollTranscript, 3000);
             };
 
         } catch (error) {
             console.error('Error:', error);
             setChatMessages(prev => [...prev,
-            { type: 'ai', content: `Error: ${error.message}`, timestamp: Date.now() }
+                { type: 'ai', content: `Error: ${error.message}`, timestamp: Date.now() }
             ]);
             setIsLoading(false);
         }
@@ -627,8 +696,11 @@ export default function JAM1({
             const data = await response.json();
             console.log('Response data:', data);
 
-            const aiResponse = JSON.parse(data.body).response;
+            let aiResponse = JSON.parse(data.body).response;
             console.log('AI Response:', aiResponse);
+
+            // Decode HTML entities
+            aiResponse = decodeHtmlEntities(aiResponse);
 
             // Add user message
             setChatMessages(prev => [...prev, { type: 'user', content: message, timestamp: Date.now() }]);
@@ -757,8 +829,10 @@ export default function JAM1({
     /* ---------- UI helpers ---------- */
     const toggleMic = () => {
         if (recording) {
+            // Always allow stopping recording
             stopAudioRecording();
-        } else {
+        } else if (!recordingUsed && !recordingDisabled) {
+            // Only allow starting if not used before and not disabled
             startAudioRecording();
         }
     };
@@ -890,7 +964,7 @@ export default function JAM1({
             <div className="jam-topnav" role="navigation" aria-label="Top navigation">
                 <div className="left">
                     <div className="jam-title" aria-hidden>
-                        JAM Practice
+                        JAM Test
                     </div>
                     <div className="jam-nav" role="tablist" aria-label="Main tabs">
                         {['Back', 'Practice', 'JAM Dashboard', 'JAM Leaderboard'].map((t) => (
@@ -913,24 +987,15 @@ export default function JAM1({
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                     <div style={{ color: 'var(--muted)', fontSize: 13, marginRight: 6 }}>Theme</div>
-                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                        <select value={theme} onChange={(e) => setTheme(e.target.value)} aria-label="Select theme">
-                            <option value="dark">Dark</option>
-                            <option value="light">Light</option>
-                            <option value="custom">Custom</option>
-                        </select>
-                        <label htmlFor="bg-select" style={{ marginLeft: 8 }}>Background</label>
-                        <select
-                            id="bg-select"
-                            value={bgIndex}
-                            onChange={(e) => { setBgIndex(Number(e.target.value)); setTheme('custom'); }}
-                            aria-label="Select background"
-                        >
-                            {backgroundOptions.map(b => <option key={b.id} value={b.id}>{b.label}</option>)}
-                        </select>
+                        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                            <select value={theme} onChange={(e) => setTheme(e.target.value)} aria-label="Select theme">
+                                <option value="dark">Dark</option>
+                                <option value="light">Light</option>
+                                <option value="custom">Custom</option>
+                            </select>
                         </div>
-                        </div>
-                        </div>
+                    </div>
+                </div>
 
                         <div className="jam-container">
                             <div className="jam-layout" style={{ width: '100%' }}>
@@ -1017,7 +1082,7 @@ export default function JAM1({
                                     </div>
                                 </div>
 
-                                <div className="jam-right">
+                                {/* <div className="jam-right">
                                     <div className="card">
                                         <h3 style={{ margin: '0 0 16px 0', color: 'var(--text-color)' }}>Score Distribution</h3>
                                         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
@@ -1040,7 +1105,7 @@ export default function JAM1({
                                             )}
                                         </div>
                                     </div>
-                                </div>
+                                </div> */}
                             </div>
                         </div>
 
@@ -1128,50 +1193,28 @@ export default function JAM1({
                                     )}
                                 </div>
 
-                                <form onSubmit={handleManualSubmit} style={{ display: 'flex', gap: 8 }}>
-                                    <input
-                                        name="manual"
-                                        type="text"
-                                        placeholder="Type your response..."
-                                        disabled={isLoading}
-                                        style={{
-                                            flex: 1,
-                                            padding: '8px 12px',
-                                            borderRadius: '8px',
-                                            border: '1px solid rgba(255,255,255,0.2)',
-                                            background: 'rgba(255,255,255,0.05)',
-                                            color: 'var(--text-color)',
-                                            fontSize: '14px'
-                                        }}
-                                    />
-                                    <button
-                                        type="submit"
-                                        disabled={isLoading}
-                                        style={{
-                                            padding: '8px 16px',
-                                            borderRadius: '8px',
-                                            border: 'none',
-                                            background: 'var(--accent)',
-                                            color: 'white',
-                                            cursor: 'pointer'
-                                        }}
-                                    >
-                                        Send
-                                    </button>
-                                </form>
+                                
                             </div>
 
                             <div style={{ flex: 1, textAlign: 'center' }}>
                                 <div style={{ display: 'flex', gap: 40, justifyContent: 'center', marginBottom: 30 }}>
-                                    <TimerCircle time={timeLeft} maxTime={120} label="Test Time" />
+                                    {/* <TimerCircle time={timeLeft} maxTime={120} label="Test Time" /> */}
                                     {recording && <TimerCircle time={micTimeLeft} maxTime={50} label="Recording" />}
                                 </div>
-
+                                <h1 style={{ color: 'var(--text-color)', marginBottom: 20,fontSize: 28 }}>Click on the Mic to Start Recording</h1>
                                 <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
                                     <button
                                         className={`mic-btn ${recording ? 'recording' : ''}`}
                                         onClick={toggleMic}
-                                        style={{ width: '100px', height: '100px', fontSize: '28px' }}
+                                        disabled={recordingUsed && !recording}
+                                        style={{ 
+                                            width: '100px', 
+                                            height: '100px', 
+                                            fontSize: '28px',
+                                            opacity: recordingUsed && !recording ? 0.3 : 1,
+                                            cursor: recordingUsed && !recording ? 'not-allowed' : 'pointer'
+                                        }}
+                                        title={recordingUsed && !recording ? 'Recording already used - one chance only' : recording ? 'Stop recording' : 'Start recording'}
                                     >
                                         {recording ? (
                                             <svg width="36" height="36" viewBox="0 0 24 24" fill="currentColor">
@@ -1194,6 +1237,18 @@ export default function JAM1({
                                             <span style={{ height: 14 }} />
                                             <span style={{ height: 22 }} />
                                             <span style={{ height: 12 }} />
+                                        </div>
+                                    )}
+
+                                    {recordingDisabled && !recording && !recordingUsed && (
+                                        <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '8px' }}>
+                                            Processing audio...
+                                        </div>
+                                    )}
+
+                                    {recordingUsed && !recording && (
+                                        <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '8px' }}>
+                                            Recording used - One chance only
                                         </div>
                                     )}
 
