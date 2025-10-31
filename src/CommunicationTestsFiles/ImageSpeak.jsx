@@ -7,7 +7,13 @@ function ImageSpeak() {
   const [vocabTags, setVocabTags] = useState(['Cityscape', 'Buildings', 'Cars', 'Street', 'Urban']);
   const [timer, setTimer] = useState({ minutes: 1, seconds: 0 });
   const [activeTab, setActiveTab] = useState('ImageSpeak Dashboard');
-  
+  const [generatedImage, setGeneratedImage] = useState(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [imageLoadError, setImageLoadError] = useState(false);
+  const [imageLoading, setImageLoading] = useState(false);
+  const [sessionId] = useState(`image-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`);
+  const [userEmail] = useState(localStorage.getItem('email') || '22691a2828@mits.ac.in');
+
   // Mock data for ImageSpeak stats
   const imageSpeakData = {
     points: 0,
@@ -298,6 +304,38 @@ function ImageSpeak() {
       color: var(--text-color);
     }
 
+    .generate-btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 200ms;
+      margin-bottom: 16px;
+    }
+
+    .generate-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(16,185,129,0.3);
+    }
+
+    .generate-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .loading {
+      display: inline-block;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
     @media (max-width: 768px) {
       .main-layout {
         grid-template-columns: 1fr;
@@ -348,6 +386,44 @@ function ImageSpeak() {
     setRecording(!recording);
   };
 
+  // Function to retrieve existing images by sessionId
+  const retrieveExistingImage = async () => {
+    console.log('🔍 Checking for existing images for sessionId:', sessionId);
+    setIsGenerating(true);
+    
+    try {
+      const retrieveRequestBody = {
+        sessionId: sessionId,
+        action: 'retrieve'
+      };
+
+      const response = await fetch('https://au03f6dark.execute-api.ap-south-1.amazonaws.com/dev/image-gen-ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(retrieveRequestBody)
+      });
+
+      const data = await response.json();
+      const result = typeof data.body === 'string' ? JSON.parse(data.body) : data;
+
+      if (result.success && result.image_urls && result.image_urls.length > 0) {
+        console.log('✅ Found existing image:', result.image_urls[0]);
+        setImageLoadError(false);
+        setImageLoading(true);
+        setGeneratedImage(result.image_urls[0]);
+        return true; // Image found
+      } else {
+        console.log('ℹ️ No existing images found for this session');
+        return false; // No image found
+      }
+    } catch (error) {
+      console.error('❌ Error retrieving existing image:', error);
+      return false; // Error occurred
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const addVocabTag = () => {
     if (vocabInput.trim() && !vocabTags.includes(vocabInput.trim())) {
       setVocabTags([...vocabTags, vocabInput.trim()]);
@@ -358,6 +434,117 @@ function ImageSpeak() {
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       addVocabTag();
+    }
+  };
+
+  // Helper function to test if image URL is accessible
+  const testImageUrl = (url) => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve(true);
+      img.onerror = () => resolve(false);
+      img.crossOrigin = 'anonymous';
+      img.src = url;
+
+      // Timeout after 10 seconds
+      setTimeout(() => resolve(false), 10000);
+    });
+  };
+
+  const generateImage = async () => {
+    console.log('🚀 Starting image generation...');
+    setIsGenerating(true);
+    setImageLoadError(false);
+
+    try {
+      // Step 1: Generate prompt
+      console.log('� Step 1:A Generating prompt...');
+      const promptRequestBody = {
+        body: {
+          message: 'Generate an image description for speaking practice',
+          sessionId: sessionId,
+          email: userEmail
+        }
+      };
+      console.log('📤 Prompt API Request:', promptRequestBody);
+
+      const promptResponse = await fetch('https://au03f6dark.execute-api.ap-south-1.amazonaws.com/dev/prompt-gen-ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(promptRequestBody)
+      });
+
+      console.log('📥 Prompt API Response Status:', promptResponse.status);
+      const promptData = await promptResponse.json();
+      console.log('📥 Prompt API Response Data:', promptData);
+
+      const prompt = JSON.parse(promptData.body).response;
+      console.log('✅ Generated Prompt:', prompt);
+
+      // Step 2: Generate image with sessionId
+      console.log('🎨 Step 2: Generating image with prompt...');
+      const imageRequestBody = {
+        prompt: prompt,
+        sessionId: sessionId, // Send sessionId to Lambda for consistent storage
+        quality: 'premium',
+        width: 1024,
+        height: 1024,
+        cfg_scale: 8.0,
+        number_of_images: 1,
+        negative_prompts: ['blurry', 'low quality', 'distorted', 'text', 'watermark'],
+        action: 'generate' // Specify action
+      };
+      console.log('📤 Image API Request:', imageRequestBody);
+
+      const imageResponse = await fetch('https://au03f6dark.execute-api.ap-south-1.amazonaws.com/dev/image-gen-ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(imageRequestBody)
+      });
+
+      console.log('📥 Image API Response Status:', imageResponse.status);
+      const imageData = await imageResponse.json();
+      console.log('📥 Image API Response Data:', imageData);
+
+      const result = JSON.parse(imageData.body);
+      console.log('🔍 Parsed Image Result:', result);
+
+      if (result.success && result.image_urls?.length > 0) {
+        const imageUrl = result.image_urls[0];
+        console.log('✅ Image Generated Successfully:', imageUrl);
+
+        // Test if the image URL is accessible
+        console.log('🔍 Testing image accessibility...');
+        const isAccessible = await testImageUrl(imageUrl);
+
+        if (isAccessible) {
+          console.log('✅ Image is accessible, setting as generated image');
+          setImageLoadError(false);
+          setImageLoading(true);
+          setGeneratedImage(imageUrl);
+        } else {
+          console.log('⚠️ Image URL not immediately accessible, but setting anyway');
+          setImageLoadError(false);
+          setImageLoading(true);
+          setGeneratedImage(imageUrl);
+
+          // Show a warning to user
+          setTimeout(() => {
+            if (imageLoading) {
+              console.log('⚠️ Image taking longer than expected to load');
+            }
+          }, 5000);
+        }
+      } else {
+        console.log('❌ Image generation failed or no URLs returned');
+        alert('Failed to generate image. Please try again.');
+      }
+    } catch (error) {
+      console.error('💥 Error generating image:', error);
+      alert('Error generating image: ' + error.message);
+    } finally {
+      console.log('🏁 Image generation process completed');
+      setIsGenerating(false);
     }
   };
 
@@ -372,13 +559,13 @@ function ImageSpeak() {
           <div className="imagespeak-nav">
             <button onClick={() => window.history.back()}>Back</button>
             <button>Practice</button>
-            <button 
+            <button
               className={activeTab === 'ImageSpeak Dashboard' ? 'active' : ''}
               onClick={() => setActiveTab('ImageSpeak Dashboard')}
             >
               ImageSpeak Dashboard
             </button>
-            <button 
+            <button
               className={activeTab === 'ImageSpeak Leaderboard' ? 'active' : ''}
               onClick={() => setActiveTab('ImageSpeak Leaderboard')}
             >
@@ -390,9 +577,9 @@ function ImageSpeak() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ color: 'var(--muted)', fontSize: 13, marginRight: 6 }}>Theme</div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <select 
-              value={theme} 
-              onChange={(e) => setTheme(e.target.value)} 
+            <select
+              value={theme}
+              onChange={(e) => setTheme(e.target.value)}
               style={{
                 background: 'rgba(255,255,255,0.03)',
                 border: 'none',
@@ -436,16 +623,16 @@ function ImageSpeak() {
                 <div className="donut">
                   <svg height="64" width="64">
                     <circle stroke="rgba(255,255,255,0.08)" fill="transparent" strokeWidth="8" r="24" cx="32" cy="32" />
-                    <circle 
-                      stroke="url(#grad1)" 
-                      fill="transparent" 
-                      strokeWidth="8" 
+                    <circle
+                      stroke="url(#grad1)"
+                      fill="transparent"
+                      strokeWidth="8"
                       strokeDasharray={`${2 * Math.PI * 24} ${2 * Math.PI * 24}`}
                       style={{ strokeDashoffset: 2 * Math.PI * 24 - (imageSpeakData.averageScore / 100) * 2 * Math.PI * 24, transition: 'stroke-dashoffset 700ms ease' }}
-                      r="24" 
-                      cx="32" 
-                      cy="32" 
-                      strokeLinecap="round" 
+                      r="24"
+                      cx="32"
+                      cy="32"
+                      strokeLinecap="round"
                     />
                     <defs>
                       <linearGradient id="grad1" x1="0" x2="1">
@@ -481,14 +668,178 @@ function ImageSpeak() {
         <div className="main-layout">
           {/* Image Section */}
           <div className="card">
-            <img
-              src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=600&h=400&fit=crop"
-              alt="City street scene"
-              className="practice-image"
-            />
-            <p className="instruction">
-              Describe the image in as much detail as possible. You have 60 seconds.
-            </p>
+            {generatedImage ? (
+              <>
+                {imageLoading && (
+                  <div style={{ textAlign: 'center', padding: '20px', color: 'var(--muted)' }}>
+                    <span className="loading">⟳</span> Loading image...
+                  </div>
+                )}
+
+                {imageLoadError ? (
+                  <div style={{
+                    color: '#ef4444',
+                    textAlign: 'center',
+                    padding: '40px 20px',
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    borderRadius: '8px',
+                    marginBottom: '12px'
+                  }}>
+                    <p style={{ marginBottom: '16px', fontSize: '16px' }}>⚠️ Image failed to load</p>
+                    <p style={{ marginBottom: '20px', fontSize: '14px', color: 'var(--muted)' }}>
+                      This might be due to network issues, CORS restrictions, or AWS S3 access policies.
+                    </p>
+                    <details style={{ marginBottom: '16px', fontSize: '12px', color: 'var(--muted)' }}>
+                      <summary style={{ cursor: 'pointer', marginBottom: '8px' }}>🔍 Debug Info</summary>
+                      <div style={{ background: 'rgba(0,0,0,0.2)', padding: '8px', borderRadius: '4px', wordBreak: 'break-all' }}>
+                        <strong>Image URL:</strong><br />
+                        {generatedImage}
+                      </div>
+                    </details>
+                    <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                      <button
+                        onClick={() => {
+                          setImageLoadError(false);
+                          setImageLoading(true);
+                          // Force reload with timestamp
+                          const img = new Image();
+                          img.onload = () => {
+                            setImageLoading(false);
+                            setGeneratedImage(generatedImage + '&reload=' + Date.now());
+                          };
+                          img.onerror = () => {
+                            setImageLoading(false);
+                            setImageLoadError(true);
+                          };
+                          img.src = generatedImage + '&retry=' + Date.now();
+                        }}
+                        style={{
+                          padding: '10px 20px',
+                          background: '#ef4444',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontSize: '14px',
+                          fontWeight: '600'
+                        }}
+                      >
+                        🔄 Retry Loading
+                      </button>
+                      <button
+                        onClick={() => {
+                          setGeneratedImage(null);
+                          setImageLoadError(false);
+                          setImageLoading(false);
+                          generateImage();
+                        }}
+                        style={{
+                          padding: '10px 20px',
+                          background: '#10b981',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontSize: '14px',
+                          fontWeight: '600'
+                        }}
+                      >
+                        🎨 Generate New Image
+                      </button>
+                      <button
+                        onClick={() => {
+                          // Use a fallback placeholder image
+                          setGeneratedImage('https://via.placeholder.com/1024x1024/4f46e5/ffffff?text=Practice+Image');
+                          setImageLoadError(false);
+                          setImageLoading(false);
+                        }}
+                        style={{
+                          padding: '10px 20px',
+                          background: '#6b7280',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontSize: '14px',
+                          fontWeight: '600'
+                        }}
+                      >
+                        📷 Use Placeholder
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <img
+                    src={generatedImage}
+                    alt="Generated image for speaking practice"
+                    className="practice-image"
+                    style={{ display: imageLoading ? 'none' : 'block' }}
+                    onLoad={() => {
+                      console.log('🖼️ Image loaded successfully:', generatedImage);
+                      setImageLoading(false);
+                      setImageLoadError(false);
+                    }}
+                    onError={(e) => {
+                      console.log('❌ Image failed to load:', e.target.src);
+                      setImageLoading(false);
+                      setImageLoadError(true);
+                    }}
+                    crossOrigin="anonymous"
+                    referrerPolicy="no-referrer"
+                  />
+                )}
+
+                {!imageLoading && !imageLoadError && (
+                  <p className="instruction">
+                    Describe the image in as much detail as possible. You have 60 seconds.
+                  </p>
+                )}
+              </>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+                <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                  <button 
+                    className="generate-btn" 
+                    onClick={async () => {
+                      // First try to retrieve existing image
+                      const existingImageFound = await retrieveExistingImage();
+                      if (!existingImageFound) {
+                        // If no existing image, generate new one
+                        generateImage();
+                      }
+                    }} 
+                    disabled={isGenerating}
+                    style={{ fontSize: '18px', padding: '16px 32px' }}
+                  >
+                    {isGenerating ? (
+                      <><span className="loading">⟳</span> Loading Image...</>
+                    ) : (
+                      '🖼️ Get Practice Image'
+                    )}
+                  </button>
+                  
+                  <button 
+                    className="generate-btn" 
+                    onClick={generateImage} 
+                    disabled={isGenerating}
+                    style={{ 
+                      fontSize: '16px', 
+                      padding: '12px 24px', 
+                      background: 'linear-gradient(135deg, #6366f1, #4f46e5)' 
+                    }}
+                  >
+                    {isGenerating ? (
+                      <><span className="loading">⟳</span> Generating...</>
+                    ) : (
+                      '🎨 Generate New'
+                    )}
+                  </button>
+                </div>
+                <p className="instruction" style={{ marginTop: '20px' }}>
+                  Click "Get Practice Image" to load your session image, or "Generate New" for a fresh image.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Vocabulary Section */}
@@ -504,29 +855,29 @@ function ImageSpeak() {
             /> */}
 
             <div className="card">
-          <div className="timer-section">
-            <div className="timer-box">
-              <div className="time">{String(timer.minutes).padStart(2, '0')}</div>
-              <div className="timer-label">Minutes</div>
-            </div>
-            <div className="timer-box">
-              <div className="time">{String(timer.seconds).padStart(2, '0')}</div>
-              <div className="timer-label">Seconds</div>
-            </div>
-          </div>
+              <div className="timer-section">
+                <div className="timer-box">
+                  <div className="time">{String(timer.minutes).padStart(2, '0')}</div>
+                  <div className="timer-label">Minutes</div>
+                </div>
+                <div className="timer-box">
+                  <div className="time">{String(timer.seconds).padStart(2, '0')}</div>
+                  <div className="timer-label">Seconds</div>
+                </div>
+              </div>
 
-          <div className="record-section">
-            <button 
-              className={`record-btn ${recording ? 'recording' : ''}`} 
-              onClick={handleRecording}
-            >
-              {recording ? '⏹️' : '🎤'}
-            </button>
-            <p className="status">
-              Recording Status: {recording ? 'In Progress...' : 'Not Started'}
-            </p>
-          </div>
-        </div>
+              <div className="record-section">
+                <button
+                  className={`record-btn ${recording ? 'recording' : ''}`}
+                  onClick={handleRecording}
+                >
+                  {recording ? '⏹️' : '🎤'}
+                </button>
+                <p className="status">
+                  Recording Status: {recording ? 'In Progress...' : 'Not Started'}
+                </p>
+              </div>
+            </div>
             {/* <div className="vocab-tags">
               {vocabTags.map((tag, index) => (
                 <span key={index} className="tag">{tag}</span>
@@ -536,7 +887,7 @@ function ImageSpeak() {
         </div>
 
         {/* Timer and Recording Section */}
-        
+
 
         {/* Feedback Section */}
         {/* <div className="card">

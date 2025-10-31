@@ -54,7 +54,7 @@ const MentorProfileCreate = lazy(() => import("./MentorProfilefiles/MentorProfil
 const MentorStudentTests = lazy(() => import("./MentorProfilefiles/Mentor_StudentTests.jsx"));
 const MentorJAMTestDashboard = lazy(() => import("./MentorProfilefiles/MentorJAMTestDashboard.jsx"));
 const MentorPron_SDashboard = lazy(() => import("./MentorProfilefiles/MentorPron_SDashboard.jsx"));
-const MentorRole_Based_InterviewDashboard  = lazy(() => import("./MentorProfilefiles/MentorRole_Based_InterviewDashbord.jsx"));
+const MentorRole_Based_InterviewDashboard = lazy(() => import("./MentorProfilefiles/MentorRole_Based_InterviewDashbord.jsx"));
 // const GenAI_Interviewer_Res = lazy(() => import("./GenAI_Folders/GenAI_Interviewer_Res.jsx"));
 // const PollyPlayer = lazy(() => import("./GenAI_Folders/PollyPlayer.jsx"));
 
@@ -100,6 +100,7 @@ const Pronunciation = lazy(() => import("./CommunicationTestsFiles/Pronunciation
 const ImageStory = lazy(() => import("./CommunicationTestsFiles/ImageStory.jsx"));
 const TranslateSpeak = lazy(() => import("./CommunicationTestsFiles/TranslateSpeak.jsx"));
 const ImageSpeak = lazy(() => import("./CommunicationTestsFiles/ImageSpeak.jsx"));
+const ImageSpeakFixed = lazy(() => import("./CommunicationTestsFiles/ImageSpeak_Fixed.jsx"))
 const SituationSpeak = lazy(() => import("./CommunicationTestsFiles/SituationSpeak.jsx"));
 // Dashboard and Leaderboard files
 const Dashboard = lazy(() => import("./Dashboard_LeaderboardFiles/Dashboard.jsx"));
@@ -156,12 +157,12 @@ const RouteChangeHandler = () => {
     // Reset body styles to default
     document.body.style = "";
     document.body.className = "";
-    
+
     return () => {
       // Cleanup if needed
     };
   }, []);
-  
+
   return null;
 };
 
@@ -176,38 +177,38 @@ function App() {
           <Route path="/" element={
             <MainLayout>
               <>
-                <LandingPage/>
+                <LandingPage />
               </>
             </MainLayout>
           } />
-          
+
 
 
           <Route path="/skill-guide" element={
             <MainLayout>
               <Skill_Guide />
             </MainLayout>
-          }/>
+          } />
 
           <Route path="/skill-dev" element={
             <MainLayout>
               <Skill_Dev />
             </MainLayout>
-          }/>
-          
+          } />
+
           <Route path="/skill-route" element={
             <MainLayout>
               <>
-              <LandingPage />
+                <LandingPage />
               </>
             </MainLayout>
-          }/>
-          
+          } />
+
           <Route path="/skill-route-modern" element={
             <MainLayout>
               <SkillRouteModern />
             </MainLayout>
-          }/>
+          } />
 
           <Route path="/about" element={
             <MainLayout>
@@ -221,13 +222,13 @@ function App() {
             <MainLayout>
               <GenAI_QueryHandler />
             </MainLayout>
-          } />   
+          } />
           <Route path="/carrer-guide" element={
             <MainLayout>
               <GenAI_CarrerGuide />
             </MainLayout>
           } />
-        
+
           <Route path="/contact" element={
             <MainLayout>
               <ContactSection />
@@ -235,9 +236,9 @@ function App() {
               <Footer />
             </MainLayout>
           } />
-          
-          
-          
+
+
+
           <Route path="/highlights" element={
             <MainLayout>
               <HighlightsSection />
@@ -247,8 +248,8 @@ function App() {
           } />
 
           {/* Auth routes */}
-          
-          
+
+
           <Route path="/signup" element={
             <AuthLayout>
               <Signup />
@@ -260,24 +261,24 @@ function App() {
               <ProfileCreation_Survey />
             </AuthLayout>
           } />
-          
+
           <Route path="/mentor" element={
             <AuthLayout>
               <Mentor />
             </AuthLayout>
           } />
-          
+
           <Route path="/mentor_profile" element={
             <AuthLayout>
-              <MentorProfile/>
+              <MentorProfile />
             </AuthLayout>
-          }/>
+          } />
 
           <Route path="/mentor_profile_create" element={
             <AuthLayout>
-              <MentorProfileCreate/>
+              <MentorProfileCreate />
             </AuthLayout>
-          }/>
+          } />
 
           <Route path="/mentor_student_tests" element={
             <AuthLayout>
@@ -297,9 +298,9 @@ function App() {
 
           <Route path="/mentor_student_tests_role_based_interview" element={
             <AuthLayout>
-              <MentorRole_Based_InterviewDashboard/>
+              <MentorRole_Based_InterviewDashboard />
             </AuthLayout>
-          }/>
+          } />
 
 
           {/* Protected routes */}
@@ -315,7 +316,7 @@ function App() {
               </DashboardLayout>
             </ProtectedRoute>
           } />
-          
+
 
           <Route path="/practice" element={
             <ProtectedRoute>
@@ -339,7 +340,7 @@ function App() {
                 <Test />
               </DashboardLayout>
             </ProtectedRoute>
-          }/>
+          } />
 
           <Route path="/progress" element={
             <ProtectedRoute>
@@ -351,14 +352,14 @@ function App() {
 
           <Route path="/student-dashboard" element={
             <ProtectedRoute>
-                <Dashboard />
+              <Dashboard />
             </ProtectedRoute>
 
           } />
 
           <Route path="/student-leaderboard" element={
             <ProtectedRoute>
-                <Leaderboard />
+              <Leaderboard />
             </ProtectedRoute>
 
           } />
@@ -380,7 +381,7 @@ function App() {
               </DashboardLayout>
             </ProtectedRoute>
           } /> */}
-          
+
           <Route path="/tech-list" element={
             <ProtectedRoute>
               <DashboardLayout>
@@ -388,7 +389,7 @@ function App() {
               </DashboardLayout>
             </ProtectedRoute>
           } />
-          
+
           <Route path="/tech-card" element={
             <ProtectedRoute>
               <DashboardLayout>
@@ -396,7 +397,7 @@ function App() {
               </DashboardLayout>
             </ProtectedRoute>
           } />
-          
+
           <Route path="/tech-selection" element={
             <ProtectedRoute>
               <DashboardLayout>
@@ -404,7 +405,7 @@ function App() {
               </DashboardLayout>
             </ProtectedRoute>
           } />
-          
+
           <Route path="/placement-prediction1" element={
             <ProtectedRoute>
               <DashboardLayout>
@@ -412,7 +413,7 @@ function App() {
               </DashboardLayout>
             </ProtectedRoute>
           } />
-          
+
           <Route path="/placement-prediction1/:field" element={
             <ProtectedRoute>
               <DashboardLayout>
@@ -543,7 +544,7 @@ function App() {
               </DashboardLayout>
             </ProtectedRoute>
           } />
-                
+
 
           {/* Fallback route for non-existent paths */}
           <Route path="/not-found" element={
@@ -622,6 +623,13 @@ function App() {
               </CommunicationPraticeLayout>
             </ProtectedRoute>
           } />
+          <Route path="/image-speak-fixed" element={
+            <ProtectedRoute>
+              <CommunicationPraticeLayout>
+                <ImageSpeakFixed />
+              </CommunicationPraticeLayout>
+            </ProtectedRoute>
+          } />
           <Route path="/situation-speak" element={
             <ProtectedRoute>
               <CommunicationPraticeLayout>
@@ -635,7 +643,7 @@ function App() {
         </Routes>
       </Suspense>
     </Router>
-    
+
   );
 }
 
