@@ -8,5 +8,12 @@ export default defineConfig({
     hmr: {
       overlay: false,
     },
+    proxy: {
+      '/s3-proxy': {
+        target: 'https://students-recording-communication-activities-transcribe-startup.s3.amazonaws.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/s3-proxy/, ''),
+      },
+    },
   },
 })
