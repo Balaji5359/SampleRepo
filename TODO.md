@@ -1,6 +1,0 @@
-- [x] Modify Signup.jsx to add error card beside heading
-- [x] Add state for error message display
-- [x] Update login.css for error card styles
-- [x] Implement responsive design
-- [x] Add close button and animations
-- [x] Ensure accessibility features

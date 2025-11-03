@@ -1,5 +1,6 @@
 // JAM.jsx
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 
 /**
  * Corrected JAM.jsx
@@ -160,6 +161,9 @@ export default function JAM1({
     onUtterance = () => { },
     onThemeChange = () => { },
 }) {
+    const location = useLocation();
+    const { remainingTests: initialRemainingTests = 0, testKey = 'jam_test' } = location.state || {};
+    const [remainingTests, setRemainingTests] = useState(initialRemainingTests);
     // default placeholder data if none provided
     const placeholder = {
         jamPoints: 1280,
@@ -246,6 +250,27 @@ export default function JAM1({
             s.innerHTML = styles;
             document.head.appendChild(s);
         }
+        
+        // Fetch current test counts
+        const fetchTestCounts = async () => {
+            const storedEmail = localStorage.getItem('email');
+            if (storedEmail) {
+                try {
+                    const response = await fetch('https://ntjkr8rnd6.execute-api.ap-south-1.amazonaws.com/dev/student_profilecreate/student_profile_senddata', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ college_email: storedEmail })
+                    });
+                    const data = await response.json();
+                    const parsedData = typeof data.body === 'string' ? JSON.parse(data.body) : data.body;
+                    setRemainingTests(parsedData.tests?.jam_test || 0);
+                } catch (error) {
+                    console.error('Error fetching test counts:', error);
+                }
+            }
+        };
+        
+        fetchTestCounts();
         return () => { mountedRef.current = false; };
     }, []);
 
@@ -613,7 +638,36 @@ export default function JAM1({
         }
     };
 
+    const decrementTestCount = async () => {
+        try {
+            const email = localStorage.getItem('email');
+            const response = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/comm-test-decrement', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    college_email: email,
+                    test_key: testKey
+                })
+            });
+            
+            const data = await response.json();
+            if (data.statusCode === 200) {
+                console.log('Test count decremented successfully');
+            }
+        } catch (error) {
+            console.error('Error decrementing test count:', error);
+        }
+    };
+
     const startTest = async () => {
+        if (remainingTests <= 0) {
+            alert('No tests remaining!');
+            return;
+        }
+        
+        await decrementTestCount();
         setShowTestPopup(true);
         setTestActive(true);
         setCurrentRecording('');
@@ -1003,10 +1057,13 @@ export default function JAM1({
                                     {!showTestPopup && (
                                         <div className="card" style={{ textAlign: 'center', padding: 60 }}>
                                             <div style={{ fontWeight: 700, fontSize: 32, marginBottom: 20, color: 'var(--accent)' }}>JAM Practice Test</div>
-                                            <div style={{ fontSize: 18, color: 'var(--muted)', marginBottom: 40 }}>Test your Just A Minute speaking skills</div>
+                                            <div style={{ fontSize: 18, color: 'var(--muted)', marginBottom: 20 }}>Test your Just A Minute speaking skills</div>
+                                            <div style={{ fontSize: 16, color: 'var(--accent)', marginBottom: 40, fontWeight: 600 }}>
+                                                Remaining Tests: {remainingTests}
+                                            </div>
 
-                                            <button className="start-btn" onClick={startTest}>
-                                                Start JAM Test
+                                            <button className="start-btn" onClick={startTest} disabled={remainingTests <= 0}>
+                                                {remainingTests <= 0 ? 'No Tests Remaining' : 'Start JAM Test'}
                                             </button>
 
                                             {jamData && (

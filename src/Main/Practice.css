@@ -203,6 +203,19 @@
   box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
 }
 
+.start-btn:disabled {
+  background: linear-gradient(135deg, #ccc, #aaa);
+  color: #666;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.start-btn:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
 .duration {
   background: rgba(59, 130, 246, 0.1);
   color: #3b82f6;

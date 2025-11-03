@@ -33,6 +33,7 @@ function ProfileData() {
         profile_last_updated: "",
         unique_id: "",
     });
+    const [testsRemaining, setTestsRemaining] = useState({});
 
     // Mock data for analytics and leaderboard
     const [analyticsData, setAnalyticsData] = useState({
@@ -122,6 +123,7 @@ function ProfileData() {
                             profile_last_updated: parsedData.profile_last_updated || "",
                             unique_id: parsedData.unique_id || "",
                         });
+                        setTestsRemaining(parsedData.tests || {});
 
                         if (parsedData.subscription_plan && parsedData.payment_status === 'success') {
                             setSubscriptionData({
@@ -338,7 +340,7 @@ function ProfileData() {
                             <p>Improve your skills</p>
                         </div>
                     </button>
-                    <button className="action-btn test-btn" onClick={() => navigate('/test')}>
+                    <button className="action-btn test-btn" onClick={() => navigate('/test', { state: { tests: testsRemaining } })}>
                         <div className="btn-icon">📝</div>
                         <div className="btn-content">
                             <h3>Start Test</h3>

@@ -1,8 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 
 function ImageSpeak() {
+  const location = useLocation();
+  const { remainingTests: initialRemainingTests = 0, testKey = 'image_speak' } = location.state || {};
+  const [remainingTests, setRemainingTests] = useState(initialRemainingTests);
   const [recording, setRecording] = useState(false);
-  const [theme, setTheme] = useState('dark');
+  const [theme, setTheme] = useState('custom');
   const [vocabInput, setVocabInput] = useState('');
   const [vocabTags, setVocabTags] = useState(['Cityscape', 'Buildings', 'Cars', 'Street', 'Urban']);
   const [timer, setTimer] = useState({ minutes: 1, seconds: 0 });
@@ -12,7 +16,20 @@ function ImageSpeak() {
   const [imageLoadError, setImageLoadError] = useState(false);
   const [imageLoading, setImageLoading] = useState(false);
   const [sessionId] = useState(`image-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`);
-  const [userEmail] = useState(localStorage.getItem('email') || '22691a2828@mits.ac.in');
+  const [userEmail] = useState(localStorage.getItem('email'));
+  const [isLoading, setIsLoading] = useState(false);
+  const [feedback, setFeedback] = useState(null);
+  const [recordingUsed, setRecordingUsed] = useState(false);
+  const [recordingDisabled, setRecordingDisabled] = useState(true); // Disabled until image loads
+  const [micTimeLeft, setMicTimeLeft] = useState(50);
+  const [showTestPopup, setShowTestPopup] = useState(false);
+  const [testActive, setTestActive] = useState(false);
+  
+  // Recording refs
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
+  const streamRef = useRef(null);
+  const micTimerRef = useRef(null);
 
   // Mock data for ImageSpeak stats
   const imageSpeakData = {
@@ -336,6 +353,145 @@ function ImageSpeak() {
       100% { transform: rotate(360deg); }
     }
 
+    .feedback-section {
+      margin-top: 20px;
+      padding: 20px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(79,70,229,0.08), rgba(34,211,238,0.04));
+      border: 1px solid rgba(79,70,229,0.2);
+      backdrop-filter: blur(10px);
+    }
+
+    .feedback-content {
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .feedback-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .feedback-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-color);
+    }
+
+    .feedback-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .feedback-stat {
+      background: rgba(255,255,255,0.05);
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .feedback-stat-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .feedback-stat-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-color);
+    }
+
+    .feedback-section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-color);
+      margin: 16px 0 8px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .feedback-text {
+      background: rgba(255,255,255,0.03);
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      border-left: 3px solid var(--accent);
+    }
+
+    .feedback-reasons {
+      background: rgba(255,255,255,0.03);
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+
+    .feedback-reason {
+      margin-bottom: 8px;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .feedback-reason strong {
+      color: #60a5fa;
+    }
+
+    .feedback-general {
+      background: rgba(16,185,129,0.1);
+      padding: 12px;
+      border-radius: 8px;
+      border-left: 3px solid #10b981;
+    }
+
+    .timer-container { position:relative; display:inline-block; }
+    .timer-circle { width:140px; height:140px; }
+    .timer-bg { fill:none; stroke:rgba(255,255,255,0.1); stroke-width:8; }
+    .timer-progress { fill:none; stroke:var(--accent); stroke-width:8; stroke-linecap:round; transform:rotate(-90deg); transform-origin:50% 50%; transition:stroke-dashoffset 1s linear; }
+    .timer-text { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:24px; font-weight:700; color:var(--text-color); }
+    
+    .waveform { height:34px; width:100%; max-width:240px; display:flex; gap:4px; align-items:end; justify-content:center; }
+    .waveform span { display:block; width:6px; background:linear-gradient(180deg,#fff,#cde9ff); border-radius:3px; opacity:0.9; animation: wave 800ms infinite ease; }
+    .waveform span:nth-child(2) { animation-delay:120ms; }
+    .waveform span:nth-child(3) { animation-delay:280ms; }
+    .waveform span:nth-child(4) { animation-delay:430ms; }
+    @keyframes wave { 0% { height:6px; } 50% { height:26px; } 100% { height:6px; } }
+    
+    .start-btn { padding:16px 32px; font-size:18px; font-weight:700; border:none; border-radius:12px; background:linear-gradient(135deg,#10b981,#059669); color:white; cursor:pointer; transition:all 200ms; }
+    .start-btn:hover { transform:translateY(-2px); box-shadow:0 8px 25px rgba(16,185,129,0.3); }
+    .end-btn { padding:12px 24px; font-size:16px; font-weight:600; border:none; border-radius:8px; background:#ef4444; color:white; cursor:pointer; transition:all 200ms; }
+    .end-btn:hover { background:#dc2626; }
+
+    .test-container {
+      max-height: 80vh;
+      overflow-y: auto;
+      padding-right: 10px;
+    }
+
+    .test-container::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .test-container::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.1);
+      border-radius: 4px;
+    }
+
+    .test-container::-webkit-scrollbar-thumb {
+      background: var(--accent);
+      border-radius: 4px;
+    }
+
+    .test-container::-webkit-scrollbar-thumb:hover {
+      background: rgba(79,70,229,0.8);
+    }
+
     @media (max-width: 768px) {
       .main-layout {
         grid-template-columns: 1fr;
@@ -355,6 +511,34 @@ function ImageSpeak() {
       s.innerHTML = styles;
       document.head.appendChild(s);
     }
+    
+    // Fetch current test counts
+    const fetchTestCounts = async () => {
+      const storedEmail = localStorage.getItem('email');
+      if (storedEmail) {
+        try {
+          const response = await fetch('https://ntjkr8rnd6.execute-api.ap-south-1.amazonaws.com/dev/student_profilecreate/student_profile_senddata', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ college_email: storedEmail })
+          });
+          const data = await response.json();
+          const parsedData = typeof data.body === 'string' ? JSON.parse(data.body) : data.body;
+          setRemainingTests(parsedData.tests?.image_speak || 0);
+        } catch (error) {
+          console.error('Error fetching test counts:', error);
+        }
+      }
+    };
+    
+    fetchTestCounts();
+    
+    // Cleanup on unmount
+    return () => {
+      if (micTimerRef.current) {
+        clearInterval(micTimerRef.current);
+      }
+    };
   }, []);
 
   // Theme handling
@@ -382,8 +566,332 @@ function ImageSpeak() {
     }
   }, [theme]);
 
+  // Audio Recording Functions
+  const startAudioRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      audioChunksRef.current = [];
+
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+        await sendAudioToLambda(audioBlob);
+
+        if (streamRef.current) {
+          streamRef.current.getTracks().forEach(track => track.stop());
+          streamRef.current = null;
+        }
+      };
+
+      mediaRecorder.start();
+      setRecording(true);
+      setRecordingDisabled(true);
+
+      // Start 50-second timer
+      setMicTimeLeft(50);
+      micTimerRef.current = setInterval(() => {
+        setMicTimeLeft(prev => {
+          if (prev <= 1) {
+            stopAudioRecording();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+    } catch (error) {
+      console.error('Error starting audio recording:', error);
+      alert('Failed to start audio recording. Please check microphone permissions.');
+    }
+  };
+
+  const stopAudioRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      mediaRecorderRef.current.stop();
+    }
+
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+
+    setRecording(false);
+    setRecordingUsed(true);
+    setRecordingDisabled(true);
+    setMicTimeLeft(50);
+
+    if (micTimerRef.current) {
+      clearInterval(micTimerRef.current);
+      micTimerRef.current = null;
+    }
+  };
+
+  const sendAudioToLambda = async (audioBlob) => {
+    try {
+      setIsLoading(true);
+
+      const reader = new FileReader();
+      reader.readAsDataURL(audioBlob);
+
+      reader.onloadend = async () => {
+        const base64Audio = reader.result.split(',')[1];
+
+        console.log('Sending audio for transcription...');
+        
+        // Send to recording API
+        const requestBody = {
+          body: JSON.stringify({
+            data: base64Audio,
+            sessionId: sessionId
+          })
+        };
+
+        const response1 = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/studentcommunicationtests_retrivalapi/studentcommunicationtests_recordingapi', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(requestBody)
+        });
+
+        console.log('Recording response status:', response1.status);
+
+        // Poll for transcription
+        let attempts = 0;
+        const maxAttempts = 12;
+        let pollInterval = 2000;
+
+        const pollTranscript = async () => {
+          try {
+            const response2 = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/studentcommunicationtests_retrivalapi/studentcommunicationtests_transcribeapi', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ body: { sessionId: sessionId } })
+            });
+
+            const data2 = await response2.json();
+            console.log('Transcription poll response:', data2);
+
+            let responseData;
+            if (data2.body && typeof data2.body === 'string') {
+              try {
+                responseData = JSON.parse(data2.body);
+              } catch (e) {
+                responseData = data2;
+              }
+            } else {
+              responseData = data2.body || data2;
+            }
+
+            if (responseData.status === 'completed' && responseData.transcript) {
+              const transcript = responseData.transcript.trim();
+              if (transcript) {
+                console.log('Found transcript:', transcript);
+                await sendTranscriptToAI(transcript);
+                return;
+              }
+            }
+
+            if (responseData.error === 'Transcript JSON not found' || responseData.status === 'processing' || data2.statusCode === 404) {
+              if (attempts < maxAttempts) {
+                attempts++;
+                console.log(`Polling attempt ${attempts}/${maxAttempts}`);
+                if (attempts > 5) pollInterval = 3000;
+                if (attempts > 10) pollInterval = 4000;
+                setTimeout(pollTranscript, pollInterval);
+                return;
+              }
+            }
+
+            if (responseData.status === 'error' || responseData.status === 'failed') {
+              console.error('Transcription error:', responseData);
+              setFeedback('Audio transcription failed. Please try again.');
+              setIsLoading(false);
+              return;
+            }
+
+            console.log('Transcription timeout');
+            setFeedback('Audio processing is taking longer than expected. Please try again.');
+            setIsLoading(false);
+          } catch (pollError) {
+            console.error('Polling error:', pollError);
+            if (attempts < maxAttempts) {
+              attempts++;
+              setTimeout(pollTranscript, pollInterval);
+            } else {
+              setFeedback('Error processing audio. Please try again.');
+              setIsLoading(false);
+            }
+          }
+        };
+
+        setTimeout(pollTranscript, 3000);
+      };
+
+    } catch (error) {
+      console.error('Error:', error);
+      setFeedback(`Error: ${error.message}`);
+      setIsLoading(false);
+    }
+  };
+
+  const sendTranscriptToAI = async (transcript) => {
+    try {
+      console.log('Sending transcript to AI:', transcript);
+      
+      const requestBody = {
+        body: {
+          message: transcript,
+          sessionId: sessionId,
+          email: userEmail
+        }
+      };
+
+      const response = await fetch('https://au03f6dark.execute-api.ap-south-1.amazonaws.com/dev/eng-corr-agent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestBody)
+      });
+
+      const data = await response.json();
+      const aiResponse = JSON.parse(data.body).response;
+      
+      console.log('AI Feedback:', aiResponse);
+      setFeedback(aiResponse);
+      
+    } catch (error) {
+      console.error('Error getting AI feedback:', error);
+      setFeedback('Error getting feedback. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const parseFeedback = (feedbackText) => {
+    if (!feedbackText || typeof feedbackText !== 'string') return null;
+    
+    const lines = feedbackText.split('\n').filter(line => line.trim());
+    const parsed = {
+      wordCount: '',
+      score: '',
+      correctedParagraph: '',
+      reasons: [],
+      feedback: ''
+    };
+    
+    let currentSection = '';
+    
+    lines.forEach(line => {
+      const trimmed = line.trim();
+      
+      if (trimmed.startsWith('**Word Count**:')) {
+        parsed.wordCount = trimmed.replace('**Word Count**:', '').trim();
+      } else if (trimmed.startsWith('**Score**:')) {
+        parsed.score = trimmed.replace('**Score**:', '').trim();
+      } else if (trimmed.startsWith('**Corrected Paragraph**:')) {
+        currentSection = 'corrected';
+      } else if (trimmed.startsWith('**Reasons**:')) {
+        currentSection = 'reasons';
+      } else if (trimmed.startsWith('**Feedback**:')) {
+        currentSection = 'feedback';
+      } else if (trimmed && !trimmed.startsWith('**')) {
+        if (currentSection === 'corrected') {
+          parsed.correctedParagraph += (parsed.correctedParagraph ? ' ' : '') + trimmed;
+        } else if (currentSection === 'reasons') {
+          parsed.reasons.push(trimmed);
+        } else if (currentSection === 'feedback') {
+          parsed.feedback += (parsed.feedback ? ' ' : '') + trimmed;
+        }
+      }
+    });
+    
+    return parsed;
+  };
+
   const handleRecording = () => {
-    setRecording(!recording);
+    if (recording) {
+      stopAudioRecording();
+    } else if (!recordingUsed && !recordingDisabled) {
+      startAudioRecording();
+    }
+  };
+
+
+
+  const decrementTestCount = async () => {
+    try {
+      const email = localStorage.getItem('email');
+      const response = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/comm-test-decrement', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          college_email: email,
+          test_key: testKey
+        })
+      });
+      
+      const data = await response.json();
+      if (data.statusCode === 200) {
+        console.log('Test count decremented successfully');
+      }
+    } catch (error) {
+      console.error('Error decrementing test count:', error);
+    }
+  };
+
+  const startTest = async () => {
+    if (remainingTests <= 0) {
+      alert('No tests remaining!');
+      return;
+    }
+    
+    await decrementTestCount();
+    setShowTestPopup(true);
+    setTestActive(true);
+    // Reset states for new test
+    setGeneratedImage(null);
+    setFeedback(null);
+    setRecordingUsed(false);
+    setRecordingDisabled(true);
+    // Auto-generate image for test
+    await generateImageForTest();
+  };
+
+  const endTest = () => {
+    if (micTimerRef.current) {
+      clearInterval(micTimerRef.current);
+      micTimerRef.current = null;
+    }
+    alert('Test completed!');
+    window.location.reload();
+  };
+
+  const generateImageForTest = async () => {
+    setIsGenerating(true);
+    setImageLoadError(false);
+
+    try {
+      const existingImageFound = await retrieveExistingImage();
+      if (!existingImageFound) {
+        await generateImage();
+      }
+    } catch (error) {
+      console.error('Error in test image generation:', error);
+    }
   };
 
   // Function to retrieve existing images by sessionId
@@ -443,7 +951,6 @@ function ImageSpeak() {
       const img = new Image();
       img.onload = () => resolve(true);
       img.onerror = () => resolve(false);
-      img.crossOrigin = 'anonymous';
       img.src = url;
 
       // Timeout after 10 seconds
@@ -478,21 +985,21 @@ function ImageSpeak() {
       const promptData = await promptResponse.json();
       console.log('📥 Prompt API Response Data:', promptData);
 
-      const prompt = JSON.parse(promptData.body).response;
-      console.log('✅ Generated Prompt:', prompt);
+      let prompt = JSON.parse(promptData.body).response;
+      // Clean the prompt: trim whitespace, remove newlines, and limit length to 512 characters
+      prompt = prompt.trim().replace(/\n/g, ' ').replace(/\s+/g, ' ');
+      if (prompt.length > 512) {
+        prompt = prompt.substring(0, 512);
+      }
+      console.log('✅ Generated Prompt (cleaned):', prompt);
 
       // Step 2: Generate image with sessionId
       console.log('🎨 Step 2: Generating image with prompt...');
       const imageRequestBody = {
-        prompt: prompt,
-        sessionId: sessionId, // Send sessionId to Lambda for consistent storage
-        quality: 'premium',
-        width: 1024,
-        height: 1024,
-        cfg_scale: 8.0,
-        number_of_images: 1,
-        negative_prompts: ['blurry', 'low quality', 'distorted', 'text', 'watermark'],
-        action: 'generate' // Specify action
+        body: {
+          sessionId: sessionId,
+          prompt: prompt
+        }
       };
       console.log('📤 Image API Request:', imageRequestBody);
 
@@ -509,32 +1016,14 @@ function ImageSpeak() {
       const result = JSON.parse(imageData.body);
       console.log('🔍 Parsed Image Result:', result);
 
-      if (result.success && result.image_urls?.length > 0) {
-        const imageUrl = result.image_urls[0];
+      if (result.success && result.s3_url) {
+        const imageUrl = result.s3_url;
         console.log('✅ Image Generated Successfully:', imageUrl);
-
-        // Test if the image URL is accessible
-        console.log('🔍 Testing image accessibility...');
-        const isAccessible = await testImageUrl(imageUrl);
-
-        if (isAccessible) {
-          console.log('✅ Image is accessible, setting as generated image');
-          setImageLoadError(false);
-          setImageLoading(true);
-          setGeneratedImage(imageUrl);
-        } else {
-          console.log('⚠️ Image URL not immediately accessible, but setting anyway');
-          setImageLoadError(false);
-          setImageLoading(true);
-          setGeneratedImage(imageUrl);
-
-          // Show a warning to user
-          setTimeout(() => {
-            if (imageLoading) {
-              console.log('⚠️ Image taking longer than expected to load');
-            }
-          }, 5000);
-        }
+        setImageLoadError(false);
+        setImageLoading(true);
+        setGeneratedImage(imageUrl);
+        // Enable recording after image is set
+        setRecordingDisabled(false);
       } else {
         console.log('❌ Image generation failed or no URLs returned');
         alert('Failed to generate image. Please try again.');
@@ -550,6 +1039,7 @@ function ImageSpeak() {
 
   return (
     <div className="imagespeak-root">
+      
       {/* JAM-style Header */}
       <div className="imagespeak-topnav">
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -598,306 +1088,273 @@ function ImageSpeak() {
       </div>
 
       <div className="imagespeak-container">
-        {/* ImageSpeak Summary Section */}
-        <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-            <div>
-              <div style={{ fontSize: '12px', color: 'var(--muted)', fontWeight: '700' }}>Overview</div>
-              <div style={{ fontSize: '18px', fontWeight: '800' }}>Your ImageSpeak Summary</div>
-            </div>
-            <div style={{ textAlign: 'right', color: 'var(--muted)', fontSize: '12px' }}>
-              <div>Last updated: {new Date().toLocaleString()}</div>
-            </div>
-          </div>
-
-          <div className="stats-grid" style={{ marginTop: '6px' }}>
-            <div className="stat card" style={{ padding: '12px' }}>
-              <div className="label">ImageSpeak Points Earned</div>
-              <div className="value">{imageSpeakData.points}</div>
-              <div className="small">Points collected across sessions</div>
+        {!showTestPopup && (
+          <div className="card" style={{ textAlign: 'center', padding: 60 }}>
+            <div style={{ fontWeight: 700, fontSize: 32, marginBottom: 20, color: 'var(--accent)' }}>ImageSpeak Practice Test</div>
+            <div style={{ fontSize: 18, color: 'var(--muted)', marginBottom: 20 }}>Test your image description speaking skills</div>
+            <div style={{ fontSize: 16, color: 'var(--accent)', marginBottom: 40, fontWeight: 600 }}>
+              Remaining Tests: {remainingTests}
             </div>
 
-            <div className="stat card" style={{ padding: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
-              <div className="label">Average Score</div>
-              <div style={{ marginTop: '6px' }}>
-                <div className="donut">
-                  <svg height="64" width="64">
-                    <circle stroke="rgba(255,255,255,0.08)" fill="transparent" strokeWidth="8" r="24" cx="32" cy="32" />
-                    <circle
-                      stroke="url(#grad1)"
-                      fill="transparent"
-                      strokeWidth="8"
-                      strokeDasharray={`${2 * Math.PI * 24} ${2 * Math.PI * 24}`}
-                      style={{ strokeDashoffset: 2 * Math.PI * 24 - (imageSpeakData.averageScore / 100) * 2 * Math.PI * 24, transition: 'stroke-dashoffset 700ms ease' }}
-                      r="24"
-                      cx="32"
-                      cy="32"
-                      strokeLinecap="round"
-                    />
-                    <defs>
-                      <linearGradient id="grad1" x1="0" x2="1">
-                        <stop offset="0%" stopColor="#60a5fa" />
-                        <stop offset="100%" stopColor="#06b6d4" />
-                      </linearGradient>
-                    </defs>
-                  </svg>
-                  <div className="center">
-                    <div className="num">{imageSpeakData.averageScore}%</div>
-                    <div className="lbl">Avg</div>
-                  </div>
-                </div>
+            <button className="start-btn" onClick={startTest} disabled={remainingTests <= 0}>
+              {remainingTests <= 0 ? 'No Tests Remaining' : 'Start ImageSpeak Test'}
+            </button>
+
+            <div style={{ marginTop: 40, display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 20, maxWidth: 600, margin: '40px auto 0' }}>
+              <div className="stat card" style={{ padding: 20 }}>
+                <div className="label">Average Score</div>
+                <div className="value">{imageSpeakData.averageScore}%</div>
               </div>
-              <div className="small" style={{ marginTop: '8px' }}>Goal: 85%</div>
-            </div>
-
-            <div className="stat card" style={{ padding: '12px' }}>
-              <div className="label">Total Tests Taken</div>
-              <div className="value">{imageSpeakData.totalTests}</div>
-              <div className="small">Trend: ▼ 6% vs last month</div>
-            </div>
-
-            <div className="stat card" style={{ padding: '12px' }}>
-              <div className="label">Number of Words Spoken</div>
-              <div className="value">{imageSpeakData.wordsSpoken}</div>
-              <div className="small">Words across all sessions</div>
+              <div className="stat card" style={{ padding: 20 }}>
+                <div className="label">Tests Taken</div>
+                <div className="value">{imageSpeakData.totalTests}</div>
+              </div>
+              <div className="stat card" style={{ padding: 20 }}>
+                <div className="label">Words Spoken</div>
+                <div className="value">{imageSpeakData.wordsSpoken}</div>
+              </div>
             </div>
           </div>
-        </div>
-
-        {/* Main Content Grid */}
-        <div className="main-layout">
-          {/* Image Section */}
-          <div className="card">
-            {generatedImage ? (
-              <>
-                {imageLoading && (
-                  <div style={{ textAlign: 'center', padding: '20px', color: 'var(--muted)' }}>
-                    <span className="loading">⟳</span> Loading image...
-                  </div>
-                )}
-
-                {imageLoadError ? (
-                  <div style={{
-                    color: '#ef4444',
-                    textAlign: 'center',
-                    padding: '40px 20px',
-                    background: 'rgba(239, 68, 68, 0.1)',
-                    borderRadius: '8px',
-                    marginBottom: '12px'
-                  }}>
-                    <p style={{ marginBottom: '16px', fontSize: '16px' }}>⚠️ Image failed to load</p>
-                    <p style={{ marginBottom: '20px', fontSize: '14px', color: 'var(--muted)' }}>
-                      This might be due to network issues, CORS restrictions, or AWS S3 access policies.
-                    </p>
-                    <details style={{ marginBottom: '16px', fontSize: '12px', color: 'var(--muted)' }}>
-                      <summary style={{ cursor: 'pointer', marginBottom: '8px' }}>🔍 Debug Info</summary>
-                      <div style={{ background: 'rgba(0,0,0,0.2)', padding: '8px', borderRadius: '4px', wordBreak: 'break-all' }}>
-                        <strong>Image URL:</strong><br />
-                        {generatedImage}
-                      </div>
-                    </details>
-                    <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                      <button
-                        onClick={() => {
-                          setImageLoadError(false);
-                          setImageLoading(true);
-                          // Force reload with timestamp
-                          const img = new Image();
-                          img.onload = () => {
-                            setImageLoading(false);
-                            setGeneratedImage(generatedImage + '&reload=' + Date.now());
-                          };
-                          img.onerror = () => {
-                            setImageLoading(false);
-                            setImageLoadError(true);
-                          };
-                          img.src = generatedImage + '&retry=' + Date.now();
-                        }}
-                        style={{
-                          padding: '10px 20px',
-                          background: '#ef4444',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '6px',
-                          cursor: 'pointer',
-                          fontSize: '14px',
-                          fontWeight: '600'
-                        }}
-                      >
-                        🔄 Retry Loading
-                      </button>
-                      <button
-                        onClick={() => {
-                          setGeneratedImage(null);
-                          setImageLoadError(false);
-                          setImageLoading(false);
-                          generateImage();
-                        }}
-                        style={{
-                          padding: '10px 20px',
-                          background: '#10b981',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '6px',
-                          cursor: 'pointer',
-                          fontSize: '14px',
-                          fontWeight: '600'
-                        }}
-                      >
-                        🎨 Generate New Image
-                      </button>
-                      <button
-                        onClick={() => {
-                          // Use a fallback placeholder image
-                          setGeneratedImage('https://via.placeholder.com/1024x1024/4f46e5/ffffff?text=Practice+Image');
-                          setImageLoadError(false);
-                          setImageLoading(false);
-                        }}
-                        style={{
-                          padding: '10px 20px',
-                          background: '#6b7280',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '6px',
-                          cursor: 'pointer',
-                          fontSize: '14px',
-                          fontWeight: '600'
-                        }}
-                      >
-                        📷 Use Placeholder
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <img
-                    src={generatedImage}
-                    alt="Generated image for speaking practice"
-                    className="practice-image"
-                    style={{ display: imageLoading ? 'none' : 'block' }}
-                    onLoad={() => {
-                      console.log('🖼️ Image loaded successfully:', generatedImage);
-                      setImageLoading(false);
-                      setImageLoadError(false);
-                    }}
-                    onError={(e) => {
-                      console.log('❌ Image failed to load:', e.target.src);
-                      setImageLoading(false);
-                      setImageLoadError(true);
-                    }}
-                    crossOrigin="anonymous"
-                    referrerPolicy="no-referrer"
-                  />
-                )}
-
-                {!imageLoading && !imageLoadError && (
-                  <p className="instruction">
-                    Describe the image in as much detail as possible. You have 60 seconds.
+        )}
+        {showTestPopup && (
+          <div className="test-container">
+            <div className="card" style={{
+              background: theme === 'light' ? 'linear-gradient(135deg, #ffffff, #f0f9ff)' :
+                theme === 'custom' ? 'linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1))' :
+                  'var(--card-bg)',
+              border: theme === 'light' ? '1px solid rgba(14,165,164,0.2)' :
+                theme === 'custom' ? '1px solid rgba(255,255,255,0.2)' :
+                  '1px solid rgba(255,255,255,0.04)'
+            }}>
+              <div style={{ display: 'flex', gap: 30 }}>
+                <div style={{ flex: 1 }}>
+                  <h2 style={{ color: 'var(--accent)', marginBottom: 16 }}>🚀 ImageSpeak Test in Progress</h2>
+                  <p style={{ fontSize: 14, marginBottom: 20, color: 'var(--muted)' }}>
+                    Describe the image in detail and get AI feedback on your speaking.
                   </p>
-                )}
-              </>
-            ) : (
-              <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-                <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                  <button 
-                    className="generate-btn" 
-                    onClick={async () => {
-                      // First try to retrieve existing image
-                      const existingImageFound = await retrieveExistingImage();
-                      if (!existingImageFound) {
-                        // If no existing image, generate new one
-                        generateImage();
+
+                  {generatedImage ? (
+                    <>
+                      {imageLoading && (
+                        <div style={{ textAlign: 'center', padding: '20px', color: 'var(--muted)' }}>
+                          <span className="loading">⟳</span> Loading image...
+                        </div>
+                      )}
+                      
+                      <img
+                        src={generatedImage}
+                        alt="Test image for speaking practice"
+                        style={{
+                          width: '100%',
+                          height: '300px',
+                          objectFit: 'cover',
+                          borderRadius: '12px',
+                          marginBottom: '12px',
+                          display: imageLoading ? 'none' : 'block'
+                        }}
+                        onLoad={() => {
+                          setImageLoading(false);
+                          setImageLoadError(false);
+                        }}
+                        onError={() => {
+                          setImageLoading(false);
+                          setImageLoadError(true);
+                        }}
+                      />
+                      
+                      {!imageLoading && !imageLoadError && (
+                        <p style={{ color: 'var(--muted)', fontSize: '14px' }}>
+                          Describe this image in detail. Click the microphone to start recording.
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: '60px 20px', background: 'var(--card-bg)', borderRadius: '12px' }}>
+                      {isGenerating ? (
+                        <><span className="loading">⟳</span> Generating test image...</>
+                      ) : (
+                        'Preparing test image...'
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div style={{ flex: 1, textAlign: 'center' }}>
+                  <h3 style={{ marginBottom: '20px', fontSize: '18px', fontWeight: '700' }}>Record Your Description</h3>
+                  
+                  {recording && (
+                    <div style={{ marginBottom: '20px' }}>
+                      <div className="timer-container">
+                        <svg className="timer-circle" viewBox="0 0 140 140">
+                          <circle className="timer-bg" cx="70" cy="70" r="62" />
+                          <circle
+                            className="timer-progress"
+                            cx="70"
+                            cy="70"
+                            r="62"
+                            strokeDasharray={2 * Math.PI * 62}
+                            strokeDashoffset={2 * Math.PI * 62 - ((50 - micTimeLeft) / 50) * 2 * Math.PI * 62}
+                          />
+                        </svg>
+                        <div className="timer-text">{Math.floor(micTimeLeft / 60)}:{(micTimeLeft % 60).toString().padStart(2, '0')}</div>
+                      </div>
+                      <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '10px' }}>Recording Time</div>
+                    </div>
+                  )}
+
+                  <div style={{ marginBottom: '20px' }}>
+                    <button
+                      className={`record-btn ${recording ? 'recording' : ''}`}
+                      onClick={handleRecording}
+                      disabled={recordingDisabled || (recordingUsed && !recording)}
+                      style={{ 
+                        width: '100px', 
+                        height: '100px', 
+                        fontSize: '28px',
+                        opacity: (recordingDisabled || (recordingUsed && !recording)) ? 0.3 : 1,
+                        cursor: (recordingDisabled || (recordingUsed && !recording)) ? 'not-allowed' : 'pointer'
+                      }}
+                      title={
+                        recordingDisabled && !generatedImage ? 'Wait for image to load' :
+                        recordingUsed && !recording ? 'Recording already used - one chance only' : 
+                        recording ? 'Stop recording' : 'Start recording (50 seconds)'
                       }
-                    }} 
-                    disabled={isGenerating}
-                    style={{ fontSize: '18px', padding: '16px 32px' }}
-                  >
-                    {isGenerating ? (
-                      <><span className="loading">⟳</span> Loading Image...</>
-                    ) : (
-                      '🖼️ Get Practice Image'
-                    )}
+                    >
+                      {recording ? (
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="currentColor">
+                          <rect x="6" y="6" width="12" height="12" rx="2" />
+                        </svg>
+                      ) : (
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3Z" />
+                          <path d="M19 10v1a7 7 0 0 1-14 0v-1" />
+                          <line x1="12" y1="19" x2="12" y2="23" />
+                          <line x1="8" y1="23" x2="16" y2="23" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+
+                  {recording && (
+                    <div className="waveform" style={{ marginBottom: '20px' }}>
+                      <span style={{ height: 10 }} />
+                      <span style={{ height: 18 }} />
+                      <span style={{ height: 14 }} />
+                      <span style={{ height: 22 }} />
+                      <span style={{ height: 12 }} />
+                    </div>
+                  )}
+
+                  <p style={{
+                    color: theme === 'light' ? '#6b7280' : theme === 'custom' ? 'rgba(255,255,255,0.9)' : 'var(--muted)',
+                    fontSize: '14px',
+                    marginBottom: '20px'
+                  }}>
+                    {isLoading ? 'Processing audio...' : 
+                    recording ? 'Recording in progress... Click mic to stop' : 
+                    recordingUsed ? 'Recording completed' : 
+                    recordingDisabled ? 'Wait for image to load' :
+                    'Click microphone to start recording'}
+                  </p>
+                  
+                  {recordingUsed && !recording && (
+                    <div style={{ fontSize: '12px', color: 'var(--muted)', marginBottom: '20px' }}>
+                      One recording per session (50 seconds max)
+                    </div>
+                  )}
+                  
+                  <button className="end-btn" onClick={endTest}>
+                    End Test
                   </button>
                   
-                  <button 
-                    className="generate-btn" 
-                    onClick={generateImage} 
-                    disabled={isGenerating}
-                    style={{ 
-                      fontSize: '16px', 
-                      padding: '12px 24px', 
-                      background: 'linear-gradient(135deg, #6366f1, #4f46e5)' 
-                    }}
-                  >
-                    {isGenerating ? (
-                      <><span className="loading">⟳</span> Generating...</>
-                    ) : (
-                      '🎨 Generate New'
-                    )}
-                  </button>
+                  {feedback && (() => {
+                    const parsed = parseFeedback(feedback);
+                    
+                    if (!parsed) {
+                      return (
+                        <div className="feedback-section" style={{ marginTop: '20px', textAlign: 'left' }}>
+                          <div className="feedback-header">
+                            <span style={{ fontSize: '20px' }}>🤖</span>
+                            <div className="feedback-title">AI Feedback</div>
+                          </div>
+                          <div className="feedback-content">{feedback}</div>
+                        </div>
+                      );
+                    }
+                    
+                    return (
+                      <div className="feedback-section" style={{ marginTop: '20px', textAlign: 'left' }}>
+                        <div className="feedback-header">
+                          <span style={{ fontSize: '20px' }}>🎯</span>
+                          <div className="feedback-title">Speaking Analysis Results</div>
+                        </div>
+                        
+                        <div className="feedback-stats">
+                          <div className="feedback-stat">
+                            <div className="feedback-stat-label">Word Count</div>
+                            <div className="feedback-stat-value">{parsed.wordCount || 'N/A'}</div>
+                          </div>
+                          <div className="feedback-stat">
+                            <div className="feedback-stat-label">Score</div>
+                            <div className="feedback-stat-value" style={{ color: '#10b981' }}>{parsed.score || 'N/A'}</div>
+                          </div>
+                        </div>
+                        
+                        {parsed.correctedParagraph && (
+                          <>
+                            <div className="feedback-section-title">
+                              <span>✨</span> Corrected Version
+                            </div>
+                            <div className="feedback-text">
+                              {parsed.correctedParagraph}
+                            </div>
+                          </>
+                        )}
+                        
+                        {parsed.reasons.length > 0 && (
+                          <>
+                            <div className="feedback-section-title">
+                              <span>🔍</span> Grammar Corrections
+                            </div>
+                            <div className="feedback-reasons">
+                              {parsed.reasons.map((reason, index) => (
+                                <div key={index} className="feedback-reason">
+                                  {reason.includes('→') ? (
+                                    <span>
+                                      <strong>{reason.split('→')[0].trim()}</strong> → {reason.split('→')[1].split(':')[0].trim()}
+                                      {reason.includes(':') && (
+                                        <span style={{ color: 'var(--muted)', marginLeft: '8px' }}>
+                                          ({reason.split(':')[1].trim()})
+                                        </span>
+                                      )}
+                                    </span>
+                                  ) : (
+                                    reason
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </>
+                        )}
+                        
+                        {parsed.feedback && (
+                          <>
+                            <div className="feedback-section-title">
+                              <span>💡</span> Overall Feedback
+                            </div>
+                            <div className="feedback-general">
+                              {parsed.feedback}
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
-                <p className="instruction" style={{ marginTop: '20px' }}>
-                  Click "Get Practice Image" to load your session image, or "Generate New" for a fresh image.
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Vocabulary Section */}
-          <div className="card">
-            <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>Vocabulary Brainstorm</h3>
-            {/* <input
-              type="text"
-              placeholder="🎤 Type or speak words related to the image..."
-              className="vocab-input"
-              value={vocabInput}
-              onChange={(e) => setVocabInput(e.target.value)}
-              onKeyPress={handleKeyPress}
-            /> */}
-
-            <div className="card">
-              <div className="timer-section">
-                <div className="timer-box">
-                  <div className="time">{String(timer.minutes).padStart(2, '0')}</div>
-                  <div className="timer-label">Minutes</div>
-                </div>
-                <div className="timer-box">
-                  <div className="time">{String(timer.seconds).padStart(2, '0')}</div>
-                  <div className="timer-label">Seconds</div>
-                </div>
-              </div>
-
-              <div className="record-section">
-                <button
-                  className={`record-btn ${recording ? 'recording' : ''}`}
-                  onClick={handleRecording}
-                >
-                  {recording ? '⏹️' : '🎤'}
-                </button>
-                <p className="status">
-                  Recording Status: {recording ? 'In Progress...' : 'Not Started'}
-                </p>
               </div>
             </div>
-            {/* <div className="vocab-tags">
-              {vocabTags.map((tag, index) => (
-                <span key={index} className="tag">{tag}</span>
-              ))}
-            </div> */}
           </div>
-        </div>
-
-        {/* Timer and Recording Section */}
-
-
-        {/* Feedback Section */}
-        {/* <div className="card">
-          <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>Feedback</h3>
-          <ul className="feedback-list">
-            <li><strong>Vocabulary:</strong> Good use of descriptive words.</li>
-            <li><strong>Structure:</strong> Sentences are well-formed.</li>
-            <li><strong>Fluency:</strong> Speech is clear and natural.</li>
-          </ul>
-        </div> */}
+        )}
       </div>
     </div>
   );

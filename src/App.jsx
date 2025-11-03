@@ -94,13 +94,11 @@ const GenAI_CarrerGuide = lazy(() => import("./GenAI_Folders/AI_InterviewToolsFo
 
 
 // Communication practice files
-const JAM = lazy(() => import("./CommunicationTestsFiles/JAM.jsx"));
 const JAM1 = lazy(() => import("./CommunicationTestsFiles/JAM1.jsx"))
 const Pronunciation = lazy(() => import("./CommunicationTestsFiles/Pronunciation.jsx"));
 const ImageStory = lazy(() => import("./CommunicationTestsFiles/ImageStory.jsx"));
 const TranslateSpeak = lazy(() => import("./CommunicationTestsFiles/TranslateSpeak.jsx"));
 const ImageSpeak = lazy(() => import("./CommunicationTestsFiles/ImageSpeak.jsx"));
-const ImageSpeakFixed = lazy(() => import("./CommunicationTestsFiles/ImageSpeak_Fixed.jsx"))
 const SituationSpeak = lazy(() => import("./CommunicationTestsFiles/SituationSpeak.jsx"));
 // Dashboard and Leaderboard files
 const Dashboard = lazy(() => import("./Dashboard_LeaderboardFiles/Dashboard.jsx"));
@@ -575,13 +573,13 @@ function App() {
             </ProtectedRoute>
           } />
 
-          <Route path="/jam" element={
+          {/* <Route path="/jam" element={
             <ProtectedRoute>
               <CommunicationPraticeLayout>
                 <JAM />
               </CommunicationPraticeLayout>
             </ProtectedRoute>
-          } />
+          } /> */}
 
           <Route path="/jam1" element={
             <ProtectedRoute>
@@ -623,13 +621,13 @@ function App() {
               </CommunicationPraticeLayout>
             </ProtectedRoute>
           } />
-          <Route path="/image-speak-fixed" element={
+          {/* <Route path="/image-speak-fixed" element={
             <ProtectedRoute>
               <CommunicationPraticeLayout>
                 <ImageSpeakFixed />
               </CommunicationPraticeLayout>
             </ProtectedRoute>
-          } />
+          } /> */}
           <Route path="/situation-speak" element={
             <ProtectedRoute>
               <CommunicationPraticeLayout>
