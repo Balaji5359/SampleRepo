@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import './landing.css';
 
 
-
 function LandingPage() {
   const [activeModal, setActiveModal] = useState(null);
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });

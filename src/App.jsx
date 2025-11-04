@@ -60,11 +60,11 @@ const MentorRole_Based_InterviewDashboard = lazy(() => import("./MentorProfilefi
 
 
 // Field selection components
-const TechList_page = lazy(() => import("./FieldSelectionFiles/TechList.jsx"));
-const Tech = lazy(() => import("./FieldSelectionFiles/Tech.jsx"));
-const Tech_Selection = lazy(() => import("./FieldSelectionFiles/TechSelection.jsx"));
-const PlacementPrediction1 = lazy(() => import("./FieldSelectionFiles/Placement_Prediction1.jsx"));
-const PlacementRatingForm = lazy(() => import("./FieldSelectionFiles/PlacementRatingForm.jsx"));
+// const TechList_page = lazy(() => import("./FieldSelectionFiles/TechList.jsx"));
+// const Tech = lazy(() => import("./FieldSelectionFiles/Tech.jsx"));
+// const Tech_Selection = lazy(() => import("./FieldSelectionFiles/TechSelection.jsx"));
+// const PlacementPrediction1 = lazy(() => import("./FieldSelectionFiles/Placement_Prediction1.jsx"));
+// const PlacementRatingForm = lazy(() => import("./FieldSelectionFiles/PlacementRatingForm.jsx"));
 const GenAI_Interviewer_RoleBased = lazy(() => import('./GenAI_Folders/AI_InterviewToolsFolder/GenAI_Interviewer_RoleBased.jsx'));
 const GenAI_PronunciationTestSpoken = lazy(() => import('./GenAI_Folders/GenAI_PronunciationTestSpoken.jsx'));
 const GenAI_PronunciationTestListening = lazy(() => import('./GenAI_Folders/GenAI_PronunciationTestListening.jsx'));
@@ -362,13 +362,13 @@ function App() {
 
           } />
 
-          <Route path="/roadmap" element={
+          {/* <Route path="/roadmap" element={
             <ProtectedRoute>
               <DashboardLayout>
                 <RoadMap />
               </DashboardLayout>
             </ProtectedRoute>
-          } />
+          } /> */}
 
 
           {/* Field selection routes */}
@@ -380,45 +380,46 @@ function App() {
             </ProtectedRoute>
           } /> */}
 
-          <Route path="/tech-list" element={
+          {/* <Route path="/tech-list" element={
             <ProtectedRoute>
               <DashboardLayout>
                 <TechList_page />
               </DashboardLayout>
             </ProtectedRoute>
-          } />
+          } /> */}
 
-          <Route path="/tech-card" element={
+          {/* <Route path="/tech-card" element={
             <ProtectedRoute>
               <DashboardLayout>
                 <Tech />
               </DashboardLayout>
             </ProtectedRoute>
-          } />
+          } /> */}
 
-          <Route path="/tech-selection" element={
+          {/* <Route path="/tech-selection" element={
             <ProtectedRoute>
               <DashboardLayout>
                 <Tech_Selection />
               </DashboardLayout>
             </ProtectedRoute>
-          } />
+          } /> */}
 
-          <Route path="/placement-prediction1" element={
+          {/* <Route path="/placement-prediction1" element={
             <ProtectedRoute>
               <DashboardLayout>
                 <PlacementPrediction1 />
               </DashboardLayout>
             </ProtectedRoute>
-          } />
+          } /> */}
 
-          <Route path="/placement-prediction1/:field" element={
+          {/* <Route path="/placement-prediction1/:field" element={
             <ProtectedRoute>
               <DashboardLayout>
                 <PlacementRatingForm />
               </DashboardLayout>
             </ProtectedRoute>
-          } />
+          } /> */}
+          
           <Route path="/activities" element={
             <ProtectedRoute>
               <DashboardLayout>
