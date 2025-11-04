@@ -2,9 +2,9 @@ import React, { Suspense, lazy, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
 // Basic Components
-import Navigation from "./components/Navigation.jsx";
-import LoadingSpinner from "./components/LoadingSpinner.jsx";
-import ScrollToTop from "./components/ScrollToTop.jsx";
+import Navigation from "./basic_components/Navigation.jsx";
+import LoadingSpinner from "./basic_components/LoadingSpinner.jsx";
+import ScrollToTop from "./basic_components/ScrollToTop.jsx";
 
 // Landing page components
 const LandingPage = lazy(() => import("./LandingPageFiles/LandingPage.jsx"));

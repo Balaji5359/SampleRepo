@@ -39,7 +39,7 @@ function ScrollToTop() {
             width: '50px',
             height: '50px',
             borderRadius: '50%',
-            background: 'linear-gradient(135deg, #1f8966ff 0%, #0ca371ff 100%)',
+            background: 'linear-gradient(135deg, #51f6bfff 0%, #039162ff 100%)',
             color: 'white',
             border: 'none',
             boxShadow: '0 4px 10px rgba(0, 0, 0, 0.2)',
