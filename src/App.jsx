@@ -1,108 +1,37 @@
 import React, { Suspense, lazy, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-// CSS imports removed - styles now in index.css and Tailwind
 
-// Layout components
-import Navbar from "./Main/Navbar.jsx";
-import Login_Navbar from "./RegisterFiles/Login_Navbar.jsx";
+// Basic Components
+import Navigation from "./components/Navigation.jsx";
 import LoadingSpinner from "./components/LoadingSpinner.jsx";
 import ScrollToTop from "./components/ScrollToTop.jsx";
-import Activities from "./GenAI_Folders/Activites.jsx";
-import Activities2 from "./GenAI_Folders/Activities2.jsx";
-import ProPlans from "./GenAI_Folders/ProPlans.jsx";
-import ProPlanPayment from "./GenAI_Folders/ProPlanPayment.jsx";
 
 // Landing page components
 const LandingPage = lazy(() => import("./LandingPageFiles/LandingPage.jsx"));
 
-// Main page components
-const WelcomeSection = lazy(() => import("./Main/WelcomeSection.jsx"));
-const AboutSection = lazy(() => import("./Main/AboutSection.jsx"));
-const WebsiteUseRoute = lazy(() => import("./Main/WebsiteUseRoute.jsx"));
-const HighlightsSection = lazy(() => import("./Main/HighlightsSection.jsx"));
-const SelfAssessment = lazy(() => import("./Main/SelfAssessment.jsx"));
-const MotivationSection = lazy(() => import("./Main/MotivationSession.jsx"));
-const ResourceSection = lazy(() => import("./Main/ResourceSection.jsx"));
-const ContactSection = lazy(() => import("./Main/ContactSection.jsx"));
-const MapSection = lazy(() => import("./Main/MapSection.jsx")); // Updated map section with fixed iframe
-const Footer = lazy(() => import("./Main/Footer.jsx"));
-const AI_Skill_Dev = lazy(() => import("./Main/AI_Skill_Dev.jsx"));
-const Skill_Guide = lazy(() => import("./Main/Skill_Guide.jsx"));
-const Skill_Dev = lazy(() => import("./Main/Skill_Dev.jsx"));
-const Skill_Route = lazy(() => import("./Main/Skill_Route.jsx"));
-const SkillRouteModern = lazy(() => import("./Main/SkillRouteModern.jsx"));
-const Practice = lazy(() => import("./Main/Practice.jsx"))
-const Home = lazy(() => import("./Main/Home.jsx"));
-const Test = lazy(() => import("./Main/Test.jsx"));
-// const Services = lazy(() => import("./Main/Services.jsx"));
-
-// Auth components
+// Registration components
 const Signup = lazy(() => import("./RegisterFiles/Signup.jsx"));
+const Login_Navbar = lazy(() => import("./RegisterFiles/Login_Navbar.jsx"));
+const ProfileData = lazy(() => import("./RegisterFiles/ProfileData/ProfileData.jsx"));
+const Progress = lazy(() => import("./RegisterFiles/ProfileData/Progress.jsx"));
+const ProfileCreation_Survey = lazy(() => import("./RegisterFiles/ProfileCreation/ProfileCreation.jsx"));
 
+// Pratice Components
+const Practice = lazy(() => import("./CommunicationPraticeFiles/Practice.jsx"))
 
-// // Profile components
-// const ProfileCreation = lazy(() => import("./StudentProfileFiles/ProfileCreation.jsx"));
-const ProfileData = lazy(() => import("./StudentProfileFiles/ProfileData.jsx"));
-const Progress = lazy(() => import("./StudentProfileFiles/Progress.jsx"));
-const RoadMap = lazy(() => import("./StudentProfileFiles/RoadMap.jsx"));
-const ProfileCreation_Survey = lazy(() => import("./ProfileCreation/ProfileCreation.jsx"));
-
-//Mentor Profile components
-const Mentor = lazy(() => import("./MentorProfilefiles/Mentor.jsx"));
-const MentorProfile = lazy(() => import("./MentorProfilefiles/MentorProfile.jsx"));
-const MentorProfileCreate = lazy(() => import("./MentorProfilefiles/MentorProfileCreate.jsx"));
-const MentorStudentTests = lazy(() => import("./MentorProfilefiles/Mentor_StudentTests.jsx"));
-const MentorJAMTestDashboard = lazy(() => import("./MentorProfilefiles/MentorJAMTestDashboard.jsx"));
-const MentorPron_SDashboard = lazy(() => import("./MentorProfilefiles/MentorPron_SDashboard.jsx"));
-const MentorRole_Based_InterviewDashboard = lazy(() => import("./MentorProfilefiles/MentorRole_Based_InterviewDashbord.jsx"));
-// const GenAI_Interviewer_Res = lazy(() => import("./GenAI_Folders/GenAI_Interviewer_Res.jsx"));
-// const PollyPlayer = lazy(() => import("./GenAI_Folders/PollyPlayer.jsx"));
-
-
-// Field selection components
-// const TechList_page = lazy(() => import("./FieldSelectionFiles/TechList.jsx"));
-// const Tech = lazy(() => import("./FieldSelectionFiles/Tech.jsx"));
-// const Tech_Selection = lazy(() => import("./FieldSelectionFiles/TechSelection.jsx"));
-// const PlacementPrediction1 = lazy(() => import("./FieldSelectionFiles/Placement_Prediction1.jsx"));
-// const PlacementRatingForm = lazy(() => import("./FieldSelectionFiles/PlacementRatingForm.jsx"));
-const GenAI_Interviewer_RoleBased = lazy(() => import('./GenAI_Folders/AI_InterviewToolsFolder/GenAI_Interviewer_RoleBased.jsx'));
-const GenAI_PronunciationTestSpoken = lazy(() => import('./GenAI_Folders/GenAI_PronunciationTestSpoken.jsx'));
-const GenAI_PronunciationTestListening = lazy(() => import('./GenAI_Folders/GenAI_PronunciationTestListening.jsx'));
-const GenAI_JAM = lazy(() => import('./GenAI_Folders/GenAI_JAM'));
-const Role_BasedInterviewData = lazy(() => import('./GenAI_Folders/TestDataFolder/Role_BasedInterviewData.jsx'));
-const JAMTestData = lazy(() => import('./GenAI_Folders/TestDataFolder/JAMTestData.jsx'));
-const PronunciationTestS_Data = lazy(() => import('./GenAI_Folders/TestDataFolder/PronunciationTestS_Data.jsx'));
-const PronunciationTestL_Data = lazy(() => import('./GenAI_Folders/TestDataFolder/PronunciationTestL_Data.jsx'));
-
-// Instructions for tests
-const JAMTestInstructions = lazy(() => import('./GenAI_Folders/TestDataFolder/JAMTestInstructions.jsx'));
-const PronunciationTestS_Instructions = lazy(() => import('./GenAI_Folders/TestDataFolder/PronunciationTestS_Instructions.jsx'));
-const PronunciationTestL_Instructions = lazy(() => import('./GenAI_Folders/TestDataFolder/PronunciationTestL_Instructions.jsx'));
-const Role_BasedInterview_Instructions = lazy(() => import('./GenAI_Folders/TestDataFolder/Role_BasedInterview_Instructions.jsx'));
-const GenAI_Guidance = lazy(() => import('./GenAI_Folders/GenAI_Guidence.jsx'));
-const GenAI_Prev_Q_Interviewer = lazy(() => import('./GenAI_Folders/GenAI_Prev_Q_Interviewer.jsx'));
-const GenAI_Personality_Test = lazy(() => import('./GenAI_Folders/GenAI_Personality_Test.jsx'));
-const GenAI_Test_Tech = lazy(() => import('./GenAI_Folders/AI_InterviewToolsFolder/GenAI_QueryHandler.jsx'));
-// Layout components
-
-
-
-//Query Handler
-const GenAI_QueryHandler = lazy(() => import("./GenAI_Folders/AI_InterviewToolsFolder/GenAI_QueryHandler.jsx"));
-const GenAI_CarrerGuide = lazy(() => import("./GenAI_Folders/AI_InterviewToolsFolder/GenAI_CarrerGuide.jsx"));
-
-
-
-// Communication practice files
+// Test Components
+const Test = lazy(() => import("./CommunicationTestsFiles/Test.jsx"));
 const JAM1 = lazy(() => import("./CommunicationTestsFiles/JAM1.jsx"))
 const Pronunciation = lazy(() => import("./CommunicationTestsFiles/Pronunciation.jsx"));
 const ImageStory = lazy(() => import("./CommunicationTestsFiles/ImageStory.jsx"));
 const TranslateSpeak = lazy(() => import("./CommunicationTestsFiles/TranslateSpeak.jsx"));
 const ImageSpeak = lazy(() => import("./CommunicationTestsFiles/ImageSpeak.jsx"));
 const SituationSpeak = lazy(() => import("./CommunicationTestsFiles/SituationSpeak.jsx"));
-// Dashboard and Leaderboard files
+
+// Student Dashboard and Leaderboard files
 const Dashboard = lazy(() => import("./Dashboard_LeaderboardFiles/Dashboard.jsx"));
 const Leaderboard = lazy(() => import("./Dashboard_LeaderboardFiles/Leaderboard.jsx"))
+
 
 const MainLayout = ({ children }) => (
   <>
@@ -123,7 +52,7 @@ const AuthLayout = ({ children }) => (
 
 const DashboardLayout = ({ children }) => (
   <>
-    <Login_Navbar />
+    {/* <Login_Navbar /> */}
     <main className="dashboard-content">
       <Suspense fallback={<LoadingSpinner />}>
         {children}
@@ -164,11 +93,34 @@ const RouteChangeHandler = () => {
   return null;
 };
 
+function ErrorBoundary({ children }) {
+  // Minimal client-side error boundary
+  const [error, setError] = React.useState(null);
+  React.useEffect(() => {
+    if (error) console.error('ErrorBoundary caught:', error);
+  }, [error]);
+  if (error) {
+    return (
+      <div style={{ padding: 24 }}>
+        <h2>Something went wrong rendering the app.</h2>
+        <pre style={{ whiteSpace: 'pre-wrap' }}>{String(error && error.stack ? error.stack : error)}</pre>
+      </div>
+    );
+  }
+  try {
+    return children;
+  } catch (e) {
+    setError(e);
+    return null;
+  }
+}
+
 function App() {
   return (
     <Router>
       <RouteChangeHandler />
       <ScrollToTop />
+      <ErrorBoundary>
       <Suspense fallback={<LoadingSpinner />}>
         <Routes>
           {/* Public routes */}
@@ -180,74 +132,7 @@ function App() {
             </MainLayout>
           } />
 
-
-
-          <Route path="/skill-guide" element={
-            <MainLayout>
-              <Skill_Guide />
-            </MainLayout>
-          } />
-
-          <Route path="/skill-dev" element={
-            <MainLayout>
-              <Skill_Dev />
-            </MainLayout>
-          } />
-
-          <Route path="/skill-route" element={
-            <MainLayout>
-              <>
-                <LandingPage />
-              </>
-            </MainLayout>
-          } />
-
-          <Route path="/skill-route-modern" element={
-            <MainLayout>
-              <SkillRouteModern />
-            </MainLayout>
-          } />
-
-          <Route path="/about" element={
-            <MainLayout>
-              <AboutSection />
-              <MotivationSection />
-              <ResourceSection />
-              <Footer />
-            </MainLayout>
-          } />
-          <Route path="/query-handler" element={
-            <MainLayout>
-              <GenAI_QueryHandler />
-            </MainLayout>
-          } />
-          <Route path="/carrer-guide" element={
-            <MainLayout>
-              <GenAI_CarrerGuide />
-            </MainLayout>
-          } />
-
-          <Route path="/contact" element={
-            <MainLayout>
-              <ContactSection />
-              <MapSection />
-              <Footer />
-            </MainLayout>
-          } />
-
-
-
-          <Route path="/highlights" element={
-            <MainLayout>
-              <HighlightsSection />
-              <SelfAssessment />
-              <Footer />
-            </MainLayout>
-          } />
-
           {/* Auth routes */}
-
-
           <Route path="/signup" element={
             <AuthLayout>
               <Signup />
@@ -260,53 +145,6 @@ function App() {
             </AuthLayout>
           } />
 
-          <Route path="/mentor" element={
-            <AuthLayout>
-              <Mentor />
-            </AuthLayout>
-          } />
-
-          <Route path="/mentor_profile" element={
-            <AuthLayout>
-              <MentorProfile />
-            </AuthLayout>
-          } />
-
-          <Route path="/mentor_profile_create" element={
-            <AuthLayout>
-              <MentorProfileCreate />
-            </AuthLayout>
-          } />
-
-          <Route path="/mentor_student_tests" element={
-            <AuthLayout>
-              <MentorStudentTests />
-            </AuthLayout>
-          } />
-          <Route path="/mentor_student_tests_jam" element={
-            <AuthLayout>
-              <MentorJAMTestDashboard />
-            </AuthLayout>
-          } />
-          <Route path="/mentor_student_tests_pron_s" element={
-            <AuthLayout>
-              <MentorPron_SDashboard />
-            </AuthLayout>
-          } />
-
-          <Route path="/mentor_student_tests_role_based_interview" element={
-            <AuthLayout>
-              <MentorRole_Based_InterviewDashboard />
-            </AuthLayout>
-          } />
-
-
-          {/* Protected routes */}
-          {/* <Route path="/profilecreation" element={
-            <MainLayout>
-              <ProfileCreation />
-            </MainLayout>
-          } /> */}
           <Route path="/profiledata" element={
             <ProtectedRoute>
               <DashboardLayout>
@@ -315,19 +153,10 @@ function App() {
             </ProtectedRoute>
           } />
 
-
           <Route path="/practice" element={
             <ProtectedRoute>
               <DashboardLayout>
                 <Practice />
-              </DashboardLayout>
-            </ProtectedRoute>
-          } />
-
-          <Route path="/home" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <Home />
               </DashboardLayout>
             </ProtectedRoute>
           } />
@@ -352,198 +181,13 @@ function App() {
             <ProtectedRoute>
               <Dashboard />
             </ProtectedRoute>
-
           } />
 
           <Route path="/student-leaderboard" element={
             <ProtectedRoute>
               <Leaderboard />
             </ProtectedRoute>
-
           } />
-
-          {/* <Route path="/roadmap" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <RoadMap />
-              </DashboardLayout>
-            </ProtectedRoute>
-          } /> */}
-
-
-          {/* Field selection routes */}
-          {/* <Route path="/skill-assessment" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <GenAIInterviewerRes/>
-              </DashboardLayout>
-            </ProtectedRoute>
-          } /> */}
-
-          {/* <Route path="/tech-list" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <TechList_page />
-              </DashboardLayout>
-            </ProtectedRoute>
-          } /> */}
-
-          {/* <Route path="/tech-card" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <Tech />
-              </DashboardLayout>
-            </ProtectedRoute>
-          } /> */}
-
-          {/* <Route path="/tech-selection" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <Tech_Selection />
-              </DashboardLayout>
-            </ProtectedRoute>
-          } /> */}
-
-          {/* <Route path="/placement-prediction1" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <PlacementPrediction1 />
-              </DashboardLayout>
-            </ProtectedRoute>
-          } /> */}
-
-          {/* <Route path="/placement-prediction1/:field" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <PlacementRatingForm />
-              </DashboardLayout>
-            </ProtectedRoute>
-          } /> */}
-          
-          <Route path="/activities" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <Activities />
-              </DashboardLayout>
-            </ProtectedRoute>
-          } />
-          <Route path="/activities2" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <Activities2 />
-              </DashboardLayout>
-            </ProtectedRoute>
-          } />
-          <Route path="/pro-plans" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <ProPlans />
-              </DashboardLayout>
-            </ProtectedRoute>
-          } />
-          <Route path="/pro-plan-payment" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <ProPlanPayment />
-              </DashboardLayout>
-            </ProtectedRoute>
-          } />
-
-          <Route path="/genai-interviewer-rolebased" element={
-            <ProtectedRoute>
-              <GenAI_Interviewer_RoleBased />
-            </ProtectedRoute>
-          } />
-
-          <Route path="/genai-jam" element={
-            <ProtectedRoute>
-              <GenAI_JAM />
-            </ProtectedRoute>
-          } />
-          <Route path="/genai-pro-spoken" element={
-            <ProtectedRoute>
-              <GenAI_PronunciationTestSpoken />
-            </ProtectedRoute>
-          } />
-          <Route path="/genai-pro-listening" element={
-            <ProtectedRoute>
-              <GenAI_PronunciationTestListening />
-            </ProtectedRoute>
-          } />
-
-          <Route path="/jam-test-data" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <JAMTestData />
-              </DashboardLayout>
-            </ProtectedRoute>
-          } />
-          <Route path="/pronunciation-test-s-data" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <PronunciationTestS_Data />
-              </DashboardLayout>
-            </ProtectedRoute>
-          } />
-          <Route path="/pronunciation-test-l-data" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <PronunciationTestL_Data />
-              </DashboardLayout>
-            </ProtectedRoute>
-          } />
-          <Route path="/role-based-interview-data" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <Role_BasedInterviewData />
-              </DashboardLayout>
-            </ProtectedRoute>
-          } />
-
-          <Route path="/jam-test-instructions" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <JAMTestInstructions />
-              </DashboardLayout>
-            </ProtectedRoute>
-          } />
-          <Route path="/pronunciation-test-s-instructions" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <PronunciationTestS_Instructions />
-              </DashboardLayout>
-            </ProtectedRoute>
-          } />
-          <Route path="/pronunciation-test-l-instructions" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <PronunciationTestL_Instructions />
-              </DashboardLayout>
-            </ProtectedRoute>
-          } />
-          <Route path="/role-based-interview-instructions" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <Role_BasedInterview_Instructions />
-              </DashboardLayout>
-            </ProtectedRoute>
-          } />
-
-          <Route path="/genai-pronunciation-test-spoken" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <GenAI_PronunciationTestSpoken />
-              </DashboardLayout>
-            </ProtectedRoute>
-          } />
-          <Route path="/genai-guidance" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <GenAI_Guidance />
-              </DashboardLayout>
-            </ProtectedRoute>
-          } />
-
 
           {/* Fallback route for non-existent paths */}
           <Route path="/not-found" element={
@@ -552,37 +196,8 @@ function App() {
               <p>The page you are looking for does not exist.</p>
             </MainLayout>
           } />
-          <Route path="/genai-prev-q-interviewer" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <GenAI_Prev_Q_Interviewer />
-              </DashboardLayout>
-            </ProtectedRoute>
-          } />
-          <Route path="/genai-personality-test" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <GenAI_Personality_Test />
-              </DashboardLayout>
-            </ProtectedRoute>
-          } />
-          <Route path="/genai-test-tech" element={
-            <ProtectedRoute>
-              <CommunicationPraticeLayout>
-                <GenAI_Test_Tech />
-              </CommunicationPraticeLayout>
-            </ProtectedRoute>
-          } />
-
-          {/* <Route path="/jam" element={
-            <ProtectedRoute>
-              <CommunicationPraticeLayout>
-                <JAM />
-              </CommunicationPraticeLayout>
-            </ProtectedRoute>
-          } /> */}
-
-          <Route path="/jam1" element={
+          {/* Test Routers */}
+          <Route path="/test/jam" element={
             <ProtectedRoute>
               <CommunicationPraticeLayout>
                 <JAM1 />
@@ -591,7 +206,7 @@ function App() {
           } />
 
 
-          <Route path="/pronunciation" element={
+          <Route path="/test/pronunciation" element={
             <ProtectedRoute>
               <CommunicationPraticeLayout>
                 <Pronunciation />
@@ -599,7 +214,7 @@ function App() {
             </ProtectedRoute>
           } />
 
-          <Route path="/image-story" element={
+          <Route path="/test/image-story" element={
             <ProtectedRoute>
               <CommunicationPraticeLayout>
                 <ImageStory />
@@ -607,7 +222,7 @@ function App() {
             </ProtectedRoute>
           } />
 
-          <Route path="/translate-speak" element={
+          <Route path="/test/translate-speak" element={
             <ProtectedRoute>
               <CommunicationPraticeLayout>
                 <TranslateSpeak />
@@ -615,21 +230,15 @@ function App() {
             </ProtectedRoute>
           } />
 
-          <Route path="/image-speak" element={
+          <Route path="/test/image-speak" element={
             <ProtectedRoute>
               <CommunicationPraticeLayout>
                 <ImageSpeak />
               </CommunicationPraticeLayout>
             </ProtectedRoute>
           } />
-          {/* <Route path="/image-speak-fixed" element={
-            <ProtectedRoute>
-              <CommunicationPraticeLayout>
-                <ImageSpeakFixed />
-              </CommunicationPraticeLayout>
-            </ProtectedRoute>
-          } /> */}
-          <Route path="/situation-speak" element={
+
+          <Route path="/test/situation-speak" element={
             <ProtectedRoute>
               <CommunicationPraticeLayout>
                 <SituationSpeak />
@@ -641,8 +250,8 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
+      </ErrorBoundary>
     </Router>
-
   );
 }
 

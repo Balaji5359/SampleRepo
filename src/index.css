@@ -24,3 +24,39 @@
 * {
   font-family: 'Poppins', sans-serif;
 }
+
+/* Global navbar spacing for pages with fixed navbar */
+.page-with-navbar {
+  padding-top: 70px;
+  min-height: 100vh;
+}
+
+/* Ensure smooth transitions for all navigation */
+.nav-transition {
+  transition: all 0.3s ease;
+}
+
+/* Page header styles */
+.page-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding: 2rem 0;
+}
+
+.page-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #3b82f6, #60a5fa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.page-header p {
+  font-size: 1.1rem;
+  color: #64748b;
+  max-width: 600px;
+  margin: 0 auto;
+}

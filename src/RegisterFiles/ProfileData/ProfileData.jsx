@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
+import Login_Navbar from '../Login_Navbar';
 import { Link, useNavigate } from "react-router-dom";
-import Login_Navbar from "../RegisterFiles/Login_Navbar";
-import "./profile.css";
+import '../../LandingPageFiles/landing.css';
+import '../../CommunicationTestsFiles/test.css';
+import './dashboard-minimal.css';
 
 function ProfileData() {
     const navigate = useNavigate();
@@ -188,7 +190,6 @@ function ProfileData() {
     if (loading) {
         return (
             <>
-                
                 <div className="loading-container">
                     <div className="loading-spinner"></div>
                     <p>Loading your dashboard...</p>
@@ -197,19 +198,14 @@ function ProfileData() {
         );
     }
 
-    const handleProfileClick = () => {
-        setShowProfilePopup(true);
-    };
-
     const closeProfilePopup = () => {
         setShowProfilePopup(false);
     };
 
     return (
         <>
-            {/* <Login_Navbar onProfileClick={handleProfileClick} /> */}
-            <div className="dashboard-container">
-                {/* Header Section */}
+            <Login_Navbar />
+            <div className="practice-container page-with-navbar"><br></br><br></br><br></br>
                 <div className="dashboard-header">
                     <div className="greeting-section">
                         <h1 className="greeting-text">
@@ -245,7 +241,8 @@ function ProfileData() {
                             <p>Flexible plans designed for every learner's needs</p>
                         </div>
                         <div className="pricing-container">
-                            <div className="pricing-card-item current-plan">
+                            <div className="pricing-row">
+                                <div className="pricing-card-item current-plan">
                                 <div className="plan-badge current">Current Plan</div>
                                 <div className="plan-price">
                                     <span className="currency">₹</span>
@@ -316,6 +313,7 @@ function ProfileData() {
                                     <li>✓ 24/7 support</li>
                                 </ul>
                                 <button className="plan-btn">Go Premium</button>
+                            </div>
                             </div>
                         </div>
                     </section>
@@ -559,5 +557,6 @@ function ProfileData() {
         </>
     );
 }
+
 
 export default ProfileData;

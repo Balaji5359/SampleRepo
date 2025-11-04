@@ -89,6 +89,8 @@
   transition: all 0.3s ease;
   position: relative;
   cursor: pointer;
+  background: none;
+  border: none;
 }
 
 .nav-link i {
@@ -255,7 +257,7 @@
     z-index: -1;
   }
   
-  .nav-links.active {
+  .nav-links.open {
     transform: translateY(0);
     opacity: 1;
     visibility: visible;

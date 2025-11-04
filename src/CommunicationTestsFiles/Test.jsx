@@ -1,22 +1,57 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import Login_Navbar from "../RegisterFiles/Login_Navbar";
-// import "./profile.css";
 import '../LandingPageFiles/landing.css';
-import "./Practice.css"
+import "./test.css"
 
 
-function Practice() {
+function Test() {
     const [activeChallenge, setActiveChallenge] = useState(null);
     const [instructionIndex, setInstructionIndex] = useState(0);
     const navigate = useNavigate();
+    const location = useLocation();
+    const [tests, setTests] = useState({});
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const storedEmail = localStorage.getItem("email");
+        if (!storedEmail) {
+            setLoading(false);
+            return;
+        }
+        const url = 'https://ntjkr8rnd6.execute-api.ap-south-1.amazonaws.com/dev/student_profilecreate/student_profile_senddata';
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ college_email: storedEmail }),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data && data.body) {
+                    try {
+                        const parsedData = typeof data.body === "string" ? JSON.parse(data.body) : data.body;
+                        setTests(parsedData.tests || {});
+                    } catch (e) {
+                        console.error('Error parsing API data body:', e);
+                    }
+                }
+                setLoading(false);
+            })
+            .catch((error) => {
+                console.error('Error fetching data:', error);
+                setLoading(false);
+            });
+    }, []);
 
     const practices = [
-        { id: "jam", title: "JAM Practice", description: "Speak on a random topic for 60 seconds.", icon: "🎤" },
-        { id: "image-speaking", title: "Image-Based Speaking", description: "Describe images.", icon: "🖼️" },
-        { id: "situation-speak", title: "Situation-Based Speaking", description: "Practice translation.", icon: "🌐" },
-        { id: "translate-speak", title: "Translate & Speak", description: "Practice translation.", icon: "📝" },
-        { id: "story-building", title: "Image-Story Building", description: "Create stories.", icon: "📖" }
+        { id: "jam", title: "JAM Test", description: "Speak on a random topic for 60 seconds.", icon: "🎤", count: tests.jam_test || 0 },
+        // { id: "pronunciation", title: "Pronunciation Test", description: "Improve your pronunciation.", icon: "👂" },
+        { id: "situation-speak", title: "Situation-Based Speak", description: "Practice translation.", icon: "🌐", count: tests.situation_test || 0 },
+        { id: "translate-speak", title: "Translate & Speak", description: "Practice translation.", icon: "📝", count: tests.translate_test || 0 },
+        { id: "image-speaking", title: "Image-Based Speaking", description: "Describe images.", icon: "🖼️", count: tests.image_speak || 0 },
+        { id: "story-building", title: "Image-Story Building", description: "Create stories.", icon: "📖", count: tests.image_story || 0 }
     ];
 
     const jamInstructions = [
@@ -262,23 +297,56 @@ function Practice() {
         }
     };
 
-    const handleLaunchChallenge = () => {
-        const routes = {
-            jam: "/jam",
-            pronunciation: "/pronunciation",
-            "image-speaking": "/image-speak",
-            "situation-speak": "/situation-speak",
-            "translate-speak": "/translate-speak",
-            "story-building": "/story-building"
+
+
+    const handleLaunchChallenge = async () => {
+        const testKeyMap = {
+            jam: "jam_test",
+            "image-speaking": "image_speak",
+            "situation-speak": "situation_test",
+            "translate-speak": "translate_test",
+            "story-building": "image_story"
         };
-        navigate(routes[activeChallenge]);
+        
+        const routes = {
+            jam: "/test/jam",
+            pronunciation: "/test/pronunciation",
+            "image-speaking": "/test/image-speak",
+            "situation-speak": "/test/situation-speak",
+            "translate-speak": "/test/translate-speak",
+            "story-building": "/test/image-story"
+        };
+        
+        // Get current test count
+        const currentTest = practices.find(p => p.id === activeChallenge);
+        const remainingCount = currentTest ? currentTest.count : 0;
+        
+        // Navigate with remaining count and test key
+        navigate(routes[activeChallenge], { 
+            state: { 
+                remainingTests: remainingCount,
+                testKey: testKeyMap[activeChallenge]
+            } 
+        });
     };
+
+    if (loading) {
+        return (
+            <div className="loading-container">
+                <div className="loading-spinner"></div>
+                <p>Loading your tests...</p>
+            </div>
+        );
+    }
 
     return (
         <>
-        //     <Login_Navbar />
-            <div className="practice-container">
-                <h1>Communication Practice Activities</h1>
+            <Login_Navbar />
+            <div className="practice-container page-with-navbar">
+                <div className="page-header">
+                    <h1>Communication Tests</h1>
+                    <p>Assess your communication skills with comprehensive tests</p>
+                </div>
                 <div className={`practice-grid ${activeChallenge ? "blurred" : ""}`}>
                     {practices.map((practice) => (
                         <div
@@ -290,8 +358,9 @@ function Practice() {
                             <h3>{practice.title}</h3>
                             <p>{practice.description}</p>
                             <div className="card-footer">
-                                <button className="start-btn">Start Challenge</button>
+                                <button className="start-btn" disabled={practice.count === 0}>Start Challenge</button>
                                 <span className="duration">01:00</span>
+                                <span>Remaining: {practice.count}</span>
                             </div>
                         </div>
                     ))}
@@ -315,7 +384,7 @@ function Practice() {
                                     <button onClick={() => setInstructionIndex(pronunciationInstructions.length - 1)}>Skip</button>
                                 </>
                             ) : (
-                                <button onClick={handleLaunchChallenge}>Start Challenge</button>
+                                <button onClick={handleLaunchChallenge} disabled={practices.find(p => p.id === activeChallenge)?.count === 0}>Start Challenge</button>
                             )}
                         </div>
                     </div>
@@ -341,7 +410,7 @@ function Practice() {
                                     <button onClick={() => setInstructionIndex(imageSpeakingInstructions.length - 1)}>Skip</button>
                                 </>
                             ) : (
-                                <button onClick={handleLaunchChallenge}>Start Challenge</button>
+                                <button onClick={handleLaunchChallenge} disabled={practices.find(p => p.id === activeChallenge)?.count === 0}>Start Challenge</button>
                             )}
                         </div>
                     </div>
@@ -367,7 +436,7 @@ function Practice() {
                                     <button onClick={() => setInstructionIndex(translateSpeakInstructions.length - 1)}>Skip</button>
                                 </>
                             ) : (
-                                <button onClick={handleLaunchChallenge}>Start Challenge</button>
+                                <button onClick={handleLaunchChallenge} disabled={practices.find(p => p.id === activeChallenge)?.count === 0}>Start Challenge</button>
                             )}
                         </div>
                     </div>
@@ -393,7 +462,7 @@ function Practice() {
                                     <button onClick={() => setInstructionIndex(situationSpeakInstructions.length - 1)}>Skip</button>
                                 </>
                             ) : (
-                                <button onClick={handleLaunchChallenge}>Start Challenge</button>
+                                <button onClick={handleLaunchChallenge} disabled={practices.find(p => p.id === activeChallenge)?.count === 0}>Start Challenge</button>
                             )}
                         </div>
                     </div>
@@ -419,7 +488,7 @@ function Practice() {
                                     <button onClick={() => setInstructionIndex(storyBuildingInstructions.length - 1)}>Skip</button>
                                 </>
                             ) : (
-                                <button onClick={handleLaunchChallenge}>Start Challenge</button>
+                                <button onClick={handleLaunchChallenge} disabled={practices.find(p => p.id === activeChallenge)?.count === 0}>Start Challenge</button>
                             )}
                         </div>
                     </div>
@@ -445,7 +514,9 @@ function Practice() {
                                     <button onClick={() => setInstructionIndex(jamInstructions.length - 1)}>Skip</button>
                                 </>
                             ) : (
-                                <button onClick={handleLaunchChallenge}>Start Challenge</button>
+                                <button onClick={handleLaunchChallenge} disabled={practices.find(p => p.id === activeChallenge)?.count === 0}>
+                                    Start Challenge ({practices.find(p => p.id === activeChallenge)?.count || 0} remaining)
+                                </button>
                             )}
                         </div>
 
@@ -457,4 +528,4 @@ function Practice() {
     );
 }
 
-export default Practice;
+export default Test;
