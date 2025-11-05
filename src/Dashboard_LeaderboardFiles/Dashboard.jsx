@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Login_Navbar from '../RegisterFiles/Login_Navbar.jsx';
 import './Dashboard.css';
-import '../LandingPageFiles/landing.css';
-// import '../../CommunicationTestsFiles/test.css';
 
 function Dashboard() {
   const [activeSection, setActiveSection] = useState('dashboard');
