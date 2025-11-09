@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Login_Navbar from '../RegisterFiles/Login_Navbar.jsx';
-import './Dashboard.css';
+import './dashboard.css';
 
 function JAMDashboard() {
   const [activeSection, setActiveSection] = useState('main');
