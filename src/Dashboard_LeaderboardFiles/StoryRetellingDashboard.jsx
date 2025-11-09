@@ -245,8 +245,8 @@ function StoryRetellingDashboard() {
                     <h3>Audio Recording</h3>
                     {selectedSession.audioFiles && selectedSession.audioFiles.length > 0 ? (
                       <div className="media-container">
-                        <audio 
-                          controls 
+                        <audio
+                          controls
                           style={{width: '100%'}}
                           onLoadedData={() => console.log('✅ Story Retelling Audio loaded successfully:', selectedSession.audioFiles[0].url)}
                           onError={(e) => {
@@ -259,7 +259,6 @@ function StoryRetellingDashboard() {
                           }}
                           onCanPlay={() => console.log('🎵 Audio ready to play')}
                           preload="none"
-                          crossOrigin="anonymous"
                         >
                           <source src={selectedSession.audioFiles[0].url} type="audio/webm" />
                           <source src={selectedSession.audioFiles[0].url} type="audio/mp4" />
@@ -270,7 +269,11 @@ function StoryRetellingDashboard() {
                         <div className="media-error" style={{display: 'none'}}>
                           <div className="error-icon">🎵</div>
                           <div className="error-text">Audio file not accessible</div>
-                          <div className="error-suggestion">This audio file may be expired or have restricted access. Contact support if this persists.</div>
+                          <div className="error-suggestion">S3 bucket CORS policy blocks audio access. Audio files are available but cannot be played in browser due to security restrictions.</div>
+                          <a href={selectedSession.audioFiles[0].url} download className="download-link">Download Audio File</a>
+                        </div>
+                        <div className="audio-tip">
+                          Listen to your story retelling recording
                         </div>
                       </div>
                     ) : (
