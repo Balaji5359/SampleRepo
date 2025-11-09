@@ -551,11 +551,11 @@ function ImageStory() {
       root.style.setProperty('--muted', '#374151');
       root.style.setProperty('--text-color', '#0b1220');
     } else if (theme === 'custom') {
-      root.style.setProperty('--bg', 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)');
-      root.style.setProperty('--card-bg', 'rgba(255,255,255,0.04)');
-      root.style.setProperty('--accent', '#06b6d4');
-      root.style.setProperty('--muted', 'rgba(255,255,255,0.85)');
-      root.style.setProperty('--text-color', '#ffffff');
+      root.style.setProperty('--bg', 'linear-gradient(135deg, #a3f0f0ff, #3f4f4fff)');
+      root.style.setProperty('--card-bg', 'rgba(7, 100, 80, 0.04)');
+      root.style.setProperty('--accent', '#043e4aff');
+      root.style.setProperty('--muted', 'rgba(17, 18, 18, 0.85)');
+      root.style.setProperty('--text-color', '#01100eff');
     } else {
       // dark default
       root.style.setProperty('--bg', 'linear-gradient(180deg,#0f172a 0%,#071129 100%)');

@@ -15,7 +15,7 @@ function ImageSpeak() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [imageLoadError, setImageLoadError] = useState(false);
   const [imageLoading, setImageLoading] = useState(false);
-  const [sessionId] = useState(`image-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`);
+  const [sessionId] = useState(`imagespeak-test-${String(Math.floor(Math.random() * 10000000)).padStart(7, '0')}`);
   const [userEmail] = useState(localStorage.getItem('email'));
   const [isLoading, setIsLoading] = useState(false);
   const [feedback, setFeedback] = useState(null);
@@ -551,11 +551,11 @@ function ImageSpeak() {
       root.style.setProperty('--muted', '#374151');
       root.style.setProperty('--text-color', '#0b1220');
     } else if (theme === 'custom') {
-      root.style.setProperty('--bg', 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)');
-      root.style.setProperty('--card-bg', 'rgba(255,255,255,0.04)');
-      root.style.setProperty('--accent', '#06b6d4');
-      root.style.setProperty('--muted', 'rgba(255,255,255,0.85)');
-      root.style.setProperty('--text-color', '#ffffff');
+      root.style.setProperty('--bg', 'linear-gradient(135deg, #a3f0f0ff, #3f4f4fff)');
+      root.style.setProperty('--card-bg', 'rgba(7, 100, 80, 0.04)');
+      root.style.setProperty('--accent', '#043e4aff');
+      root.style.setProperty('--muted', 'rgba(17, 18, 18, 0.85)');
+      root.style.setProperty('--text-color', '#01100eff');
     } else {
       // dark default
       root.style.setProperty('--bg', 'linear-gradient(180deg,#0f172a 0%,#071129 100%)');
@@ -594,7 +594,7 @@ function ImageSpeak() {
 
       mediaRecorder.start();
       setRecording(true);
-      setRecordingDisabled(true);
+      // Don't disable recording here - allow user to stop manually
 
       // Start 50-second timer
       setMicTimeLeft(50);
@@ -626,7 +626,7 @@ function ImageSpeak() {
 
     setRecording(false);
     setRecordingUsed(true);
-    setRecordingDisabled(true);
+    setRecordingDisabled(true); // Disable after one use
     setMicTimeLeft(50);
 
     if (micTimerRef.current) {
@@ -867,6 +867,7 @@ function ImageSpeak() {
     setFeedback(null);
     setRecordingUsed(false);
     setRecordingDisabled(true);
+    setMicTimeLeft(50);
     // Auto-generate image for test
     await generateImageForTest();
   };
@@ -1023,7 +1024,9 @@ function ImageSpeak() {
         setImageLoading(true);
         setGeneratedImage(imageUrl);
         // Enable recording after image is set
-        setRecordingDisabled(false);
+        setTimeout(() => {
+          setRecordingDisabled(false);
+        }, 1000); // Small delay to ensure image loads
       } else {
         console.log('❌ Image generation failed or no URLs returned');
         alert('Failed to generate image. Please try again.');
@@ -1155,6 +1158,8 @@ function ImageSpeak() {
                         onLoad={() => {
                           setImageLoading(false);
                           setImageLoadError(false);
+                          // Enable recording when image loads successfully
+                          setRecordingDisabled(false);
                         }}
                         onError={() => {
                           setImageLoading(false);
@@ -1217,7 +1222,8 @@ function ImageSpeak() {
                       title={
                         recordingDisabled && !generatedImage ? 'Wait for image to load' :
                         recordingUsed && !recording ? 'Recording already used - one chance only' : 
-                        recording ? 'Stop recording' : 'Start recording (50 seconds)'
+                        recording ? 'Stop recording (click to stop)' : 
+                        'Start recording (50 seconds max)'
                       }
                     >
                       {recording ? (
@@ -1251,15 +1257,15 @@ function ImageSpeak() {
                     marginBottom: '20px'
                   }}>
                     {isLoading ? 'Processing audio...' : 
-                    recording ? 'Recording in progress... Click mic to stop' : 
-                    recordingUsed ? 'Recording completed' : 
+                    recording ? 'Recording in progress... Click mic to stop anytime' : 
+                    recordingUsed ? 'Recording completed - one chance only' : 
                     recordingDisabled ? 'Wait for image to load' :
-                    'Click microphone to start recording'}
+                    'Click microphone to start recording (50 seconds max)'}
                   </p>
                   
-                  {recordingUsed && !recording && (
+                  {!recording && (
                     <div style={{ fontSize: '12px', color: 'var(--muted)', marginBottom: '20px' }}>
-                      One recording per session (50 seconds max)
+                      {recordingUsed ? 'One recording per session completed' : '50 seconds maximum - one chance only'}
                     </div>
                   )}
                   
@@ -1296,7 +1302,7 @@ function ImageSpeak() {
                           </div>
                           <div className="feedback-stat">
                             <div className="feedback-stat-label">Score</div>
-                            <div className="feedback-stat-value" style={{ color: '#10b981' }}>{parsed.score || 'N/A'}</div>
+                            <div className="feedback-stat-value" style={{ color: '#04422dff' }}>{parsed.score || 'N/A'}</div>
                           </div>
                         </div>
                         
@@ -1321,9 +1327,11 @@ function ImageSpeak() {
                                 <div key={index} className="feedback-reason">
                                   {reason.includes('→') ? (
                                     <span>
-                                      <strong>{reason.split('→')[0].trim()}</strong> → {reason.split('→')[1].split(':')[0].trim()}
+                                      <strong style={{ color: '#000000' }}>{reason.split('→')[0].trim()}</strong>
+                                      <span style={{ margin: '0 8px', color: 'var(--muted)' }}>→</span>
+                                      <span>{reason.split('→')[1].split(':')[0].trim()}</span>
                                       {reason.includes(':') && (
-                                        <span style={{ color: 'var(--muted)', marginLeft: '8px' }}>
+                                        <span style={{ color: '#571919', marginLeft: '8px' }}>
                                           ({reason.split(':')[1].trim()})
                                         </span>
                                       )}
