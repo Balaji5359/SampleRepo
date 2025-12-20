@@ -2,6 +2,80 @@ import React, { useState, useEffect } from 'react';
 import Login_Navbar from '../RegisterFiles/Login_Navbar.jsx';
 import './dashboard.css';
 
+const SpeechConfidenceGraph = ({ transcriptUrl }) => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(transcriptUrl);
+      const json = await response.json();
+      const items = json.results?.items || [];
+      const words = items.filter(item => item.type === 'pronunciation').map(word => ({
+        content: word.alternatives?.[0]?.content || '',
+        confidence: parseFloat(word.alternatives?.[0]?.confidence || 0)
+      }));
+      setData(words);
+    } catch (error) {
+      console.error('Failed to load transcript:', error);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    loadData();
+  }, [transcriptUrl]);
+
+  if (loading) return <div>Loading speech analysis...</div>;
+  if (!data) return null;
+
+  return (
+    <div className="analytics-card">
+      <h3>Speech Confidence Analysis</h3>
+      <svg width="100%" height="300" viewBox="0 0 800 300" style={{background: 'rgba(255,255,255,0.02)', borderRadius: '8px'}}>
+        <defs>
+          <linearGradient id="confidenceGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#60a5fa" stopOpacity="0.3"/>
+            <stop offset="100%" stopColor="#60a5fa" stopOpacity="0.1"/>
+          </linearGradient>
+        </defs>
+        {data.length > 1 && (
+          <>
+            <polyline
+              fill="none"
+              stroke="#60a5fa"
+              strokeWidth="3"
+              points={data.map((word, i) => 
+                `${(i / (data.length - 1)) * 780 + 10},${280 - (word.confidence * 250)}`
+              ).join(' ')}
+            />
+            <polygon
+              fill="url(#confidenceGrad)"
+              points={`10,280 ${data.map((word, i) => 
+                `${(i / (data.length - 1)) * 780 + 10},${280 - (word.confidence * 250)}`
+              ).join(' ')} 790,280`}
+            />
+            {data.map((word, i) => (
+              <circle
+                key={i}
+                cx={(i / (data.length - 1)) * 780 + 10}
+                cy={280 - (word.confidence * 250)}
+                r="4"
+                fill={word.confidence > 0.85 ? '#10b981' : word.confidence > 0.6 ? '#f59e0b' : '#ef4444'}
+              />
+            ))}
+          </>
+        )}
+        <line x1="10" y1="280" x2="790" y2="280" stroke="rgba(255,255,255,0.1)" strokeWidth="1"/>
+        <line x1="10" y1="30" x2="790" y2="30" stroke="rgba(255,255,255,0.1)" strokeWidth="1"/>
+        <text x="15" y="25" fill="#94a3b8" fontSize="12">100%</text>
+        <text x="15" y="295" fill="#94a3b8" fontSize="12">0%</text>
+      </svg>
+    </div>
+  );
+};
+
 function StoryRetellingDashboard() {
   const [activeSection, setActiveSection] = useState('main');
   const [selectedSession, setSelectedSession] = useState(null);
@@ -73,49 +147,56 @@ function StoryRetellingDashboard() {
     fetchStoryRetellingData();
   }, [userEmail]);
 
-  const loadTranscriptData = async (transcriptUrl) => {
-    try {
-      console.log('🔄 Loading transcript from:', transcriptUrl);
-      const response = await fetch(transcriptUrl, {
-        mode: 'cors',
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      
-      const transcriptJson = await response.json();
-      
-      const items = transcriptJson.results?.items || [];
-      const words = items.filter(item => item.type === 'pronunciation');
-      
-      let totalConfidence = 0;
-      const wordAnalysis = words.map(word => {
-        const confidence = parseFloat(word.alternatives?.[0]?.confidence || 0);
-        totalConfidence += confidence;
-        return {
-          content: word.alternatives?.[0]?.content || '',
-          confidence: confidence,
-          startTime: parseFloat(word.start_time || 0),
-          endTime: parseFloat(word.end_time || 0)
+  const loadTranscriptData = (transcriptUrl) => {
+    console.log('🔄 Loading transcript from:', transcriptUrl);
+    
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = transcriptUrl;
+    
+    iframe.onload = () => {
+      try {
+        const transcriptJson = JSON.parse(iframe.contentDocument.body.textContent);
+        
+        const items = transcriptJson.results?.items || [];
+        const words = items.filter(item => item.type === 'pronunciation');
+        
+        let totalConfidence = 0;
+        const wordAnalysis = words.map(word => {
+          const confidence = parseFloat(word.alternatives?.[0]?.confidence || 0);
+          totalConfidence += confidence;
+          return {
+            content: word.alternatives?.[0]?.content || '',
+            confidence: confidence,
+            startTime: parseFloat(word.start_time || 0),
+            endTime: parseFloat(word.end_time || 0)
+          };
+        });
+        
+        const analytics = {
+          avgConfidence: Math.round((totalConfidence / words.length) * 100),
+          wordCount: words.length,
+          duration: Math.round(Math.max(...words.map(w => parseFloat(w.end_time || 0)))),
+          words: wordAnalysis
         };
-      });
-      
-      const analytics = {
-        avgConfidence: Math.round((totalConfidence / words.length) * 100),
-        wordCount: words.length,
-        duration: Math.round(Math.max(...words.map(w => parseFloat(w.end_time || 0)))),
-        words: wordAnalysis
-      };
-      
-      setSelectedSession(prev => ({ ...prev, transcriptAnalytics: analytics }));
-      console.log('✅ Transcript analytics loaded:', analytics);
-    } catch (error) {
-      console.error('❌ Failed to load transcript:', error);
-    }
+        
+        setSelectedSession(prev => ({ ...prev, transcriptAnalytics: analytics }));
+        console.log('✅ Transcript analytics loaded:', analytics);
+        document.body.removeChild(iframe);
+      } catch (error) {
+        console.error('❌ Failed to parse transcript:', error);
+        document.body.removeChild(iframe);
+        alert('Transcript file format error or CORS restrictions.');
+      }
+    };
+    
+    iframe.onerror = () => {
+      console.error('❌ Failed to load transcript via iframe');
+      document.body.removeChild(iframe);
+      alert('Transcript file is not accessible due to CORS restrictions.');
+    };
+    
+    document.body.appendChild(iframe);
   };
 
   if (activeSection === 'history') {
@@ -321,18 +402,8 @@ function StoryRetellingDashboard() {
               )}
 
               {selectedSession.transcripts && selectedSession.transcripts.length > 0 && (
-                <div className="transcript-analytics-section">
-                  <div className="analytics-card transcript-card">
-                    <h3>Speech Analysis (JSON Transcript)</h3>
-                    <div className="transcript-url-info">
-                      <p><strong>Transcript File:</strong> {selectedSession.transcripts[0].url}</p>
-                      <button 
-                        className="load-transcript-btn"
-                        onClick={() => loadTranscriptData(selectedSession.transcripts[0].url)}
-                      >
-                        Load Detailed Analysis
-                      </button>
-                    </div>
+                <SpeechConfidenceGraph transcriptUrl={selectedSession.transcripts[0].url} />
+              )}
                     {selectedSession.transcriptAnalytics && (
                       <div className="transcript-results">
                         <div className="analytics-overview">
@@ -349,22 +420,109 @@ function StoryRetellingDashboard() {
                             <span className="metric-value">{selectedSession.transcriptAnalytics.duration}s</span>
                           </div>
                         </div>
-                        <div className="word-analysis">
+                        <div style={{display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '400px', overflowY: 'auto'}}>
                           {selectedSession.transcriptAnalytics.words?.map((word, idx) => (
-                            <div key={idx} className="word-confidence-item">
-                              <span className="word">{word.content}</span>
-                              <div className="confidence-bar">
-                                <div 
-                                  className={`confidence-fill ${
-                                    word.confidence > 0.85 ? 'high' : 
-                                    word.confidence > 0.6 ? 'mid' : 'low'
-                                  }`}
-                                  style={{width: `${word.confidence * 100}%`}}
-                                ></div>
+                            <div key={idx} style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '12px',
+                              padding: '10px',
+                              borderRadius: '10px',
+                              background: 'linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005))',
+                              transition: 'transform 0.12s ease',
+                              cursor: 'pointer'
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0px)'}
+                            >
+                              <div style={{minWidth: '110px', fontWeight: '700', color: 'var(--text-primary)'}}>
+                                {word.content}
                               </div>
-                              <span className="confidence-score">{Math.round(word.confidence * 100)}%</span>
+                              <div style={{flex: 1, display: 'flex', flexDirection: 'column'}}>
+                                <div style={{
+                                  height: '10px',
+                                  borderRadius: '999px',
+                                  background: 'rgba(255,255,255,0.03)',
+                                  overflow: 'hidden'
+                                }}>
+                                  <div style={{
+                                    height: '100%',
+                                    width: `${word.confidence * 100}%`,
+                                    background: word.confidence >= 0.85 ? 
+                                      'linear-gradient(90deg, #10b981, #34d399)' :
+                                      word.confidence >= 0.6 ?
+                                      'linear-gradient(90deg, #f59e0b, #ffd28a)' :
+                                      'linear-gradient(90deg, #ef4444, #ff7b7b)'
+                                  }}></div>
+                                </div>
+                              </div>
+                              <div style={{
+                                width: '140px',
+                                textAlign: 'right',
+                                fontSize: '13px',
+                                color: 'var(--text-muted)'
+                              }}>
+                                {Math.round(word.confidence * 100)}%<br/>
+                                <small style={{color: 'var(--text-muted)'}}>
+                                  {word.startTime.toFixed(2)}s - {word.endTime.toFixed(2)}s
+                                </small>
+                              </div>
+                              {(word.confidence < 0.75) && (
+                                <div style={{
+                                  marginLeft: '12px',
+                                  fontSize: '13px',
+                                  color: 'var(--text-muted)',
+                                  fontStyle: 'italic',
+                                  minWidth: '200px'
+                                }}>
+                                  {word.confidence < 0.6 ? 'Tip: slow down & stress vowel sounds' :
+                                   'Tip: focus on consonant ending'}
+                                </div>
+                              )}
                             </div>
                           ))}
+                        </div>
+                        <div style={{marginTop: '20px'}}>
+                          <h4>Confidence Over Time</h4>
+                          <svg width="100%" height="200" viewBox="0 0 800 200" style={{background: 'rgba(255,255,255,0.02)', borderRadius: '8px'}}>
+                            <defs>
+                              <linearGradient id="confidenceGradient3" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stopColor="#60a5fa" stopOpacity="0.3"/>
+                                <stop offset="100%" stopColor="#60a5fa" stopOpacity="0.1"/>
+                              </linearGradient>
+                            </defs>
+                            {selectedSession.transcriptAnalytics.words?.length > 1 && (
+                              <>
+                                <polyline
+                                  fill="none"
+                                  stroke="#60a5fa"
+                                  strokeWidth="2"
+                                  points={selectedSession.transcriptAnalytics.words.map((word, i) => 
+                                    `${(i / (selectedSession.transcriptAnalytics.words.length - 1)) * 780 + 10},${190 - (word.confidence * 170)}`
+                                  ).join(' ')}
+                                />
+                                <polygon
+                                  fill="url(#confidenceGradient3)"
+                                  points={`10,190 ${selectedSession.transcriptAnalytics.words.map((word, i) => 
+                                    `${(i / (selectedSession.transcriptAnalytics.words.length - 1)) * 780 + 10},${190 - (word.confidence * 170)}`
+                                  ).join(' ')} 790,190`}
+                                />
+                                {selectedSession.transcriptAnalytics.words.map((word, i) => (
+                                  <circle
+                                    key={i}
+                                    cx={(i / (selectedSession.transcriptAnalytics.words.length - 1)) * 780 + 10}
+                                    cy={190 - (word.confidence * 170)}
+                                    r="3"
+                                    fill={word.confidence > 0.85 ? '#10b981' : word.confidence > 0.6 ? '#f59e0b' : '#ef4444'}
+                                  />
+                                ))}
+                              </>
+                            )}
+                            <line x1="10" y1="190" x2="790" y2="190" stroke="rgba(255,255,255,0.1)" strokeWidth="1"/>
+                            <line x1="10" y1="20" x2="790" y2="20" stroke="rgba(255,255,255,0.1)" strokeWidth="1"/>
+                            <text x="15" y="15" fill="#94a3b8" fontSize="12">100%</text>
+                            <text x="15" y="200" fill="#94a3b8" fontSize="12">0%</text>
+                          </svg>
                         </div>
                       </div>
                     )}

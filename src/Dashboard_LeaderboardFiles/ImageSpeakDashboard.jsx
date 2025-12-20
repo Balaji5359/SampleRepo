@@ -2,6 +2,145 @@ import React, { useState, useEffect } from 'react';
 import Login_Navbar from '../RegisterFiles/Login_Navbar.jsx';
 import './dashboard.css';
 
+const SpeechConfidenceGraph = ({ transcriptUrl }) => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const loadData = () => {
+    setLoading(true);
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = transcriptUrl;
+    
+    iframe.onload = () => {
+      try {
+        const json = JSON.parse(iframe.contentDocument.body.textContent);
+        const items = json.results?.items || [];
+        const words = items.filter(item => item.type === 'pronunciation').map(word => ({
+          content: word.alternatives?.[0]?.content || '',
+          confidence: parseFloat(word.alternatives?.[0]?.confidence || 0),
+          startTime: parseFloat(word.start_time || 0),
+          endTime: parseFloat(word.end_time || 0)
+        }));
+        setData(words);
+        document.body.removeChild(iframe);
+      } catch (error) {
+        console.error('Failed to parse transcript:', error);
+        document.body.removeChild(iframe);
+      }
+      setLoading(false);
+    };
+    
+    iframe.onerror = () => {
+      console.error('Failed to load transcript via iframe');
+      document.body.removeChild(iframe);
+      setLoading(false);
+    };
+    
+    document.body.appendChild(iframe);
+  };
+
+  useEffect(() => {
+    loadData();
+  }, [transcriptUrl]);
+
+  if (loading) return <div style={{padding: '20px', textAlign: 'center'}}>Loading speech analysis...</div>;
+  if (!data || data.length === 0) return null;
+
+  const avgConfidence = data.reduce((sum, word) => sum + word.confidence, 0) / data.length;
+  const goodWords = data.filter(w => w.confidence > 0.85).length;
+  const badWords = data.filter(w => w.confidence < 0.6).length;
+
+  return (
+    <div className="analytics-card" style={{marginTop: '20px'}}>
+      <h3>Speech Confidence Analysis</h3>
+      
+      <div style={{display: 'flex', gap: '20px', marginBottom: '20px', padding: '15px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px'}}>
+        <div style={{flex: 1, textAlign: 'center'}}>
+          <div style={{fontSize: '24px', fontWeight: 'bold', color: '#60a5fa'}}>{Math.round(avgConfidence * 100)}%</div>
+          <div style={{fontSize: '12px', color: 'var(--text-muted)'}}>avg confidence</div>
+        </div>
+        <div style={{flex: 1, textAlign: 'center'}}>
+          <div style={{fontSize: '24px', fontWeight: 'bold', color: '#10b981'}}>{goodWords}</div>
+          <div style={{fontSize: '12px', color: 'var(--text-muted)'}}>good words (&gt;85%)</div>
+        </div>
+        <div style={{flex: 1, textAlign: 'center'}}>
+          <div style={{fontSize: '24px', fontWeight: 'bold', color: '#ef4444'}}>{badWords}</div>
+          <div style={{fontSize: '12px', color: 'var(--text-muted)'}}>low words (&lt;60%)</div>
+        </div>
+      </div>
+
+      <div style={{maxHeight: '400px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px'}}>
+        {data.map((word, idx) => {
+          const pct = Math.round(word.confidence * 100);
+          const bgColor = word.confidence >= 0.85 ? 
+            'linear-gradient(90deg, #10b981, #34d399)' :
+            word.confidence >= 0.6 ?
+            'linear-gradient(90deg, #f59e0b, #ffd28a)' :
+            'linear-gradient(90deg, #ef4444, #ff7b7b)';
+          
+          return (
+            <div key={idx} style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              padding: '10px',
+              borderRadius: '10px',
+              background: 'linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005))',
+              transition: 'transform 0.12s ease',
+              cursor: 'pointer'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0px)'}
+            >
+              <div style={{minWidth: '110px', fontWeight: '700', color: 'var(--text-primary)'}}>
+                {word.content}
+              </div>
+              <div style={{flex: 1, display: 'flex', flexDirection: 'column'}}>
+                <div style={{
+                  height: '10px',
+                  borderRadius: '999px',
+                  background: 'rgba(255,255,255,0.03)',
+                  overflow: 'hidden'
+                }}>
+                  <div style={{
+                    height: '100%',
+                    width: `${pct}%`,
+                    background: bgColor
+                  }}></div>
+                </div>
+              </div>
+              <div style={{
+                width: '140px',
+                textAlign: 'right',
+                fontSize: '13px',
+                color: 'var(--text-muted)'
+              }}>
+                {pct}%<br/>
+                <small style={{color: 'var(--text-muted)'}}>
+                  {word.startTime.toFixed(2)}s - {word.endTime.toFixed(2)}s
+                </small>
+              </div>
+              {word.confidence < 0.75 && (
+                <div style={{
+                  marginLeft: '12px',
+                  fontSize: '13px',
+                  color: 'var(--text-muted)',
+                  fontStyle: 'italic',
+                  minWidth: '200px'
+                }}>
+                  {word.confidence < 0.6 ? 'Tip: slow down & stress vowel sounds' :
+                   'Tip: focus on consonant ending'}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 function ImageSpeakDashboard() {
   const [activeSection, setActiveSection] = useState('main');
   const [selectedSession, setSelectedSession] = useState(null);
@@ -73,40 +212,7 @@ function ImageSpeakDashboard() {
     fetchImageSpeakData();
   }, [userEmail]);
 
-  const loadTranscriptData = async (transcriptUrl) => {
-    try {
-      console.log('🔄 Loading transcript from:', transcriptUrl);
-      const response = await fetch(transcriptUrl);
-      const transcriptJson = await response.json();
-      
-      const items = transcriptJson.results?.items || [];
-      const words = items.filter(item => item.type === 'pronunciation');
-      
-      let totalConfidence = 0;
-      const wordAnalysis = words.map(word => {
-        const confidence = parseFloat(word.alternatives?.[0]?.confidence || 0);
-        totalConfidence += confidence;
-        return {
-          content: word.alternatives?.[0]?.content || '',
-          confidence: confidence,
-          startTime: parseFloat(word.start_time || 0),
-          endTime: parseFloat(word.end_time || 0)
-        };
-      });
-      
-      const analytics = {
-        avgConfidence: Math.round((totalConfidence / words.length) * 100),
-        wordCount: words.length,
-        duration: Math.round(Math.max(...words.map(w => parseFloat(w.end_time || 0)))),
-        words: wordAnalysis
-      };
-      
-      setSelectedSession(prev => ({ ...prev, transcriptAnalytics: analytics }));
-      console.log('✅ Transcript analytics loaded:', analytics);
-    } catch (error) {
-      console.error('❌ Failed to load transcript:', error);
-    }
-  };
+
 
   const renderSessionAnalytics = () => {
     const session = selectedSession;
@@ -145,8 +251,8 @@ function ImageSpeakDashboard() {
                   <div className="media-error" style={{display: 'none'}}>
                     <div className="error-icon">🖼️</div>
                     <div className="error-text">Image not accessible</div>
-                    <div className="error-url">{session.images[0].url}</div>
-                    <div className="error-suggestion">Check S3 bucket permissions or file existence</div>
+                    <div className="error-suggestion">S3 bucket CORS policy blocks image access. Image files are available but cannot be displayed in browser due to security restrictions.</div>
+                    <a href={session.images[0].url} target="_blank" rel="noopener noreferrer" className="download-link" style={{color: 'var(--accent-blue)', textDecoration: 'underline', fontSize: '0.9rem', marginTop: '8px', display: 'block'}}>Open Image in New Tab</a>
                   </div>
                 </div>
               ) : (
@@ -163,7 +269,6 @@ function ImageSpeakDashboard() {
                 <div className="media-container">
                   <audio 
                     controls 
-                    src={session.audioFiles[0].url} 
                     style={{width: '100%'}}
                     onLoadedData={() => console.log('✅ Audio loaded successfully:', session.audioFiles[0].url)}
                     onError={(e) => {
@@ -171,14 +276,19 @@ function ImageSpeakDashboard() {
                       e.target.style.display = 'none';
                       e.target.nextSibling.style.display = 'block';
                     }}
+                    preload="none"
                   >
+                    <source src={session.audioFiles[0].url} type="audio/webm" />
+                    <source src={session.audioFiles[0].url} type="audio/mp4" />
+                    <source src={session.audioFiles[0].url} type="audio/wav" />
+                    <source src={session.audioFiles[0].url} type="audio/mpeg" />
                     Your browser does not support audio playback.
                   </audio>
                   <div className="media-error" style={{display: 'none'}}>
                     <div className="error-icon">🎵</div>
                     <div className="error-text">Audio not accessible</div>
-                    <div className="error-url">{session.audioFiles[0].url}</div>
-                    <div className="error-suggestion">Check S3 bucket permissions or file existence</div>
+                    <div className="error-suggestion">S3 bucket CORS policy blocks audio access. Audio files are available but cannot be played in browser due to security restrictions.</div>
+                    <a href={session.audioFiles[0].url} target="_blank" rel="noopener noreferrer" className="download-link" style={{color: 'var(--accent-blue)', textDecoration: 'underline', fontSize: '0.9rem', marginTop: '8px', display: 'block'}}>Open Audio File in New Tab</a>
                   </div>
                   <div className="audio-tip">
                     Listen to your recorded speech
@@ -239,55 +349,7 @@ function ImageSpeakDashboard() {
 
         {/* Transcript Analytics */}
         {session.transcripts && session.transcripts.length > 0 && (
-          <div className="transcript-analytics-section">
-            <div className="analytics-card transcript-card">
-              <h3>Speech Analysis (JSON Transcript)</h3>
-              <div className="transcript-url-info">
-                <p><strong>Transcript File:</strong> {session.transcripts[0].url}</p>
-                <button 
-                  className="load-transcript-btn"
-                  onClick={() => loadTranscriptData(session.transcripts[0].url)}
-                >
-                  Load Detailed Analysis
-                </button>
-              </div>
-              {session.transcriptAnalytics && (
-                <div className="transcript-results">
-                  <div className="analytics-overview">
-                    <div className="metric">
-                      <span className="metric-label">Confidence:</span>
-                      <span className="metric-value">{session.transcriptAnalytics.avgConfidence}%</span>
-                    </div>
-                    <div className="metric">
-                      <span className="metric-label">Words:</span>
-                      <span className="metric-value">{session.transcriptAnalytics.wordCount}</span>
-                    </div>
-                    <div className="metric">
-                      <span className="metric-label">Duration:</span>
-                      <span className="metric-value">{session.transcriptAnalytics.duration}s</span>
-                    </div>
-                  </div>
-                  <div className="word-analysis">
-                    {session.transcriptAnalytics.words?.map((word, idx) => (
-                      <div key={idx} className="word-confidence-item">
-                        <span className="word">{word.content}</span>
-                        <div className="confidence-bar">
-                          <div 
-                            className={`confidence-fill ${
-                              word.confidence > 0.85 ? 'high' : 
-                              word.confidence > 0.6 ? 'mid' : 'low'
-                            }`}
-                            style={{width: `${word.confidence * 100}%`}}
-                          ></div>
-                        </div>
-                        <span className="confidence-score">{Math.round(word.confidence * 100)}%</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+          <SpeechConfidenceGraph transcriptUrl={session.transcripts[0].url} />
         )}
 
         <div className="session-summary">

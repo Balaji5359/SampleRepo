@@ -91,22 +91,28 @@ function LandingPage() {
       icon: <img src="https://cdn1.iconfinder.com/data/icons/miscellaneous-306-solid/128/accent_pronunciation_talk_pronouncing_diction_parlance_language-128.png" alt="pronunciation" style={{ width: 50, height: 50 }} />
     },
     {
-      id: 'image',
-      title: 'Image-Based Speaking',
-      description: 'Describe images to enhance vocabulary and fluency',
-      icon: <img src="https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-image-128.png" alt="image" style={{ width: 50, height: 50 }} />
-    },
-    {
-      id: 'story',
-      title: 'Story Building',
-      description: 'Create and narrate stories to boost creative communication',
-      icon: <img src="https://cdn2.iconfinder.com/data/icons/refugee-crisis/64/storytelling-story-teach-method-plan-128.png" alt="story" style={{ width: 50, height: 50 }} />
+      id: 'listening',
+      title: 'Listening Test',
+      description: 'Enhance comprehension with interactive listening exercises',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="50" height="50" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 13a9 9 0 0118 0v4a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3" />
+          <path d="M7 13v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4" opacity="0.9"/>
+          <path d="M21 10a7 7 0 00-18 0" />
+        </svg>
+      )
     },
     {
       id: 'translate',
       title: 'Translate & Speak',
       description: 'Practice translation and speaking skills with real-time feedback',
       icon: <img src="https://cdn2.iconfinder.com/data/icons/translation-1/513/translation-translate-language-international-translating_2_copy_14-512.png" alt="translate" style={{ width: 50, height: 50 }} />
+    },
+    {
+      id: 'image',
+      title: 'Image-Based Speaking',
+      description: 'Describe images to enhance vocabulary and fluency',
+      icon: <img src="https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-image-128.png" alt="image" style={{ width: 50, height: 50 }} />
     },
     {
       id: 'image-story',
