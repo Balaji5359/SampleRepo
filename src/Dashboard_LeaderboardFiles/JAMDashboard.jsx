@@ -299,8 +299,9 @@ function JAMDashboard() {
         {session.transcripts && session.transcripts.length > 0 && (
           <SpeechConfidenceGraph transcriptUrl={session.transcripts[0].url} />
         )}
-              {session.transcriptAnalytics && (
-                <div className="transcript-results">
+        {session.transcriptAnalytics && (
+          <div className="analytics-card">
+            <div className="transcript-results">
                   <div className="analytics-overview">
                     <div className="metric">
                       <span className="metric-label">Confidence:</span>
@@ -371,7 +372,7 @@ function JAMDashboard() {
                             minWidth: '200px'
                           }}>
                             {word.confidence < 0.6 ? 'Tip: slow down & stress vowel sounds' :
-                             'Tip: focus on consonant ending'}
+                            'Tip: focus on consonant ending'}
                           </div>
                         )}
                       </div>
@@ -420,9 +421,7 @@ function JAMDashboard() {
                     </svg>
                   </div>
                 </div>
-              )}
             </div>
-          </div>
         )}
 
         <div className="session-summary">
