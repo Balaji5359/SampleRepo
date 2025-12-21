@@ -103,10 +103,15 @@ function LandingPage() {
       )
     },
     {
-      id: 'translate',
-      title: 'Translate & Speak',
-      description: 'Practice translation and speaking skills with real-time feedback',
-      icon: <img src="https://cdn2.iconfinder.com/data/icons/translation-1/513/translation-translate-language-international-translating_2_copy_14-512.png" alt="translate" style={{ width: 50, height: 50 }} />
+      id : 'situational',
+      title: 'Situational Speaking',
+      description: 'Practice real-life scenarios to build confidence',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="50" height="50" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-label="situational speaking">
+          <path d="M21 15a2 2 0 0 1-2 2H8l-4 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+          <path d="M7 8h8M7 12h5" />
+        </svg>
+      )
     },
     {
       id: 'image',
@@ -285,6 +290,159 @@ function LandingPage() {
         </div>
       </section>
 
+      {/* Interview Activities Roadmap Section */}
+      <section id="interview-activities" className="interview-roadmap">
+        <div className="section-header">
+          <h2>Interview Preparation Roadmap</h2>
+          <p>Master your interview skills step by step with our structured learning path</p>
+        </div>
+        
+        {/* Basic Interview Skills */}
+        <div className="roadmap-section">
+          <div className="section-title">
+            <h3>🟢 Basic Interview Skills</h3>
+          </div>
+          
+          {/* Row 1: Left to Right */}
+          <div className="roadmap-row">
+            <div className="roadmap-step">
+              <div className="step-number">1</div>
+              <div className="step-content">
+                <h4>JD-Based Self Introduction</h4>
+                <p>JAM Session • Pronunciation Test • Listening Test</p>
+              </div>
+            </div>
+            <div className="roadmap-connector horizontal"></div>
+            <div className="roadmap-step">
+              <div className="step-number">2</div>
+              <div className="step-content">
+                <h4>Programming Knowledge</h4>
+                <p>Image-Based Speaking • JAM Session • Listening Test</p>
+              </div>
+            </div>
+            <div className="roadmap-connector horizontal"></div>
+            <div className="roadmap-step">
+              <div className="step-number">3</div>
+              <div className="step-content">
+                <h4>Worked Domain</h4>
+                <p>Image-Based Storytelling • JAM Session • Vocabulary</p>
+              </div>
+            </div>
+            <div className="roadmap-connector horizontal"></div>
+            <div className="roadmap-step">
+              <div className="step-number">4</div>
+              <div className="step-content">
+                <h4>Project Discussion</h4>
+                <p>Storytelling • JAM Session • Pronunciation</p>
+              </div>
+            </div>
+          </div>
+          
+          {/* Vertical Connector */}
+          <div className="roadmap-connector vertical-right"></div>
+          
+          {/* Row 2: Right to Left */}
+          <div className="roadmap-row reverse">
+            <div className="roadmap-step">
+              <div className="step-number">7</div>
+              <div className="step-content">
+                <h4>Certifications & Internships</h4>
+                <p>Structured Explanation • Keyword Clarity</p>
+              </div>
+            </div>
+            <div className="roadmap-connector horizontal"></div>
+            <div className="roadmap-step">
+              <div className="step-number">6</div>
+              <div className="step-content">
+                <h4>Hobbies & Interests</h4>
+                <p>Free-flow Speaking • Confidence Analysis</p>
+              </div>
+            </div>
+            <div className="roadmap-connector horizontal"></div>
+            <div className="roadmap-step">
+              <div className="step-number">5</div>
+              <div className="step-content">
+                <h4>Future Career Planning</h4>
+                <p>JAM Session • Listening Test • Goal Clarity</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Advanced Interview Skills */}
+        <div className="roadmap-section">
+          <div className="section-title">
+            <h3>🔵 Advanced Interview Skills</h3>
+          </div>
+          
+          {/* Vertical Connector from Basic to Advanced */}
+          <div className="roadmap-connector vertical-center"></div>
+          
+          {/* Row 3: Left to Right */}
+          <div className="roadmap-row">
+            <div className="roadmap-step">
+              <div className="step-number">8</div>
+              <div className="step-content">
+                <h4>Role-Based Interview</h4>
+                <p>Mock Interview • JAM Answers • Stress Analysis</p>
+              </div>
+            </div>
+            <div className="roadmap-connector horizontal"></div>
+            <div className="roadmap-step">
+              <div className="step-number">9</div>
+              <div className="step-content">
+                <h4>Resume-Based Interview</h4>
+                <p>Resume Q&A • Consistency Check • Coherence</p>
+              </div>
+            </div>
+            <div className="roadmap-connector horizontal"></div>
+            <div className="roadmap-step">
+              <div className="step-number">10</div>
+              <div className="step-content">
+                <h4>Technical Interview</h4>
+                <p>Think-aloud JAM • Response Accuracy • Logic</p>
+              </div>
+            </div>
+          </div>
+          
+          {/* Vertical Connector */}
+          <div className="roadmap-connector vertical-right"></div>
+          
+          {/* Row 4: Right to Left */}
+          <div className="roadmap-row reverse">
+            <div className="roadmap-step">
+              <div className="step-number">13</div>
+              <div className="step-content">
+                <h4>Logical Puzzles</h4>
+                <p>Problem Solving • Clarity Analysis • Think-aloud</p>
+              </div>
+            </div>
+            <div className="roadmap-connector horizontal"></div>
+            <div className="roadmap-step">
+              <div className="step-number">12</div>
+              <div className="step-content">
+                <h4>Stress/Pressure Questions</h4>
+                <p>Rapid-fire Speaking • Emotion Detection • Recovery</p>
+              </div>
+            </div>
+            <div className="roadmap-connector horizontal"></div>
+            <div className="roadmap-step">
+              <div className="step-number">11</div>
+              <div className="step-content">
+                <h4>Follow-Up Questioning</h4>
+                <p>Multi-round Tasks • Memory Checks • Continuity</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="roadmap-progress">
+          <div className="progress-indicator">
+            <div className="progress-bar"></div>
+            <div className="progress-text">Complete Your Interview Journey</div>
+          </div>
+        </div>
+      </section>
       {/* Pricing Section */}
       <section id="pricing" className="pricing">
         <div className="section-header">
