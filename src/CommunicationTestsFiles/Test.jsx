@@ -1,284 +1,116 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import Login_Navbar from "../RegisterFiles/Login_Navbar";
-import '../LandingPageFiles/landing.css';
-import "./test.css"
-
+import { useNavigate } from "react-router-dom";
+import "./test.css";
 
 function Test() {
-    const [activeChallenge, setActiveChallenge] = useState(null);
-    const [instructionIndex, setInstructionIndex] = useState(0);
-    const navigate = useNavigate();
-    const location = useLocation();
     const [tests, setTests] = useState({});
     const [loading, setLoading] = useState(true);
+    const [activeChallenge, setActiveChallenge] = useState(null);
+    const [instructionIndex, setInstructionIndex] = useState(0);
+    const [userName, setUserName] = useState("");
+    const navigate = useNavigate();
 
     useEffect(() => {
         const storedEmail = localStorage.getItem("email");
         if (!storedEmail) {
             setLoading(false);
             return;
-        }
-        const url = 'https://ntjkr8rnd6.execute-api.ap-south-1.amazonaws.com/dev/student_profilecreate/student_profile_senddata';
-        fetch(url, {
+        }  
+        fetch('https://ntjkr8rnd6.execute-api.ap-south-1.amazonaws.com/dev/student_profilecreate/student_profile_senddata', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ college_email: storedEmail }),
         })
-            .then((response) => response.json())
-            .then((data) => {
-                if (data && data.body) {
-                    try {
-                        const parsedData = typeof data.body === "string" ? JSON.parse(data.body) : data.body;
-                        setTests(parsedData.tests || {});
-                    } catch (e) {
-                        console.error('Error parsing API data body:', e);
-                    }
-                }
-                setLoading(false);
-            })
-            .catch((error) => {
-                console.error('Error fetching data:', error);
-                setLoading(false);
-            });
+        .then(response => response.json())
+        .then(data => {
+            if (data?.body) {
+                const parsedData = typeof data.body === "string" ? JSON.parse(data.body) : data.body;
+                setTests(parsedData.tests || {});
+            }
+            setLoading(false);
+        })
+        .catch(() => setLoading(false));
     }, []);
-
-    const practices = [
-        { id: "jam", title: "JAM Test", description: "Speak on a random topic for 60 seconds.", icon: "🎤", count: tests.jam_test || 0 },
-        // { id: "pronunciation", title: "Pronunciation Test", description: "Improve your pronunciation.", icon: "👂" },
-        { id: "situation-speak", title: "Situation-Based Speak", description: "Practice translation.", icon: "🌐", count: tests.situation_test || 0 },
-        { id: "translate-speak", title: "Translate & Speak", description: "Practice translation.", icon: "📝", count: tests.translate_test || 0 },
-        { id: "image-speaking", title: "Image-Based Speaking", description: "Describe images.", icon: "🖼️", count: tests.image_speak || 0 },
-        { id: "story-building", title: "Image-Story Building", description: "Create stories.", icon: "📖", count: tests.image_story || 0 }
-    ];
-
-    const jamInstructions = [
+    const activities = [
         {
-            title: "Instructions",
-            content: "You've been given a random topic! You will have 1 minute to speak. Focus on fluency, clarity, and confidence. Don’t worry about perfection."
+            id: 'jam',
+            title: 'JAM Sessions',
+            description: 'Just A Minute speaking sessions to improve spontaneous communication',
+            count: tests.jam_test || 0,
+            route: '/test/jam'
         },
         {
-            title: "Fluency",
-            content: "Maintain a smooth and uninterrupted flow of speech."
+            id: 'pronunciation',
+            title: 'Pronunciation Test',
+            description: 'Perfect your pronunciation with AI-powered feedback',
+            count: tests.pronu_test || 0,
+            route: '/test/pronunciation'
         },
         {
-            title: "Grammar",
-            content: "Use correct sentence structures and grammatical conventions."
+            id: 'listening',
+            title: 'Listening Test',
+            description: 'Enhance comprehension with interactive listening exercises',
+            count: tests.listen_test || 0,
+            route: '/test/listening'
         },
         {
-            title: "Coherence & Structure",
-            content: "Organize your thoughts in a clear and logical manner."
+            id: 'situational',
+            title: 'Situational Speaking',
+            description: 'Practice real-life scenarios to build confidence',
+            count: tests.situation_test || 0,
+            route: '/test/situation-speak'
         },
         {
-            title: "Confidence",
-            content: "Speak with assurance and composure."
+            id: 'image-speak',
+            title: 'Image-Based Speaking',
+            description: 'Describe images to enhance vocabulary and fluency',
+            count: tests.image_speak || 0,
+            route: '/test/image-speak'
         },
         {
-            title: "Vocabulary Usage",
-            content: "Use a diverse and appropriate range of vocabulary."
-        },
-        {
-            title: "How to Practice",
-            content: (
-                <iframe
-                    width="100%"
-                    height="250"
-                    src="https://www.youtube.com/embed/ReZgqLI3Hq0"
-                    title="How to Practice JAM Session"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                ></iframe>
-            )
+            id: 'story',
+            title: 'Image-Based Story Telling',
+            description: 'Expand your vocabulary with interactive learning exercises',
+            count: tests.image_story || 0,
+            route: '/test/image-story'
         }
     ];
 
-    const pronunciationInstructions = [
-        {
-            title: "Instructions",
-            content: "Improve your pronunciation by practicing words and sentences. Focus on clarity and accuracy."
-        },
-        {
-            title: "Clarity",
-            content: "Speak clearly, enunciating each sound."
-        },
-        {
-            title: "Accuracy",
-            content: "Pronounce words correctly."
-        },
-        {
-            title: "Intonation",
-            content: "Use appropriate intonation for questions and statements."
-        },
-        {
-            title: "Fluency",
-            content: "Practice speaking smoothly."
-        },
-        {
-            title: "How to Practice",
-            content: (
-                <iframe
-                    width="100%"
-                    height="250"
-                    src="https://www.youtube.com/embed/ReZgqLI3Hq0"
-                    title="How to Practice Pronunciation"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                ></iframe>
-            )
-        }
-    ];
-
-    const imageSpeakingInstructions = [
-        {
-            title: "Instructions",
-            content: "Describe the given image in detail. Speak for the allotted time."
-        },
-        {
-            title: "Observation",
-            content: "Note the key elements in the image."
-        },
-        {
-            title: "Description",
-            content: "Describe what you see."
-        },
-        {
-            title: "Fluency",
-            content: "Speak continuously."
-        },
-        {
-            title: "Vocabulary",
-            content: "Use descriptive words."
-        },
-        {
-            title: "How to Practice",
-            content: (
-                <iframe
-                    width="100%"
-                    height="250"
-                    src="https://www.youtube.com/embed/ReZgqLI3Hq0"
-                    title="How to Practice Image Speaking"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                ></iframe>
-            )
-        }
-    ];
-
-    const translateSpeakInstructions = [
-        {
-            title: "Instructions",
-            content: "Translate the given text and speak it aloud."
-        },
-        {
-            title: "Translation",
-            content: "Accurately translate the sentence."
-        },
-        {
-            title: "Pronunciation",
-            content: "Pronounce the translated text correctly."
-        },
-        {
-            title: "Fluency",
-            content: "Speak smoothly."
-        },
-        {
-            title: "Confidence",
-            content: "Speak with confidence."
-        },
-        {
-            title: "How to Practice",
-            content: (
-                <iframe
-                    width="100%"
-                    height="250"
-                    src="https://www.youtube.com/embed/ReZgqLI3Hq0"
-                    title="How to Practice Translate & Speak"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                ></iframe>
-            )
-        }
-    ];
-
-    const situationSpeakInstructions = [
-        {
-            title: "Instructions",
-            content: "Respond to real-life situations with appropriate communication. Practice workplace, social, and academic scenarios."
-        },
-        {
-            title: "Context Understanding",
-            content: "Analyze the given situation and understand the context before responding."
-        },
-        {
-            title: "Appropriate Response",
-            content: "Use suitable tone, vocabulary, and formality level for the situation."
-        },
-        {
-            title: "Problem Solving",
-            content: "Address the situation effectively with clear communication."
-        },
-        {
-            title: "Confidence",
-            content: "Speak with confidence and maintain composure in challenging situations."
-        },
-        {
-            title: "How to Practice",
-            content: (
-                <iframe
-                    width="100%"
-                    height="250"
-                    src="https://www.youtube.com/embed/ReZgqLI3Hq0"
-                    title="How to Practice Situation-Based Speaking"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                ></iframe>
-            )
-        }
-    ];
-
-    const storyBuildingInstructions = [
-        {
-            title: "Instructions",
-            content: "Build a story based on the given prompts."
-        },
-        {
-            title: "Creativity",
-            content: "Be creative in your storytelling."
-        },
-        {
-            title: "Structure",
-            content: "Organize your story with beginning, middle, end."
-        },
-        {
-            title: "Fluency",
-            content: "Speak fluently."
-        },
-        {
-            title: "Vocabulary",
-            content: "Use varied vocabulary."
-        },
-        {
-            title: "How to Practice",
-            content: (
-                <iframe
-                    width="100%"
-                    height="250"
-                    src="https://www.youtube.com/embed/ReZgqLI3Hq0"
-                    title="How to Practice Story Building"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                ></iframe>
-            )
-        }
-    ];
+    const instructions = {
+        jam: [
+            { title: "Instructions", content: "You've been given a random topic! You will have 1 minute to speak. Focus on fluency, clarity, and confidence." },
+            { title: "Fluency", content: "Maintain a smooth and uninterrupted flow of speech." },
+            { title: "Grammar", content: "Use correct sentence structures and grammatical conventions." },
+            { title: "Confidence", content: "Speak with assurance and composure." },
+            { title: "How to Practice", content: <iframe width="100%" height="250" src="https://www.youtube.com/embed/ReZgqLI3Hq0" title="JAM Practice" frameBorder="0" allowFullScreen></iframe> }
+        ],
+        pronunciation: [
+            { title: "Instructions", content: "Improve your pronunciation by practicing words and sentences. Focus on clarity and accuracy." },
+            { title: "Clarity", content: "Speak clearly, enunciating each sound." },
+            { title: "Accuracy", content: "Pronounce words correctly." },
+            { title: "How to Practice", content: <iframe width="100%" height="250" src="https://www.youtube.com/embed/ReZgqLI3Hq0" title="Pronunciation Practice" frameBorder="0" allowFullScreen></iframe> }
+        ],
+        listening: [
+            { title: "Instructions", content: "Enhance your listening comprehension with interactive exercises." },
+            { title: "Focus", content: "Listen carefully to audio clips and answer questions." },
+            { title: "How to Practice", content: <iframe width="100%" height="250" src="https://www.youtube.com/embed/ReZgqLI3Hq0" title="Listening Practice" frameBorder="0" allowFullScreen></iframe> }
+        ],
+        situational: [
+            { title: "Instructions", content: "Respond to real-life situations with appropriate communication." },
+            { title: "Context", content: "Analyze the situation and respond appropriately." },
+            { title: "How to Practice", content: <iframe width="100%" height="250" src="https://www.youtube.com/embed/ReZgqLI3Hq0" title="Situational Practice" frameBorder="0" allowFullScreen></iframe> }
+        ],
+        "image-speak": [
+            { title: "Instructions", content: "Describe the given image in detail." },
+            { title: "Observation", content: "Note key elements in the image." },
+            { title: "How to Practice", content: <iframe width="100%" height="250" src="https://www.youtube.com/embed/ReZgqLI3Hq0" title="Image Speaking Practice" frameBorder="0" allowFullScreen></iframe> }
+        ],
+        story: [
+            { title: "Instructions", content: "Build a story based on given prompts." },
+            { title: "Creativity", content: "Be creative in your storytelling." },
+            { title: "How to Practice", content: <iframe width="100%" height="250" src="https://www.youtube.com/embed/ReZgqLI3Hq0" title="Story Building Practice" frameBorder="0" allowFullScreen></iframe> }
+        ]
+    };
 
     const handleStartChallenge = (id) => {
         setActiveChallenge(id);
@@ -286,7 +118,8 @@ function Test() {
     };
 
     const handleNext = () => {
-        if (instructionIndex < jamInstructions.length - 1) {
+        const currentInstructions = instructions[activeChallenge];
+        if (instructionIndex < currentInstructions.length - 1) {
             setInstructionIndex(instructionIndex + 1);
         }
     };
@@ -297,234 +130,263 @@ function Test() {
         }
     };
 
-
-
-    const handleLaunchChallenge = async () => {
-        const testKeyMap = {
-            jam: "jam_test",
-            "image-speaking": "image_speak",
-            "situation-speak": "situation_test",
-            "translate-speak": "translate_test",
-            "story-building": "image_story"
-        };
-        
-        const routes = {
-            jam: "/test/jam",
-            pronunciation: "/test/pronunciation",
-            "image-speaking": "/test/image-speak",
-            "situation-speak": "/test/situation-speak",
-            "translate-speak": "/test/translate-speak",
-            "story-building": "/test/image-story"
-        };
-        
-        // Get current test count
-        const currentTest = practices.find(p => p.id === activeChallenge);
-        const remainingCount = currentTest ? currentTest.count : 0;
-        
-        // Navigate with remaining count and test key
-        navigate(routes[activeChallenge], { 
-            state: { 
-                remainingTests: remainingCount,
-                testKey: testKeyMap[activeChallenge]
-            } 
-        });
+    const handleLaunchChallenge = () => {
+        const activity = activities.find(a => a.id === activeChallenge);
+        if (activity?.route) {
+            navigate(activity.route, {
+                state: {
+                    remainingTests: activity.count || 0,
+                    testKey: activeChallenge
+                }
+            });
+        }
     };
 
     if (loading) {
         return (
-            <div className="loading-container">
-                <div className="loading-spinner"></div>
-                <p>Loading your tests...</p>
+            <div style={{ padding: '20px', textAlign: 'center' }}>
+                <p>Loading tests...</p>
             </div>
         );
     }
 
     return (
-        <>
-            <Login_Navbar />
-            <div className="practice-container page-with-navbar">
-                <div className="page-header">
-                    <h1>Communication Tests</h1>
-                    <p>Assess your communication skills with comprehensive tests</p>
-                </div>
-                <div className={`practice-grid ${activeChallenge ? "blurred" : ""}`}>
-                    {practices.map((practice) => (
-                        <div
-                            key={practice.id}
-                            className="practice-card"
-                            onClick={() => handleStartChallenge(practice.id)}
+        <div>
+            <div>
+                <header className="header">
+                <div className="header-content">
+                    <div className="logo">
+                        <span className="logo-icon"></span>
+                        <span className="logo-text">Skill Route</span>
+                        <div className="nav-links">
+                            <a href="#" onClick={() => navigate('/profiledata')}>Home</a>
+                            <a href="#" onClick={() => navigate('/practice')}>Practice</a>
+                            <a href="#" onClick={() => navigate('/student-dashboard')}>Dashboard</a>
+                            <a href="#" onClick={() => navigate('/student-leaderboard')}>Leaderboard</a>
+                        </div>
+                    </div>
+                    <div className="auth-buttons">
+                        <span style={{ marginRight: '15px', color: '#2c3e50', fontWeight: '600' }}>
+                            {userName}
+                        </span>
+                        <button 
+                            className="btn-signup"
+                            onClick={() => {
+                                localStorage.removeItem('email');
+                                navigate('/signup');
+                            }}
                         >
-                            <div className="card-icon"><span>{practice.icon}</span></div>
-                            <h3>{practice.title}</h3>
-                            <p>{practice.description}</p>
-                            <div className="card-footer">
-                                <button className="start-btn" disabled={practice.count === 0}>Start Challenge</button>
-                                <span className="duration">01:00</span>
-                                <span>Remaining: {practice.count}</span>
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </header>
+            </div>
+            <div style={{ padding: '20px', marginTop: '80px' }}>
+                <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+                    <h1 style={{ fontSize: '2.5rem', color: '#2c3e50', marginBottom: '10px' }}>
+                        Communication Tests
+                    </h1>
+                    <p style={{ fontSize: '1.1rem', color: '#666' }}>
+                        Assess your communication skills with comprehensive tests
+                    </p>
+                </div>
+                
+                <div style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+                    gap: '20px',
+                    maxWidth: '1200px',
+                    margin: '0 auto',
+                    filter: activeChallenge ? 'blur(3px)' : 'none'
+                }}>
+                    {activities.map((activity) => (
+                        <div 
+                            key={activity.id}
+                            style={{
+                                background: 'white',
+                                borderRadius: '12px',
+                                padding: '24px',
+                                boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                                border: '1px solid #e1e5e9',
+                                cursor: 'pointer',
+                                transition: 'transform 0.2s, box-shadow 0.2s'
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.transform = 'translateY(-2px)';
+                                e.currentTarget.style.boxShadow = '0 8px 15px rgba(0,0,0,0.15)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.transform = 'translateY(0)';
+                                e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+                            }}
+                        >
+                            <h3 style={{ 
+                                fontSize: '1.3rem', 
+                                color: '#2c3e50', 
+                                marginBottom: '12px',
+                                fontWeight: '600'
+                            }}>
+                                {activity.title}
+                            </h3>
+                            <p style={{ 
+                                color: '#666', 
+                                marginBottom: '20px',
+                                lineHeight: '1.5'
+                            }}>
+                                {activity.description}
+                            </p>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <button 
+                                    onClick={() => handleStartChallenge(activity.id)}
+                                    style={{
+                                        background: '#3B9797',
+                                        color: 'white',
+                                        border: 'none',
+                                        padding: '10px 20px',
+                                        borderRadius: '6px',
+                                        cursor: 'pointer',
+                                        fontWeight: '500'
+                                    }}
+                                >
+                                    START TEST →
+                                </button>
+                                {activity.count !== undefined && (
+                                    <span style={{ color: '#666', fontSize: '0.9rem' }}>
+                                        Remaining: {activity.count}
+                                    </span>
+                                )}
                             </div>
                         </div>
                     ))}
                 </div>
-                {activeChallenge === "pronunciation" && (
-                <div className="overlay-card">
-                    <div className="challenge-card">
-                        <button className="close-btn" onClick={() => setActiveChallenge(null)}>✖</button>
-                        <h2>{pronunciationInstructions[instructionIndex].title}</h2>
-                        <div className="instruction-content">
-                            {typeof pronunciationInstructions[instructionIndex].content === "string"
-                                ? <p>{pronunciationInstructions[instructionIndex].content}</p>
-                                : pronunciationInstructions[instructionIndex].content}
-                        </div>
-                        <div className="navigation-buttons">
-                            {instructionIndex > 0 && <button onClick={handlePrev}>← Previous</button>}
+
+                {/* Modal */}
+                {activeChallenge && (
+                    <div style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'rgba(0,0,0,0.5)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 1000
+                    }}>
+                        <div style={{
+                            background: 'white',
+                            borderRadius: '12px',
+                            padding: '30px',
+                            maxWidth: '600px',
+                            width: '90%',
+                            maxHeight: '80vh',
+                            overflow: 'auto',
+                            position: 'relative'
+                        }}>
+                            <button 
+                                onClick={() => setActiveChallenge(null)}
+                                style={{
+                                    position: 'absolute',
+                                    top: '15px',
+                                    right: '15px',
+                                    background: 'none',
+                                    border: 'none',
+                                    fontSize: '24px',
+                                    cursor: 'pointer',
+                                    color: '#666'
+                                }}
+                            >
+                                ×
+                            </button>
                             
-                            {instructionIndex < pronunciationInstructions.length - 1 ? (
-                                <>
-                                    <button onClick={handleNext}>Next →</button>
-                                    <button onClick={() => setInstructionIndex(pronunciationInstructions.length - 1)}>Skip</button>
-                                </>
-                            ) : (
-                                <button onClick={handleLaunchChallenge} disabled={practices.find(p => p.id === activeChallenge)?.count === 0}>Start Challenge</button>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {activeChallenge === "image-speaking" && (
-                <div className="overlay-card">
-                    <div className="challenge-card">
-                        <button className="close-btn" onClick={() => setActiveChallenge(null)}>✖</button>
-                        <h2>{imageSpeakingInstructions[instructionIndex].title}</h2>
-                        <div className="instruction-content">
-                            {typeof imageSpeakingInstructions[instructionIndex].content === "string"
-                                ? <p>{imageSpeakingInstructions[instructionIndex].content}</p>
-                                : imageSpeakingInstructions[instructionIndex].content}
-                        </div>
-                        <div className="navigation-buttons">
-                            {instructionIndex > 0 && <button onClick={handlePrev}>← Previous</button>}
+                            <h2 style={{ marginBottom: '20px', color: '#2c3e50' }}>
+                                {instructions[activeChallenge]?.[instructionIndex]?.title}
+                            </h2>
                             
-                            {instructionIndex < imageSpeakingInstructions.length - 1 ? (
-                                <>
-                                    <button onClick={handleNext}>Next →</button>
-                                    <button onClick={() => setInstructionIndex(imageSpeakingInstructions.length - 1)}>Skip</button>
-                                </>
-                            ) : (
-                                <button onClick={handleLaunchChallenge} disabled={practices.find(p => p.id === activeChallenge)?.count === 0}>Start Challenge</button>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {activeChallenge === "translate-speak" && (
-                <div className="overlay-card">
-                    <div className="challenge-card">
-                        <button className="close-btn" onClick={() => setActiveChallenge(null)}>✖</button>
-                        <h2>{translateSpeakInstructions[instructionIndex].title}</h2>
-                        <div className="instruction-content">
-                            {typeof translateSpeakInstructions[instructionIndex].content === "string"
-                                ? <p>{translateSpeakInstructions[instructionIndex].content}</p>
-                                : translateSpeakInstructions[instructionIndex].content}
-                        </div>
-                        <div className="navigation-buttons">
-                            {instructionIndex > 0 && <button onClick={handlePrev}>← Previous</button>}
+                            <div style={{ marginBottom: '30px', minHeight: '200px' }}>
+                                {typeof instructions[activeChallenge]?.[instructionIndex]?.content === 'string' ? (
+                                    <p style={{ lineHeight: '1.6', color: '#555' }}>
+                                        {instructions[activeChallenge][instructionIndex].content}
+                                    </p>
+                                ) : (
+                                    instructions[activeChallenge]?.[instructionIndex]?.content
+                                )}
+                            </div>
                             
-                            {instructionIndex < translateSpeakInstructions.length - 1 ? (
-                                <>
-                                    <button onClick={handleNext}>Next →</button>
-                                    <button onClick={() => setInstructionIndex(translateSpeakInstructions.length - 1)}>Skip</button>
-                                </>
-                            ) : (
-                                <button onClick={handleLaunchChallenge} disabled={practices.find(p => p.id === activeChallenge)?.count === 0}>Start Challenge</button>
-                            )}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                {instructionIndex > 0 && (
+                                    <button 
+                                        onClick={handlePrev}
+                                        style={{
+                                            background: '#6c757d',
+                                            color: 'white',
+                                            border: 'none',
+                                            padding: '10px 20px',
+                                            borderRadius: '6px',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        ← Previous
+                                    </button>
+                                )}
+                                
+                                <div style={{ marginLeft: 'auto' }}>
+                                    {instructionIndex < instructions[activeChallenge]?.length - 1 ? (
+                                        <>
+                                            <button 
+                                                onClick={handleNext}
+                                                style={{
+                                                    background: '#3B9797',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    padding: '10px 20px',
+                                                    borderRadius: '6px',
+                                                    cursor: 'pointer',
+                                                    marginRight: '10px'
+                                                }}
+                                            >
+                                                Next →
+                                            </button>
+                                            <button 
+                                                onClick={() => setInstructionIndex(instructions[activeChallenge].length - 1)}
+                                                style={{
+                                                    background: '#28a745',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    padding: '10px 20px',
+                                                    borderRadius: '6px',
+                                                    cursor: 'pointer'
+                                                }}
+                                            >
+                                                Skip
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <button 
+                                            onClick={handleLaunchChallenge}
+                                            style={{
+                                                background: '#dc3545',
+                                                color: 'white',
+                                                border: 'none',
+                                                padding: '12px 24px',
+                                                borderRadius: '6px',
+                                                cursor: 'pointer',
+                                                fontSize: '16px',
+                                                fontWeight: '600'
+                                            }}
+                                        >
+                                            START TEST
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
-
-            {activeChallenge === "situation-speak" && (
-                <div className="overlay-card">
-                    <div className="challenge-card">
-                        <button className="close-btn" onClick={() => setActiveChallenge(null)}>✖</button>
-                        <h2>{situationSpeakInstructions[instructionIndex].title}</h2>
-                        <div className="instruction-content">
-                            {typeof situationSpeakInstructions[instructionIndex].content === "string"
-                                ? <p>{situationSpeakInstructions[instructionIndex].content}</p>
-                                : situationSpeakInstructions[instructionIndex].content}
-                        </div>
-                        <div className="navigation-buttons">
-                            {instructionIndex > 0 && <button onClick={handlePrev}>← Previous</button>}
-                            
-                            {instructionIndex < situationSpeakInstructions.length - 1 ? (
-                                <>
-                                    <button onClick={handleNext}>Next →</button>
-                                    <button onClick={() => setInstructionIndex(situationSpeakInstructions.length - 1)}>Skip</button>
-                                </>
-                            ) : (
-                                <button onClick={handleLaunchChallenge} disabled={practices.find(p => p.id === activeChallenge)?.count === 0}>Start Challenge</button>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {activeChallenge === "story-building" && (
-                <div className="overlay-card">
-                    <div className="challenge-card">
-                        <button className="close-btn" onClick={() => setActiveChallenge(null)}>✖</button>
-                        <h2>{storyBuildingInstructions[instructionIndex].title}</h2>
-                        <div className="instruction-content">
-                            {typeof storyBuildingInstructions[instructionIndex].content === "string"
-                                ? <p>{storyBuildingInstructions[instructionIndex].content}</p>
-                                : storyBuildingInstructions[instructionIndex].content}
-                        </div>
-                        <div className="navigation-buttons">
-                            {instructionIndex > 0 && <button onClick={handlePrev}>← Previous</button>}
-                            
-                            {instructionIndex < storyBuildingInstructions.length - 1 ? (
-                                <>
-                                    <button onClick={handleNext}>Next →</button>
-                                    <button onClick={() => setInstructionIndex(storyBuildingInstructions.length - 1)}>Skip</button>
-                                </>
-                            ) : (
-                                <button onClick={handleLaunchChallenge} disabled={practices.find(p => p.id === activeChallenge)?.count === 0}>Start Challenge</button>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {activeChallenge === "jam" && (
-                <div className="overlay-card">
-                    <div className="challenge-card">
-                        <button className="close-btn" onClick={() => setActiveChallenge(null)}>✖</button>
-                        <h2>{jamInstructions[instructionIndex].title}</h2>
-                        <div className="instruction-content">
-                            {typeof jamInstructions[instructionIndex].content === "string"
-                                ? <p>{jamInstructions[instructionIndex].content}</p>
-                                : jamInstructions[instructionIndex].content}
-                        </div>
-                        <div className="navigation-buttons">
-                            {instructionIndex > 0 && <button onClick={handlePrev}>← Previous</button>}
-
-                            {instructionIndex < jamInstructions.length - 1 ? (
-                                <>
-                                    <button onClick={handleNext}>Next →</button>
-                                    <button onClick={() => setInstructionIndex(jamInstructions.length - 1)}>Skip</button>
-                                </>
-                            ) : (
-                                <button onClick={handleLaunchChallenge} disabled={practices.find(p => p.id === activeChallenge)?.count === 0}>
-                                    Start Challenge ({practices.find(p => p.id === activeChallenge)?.count || 0} remaining)
-                                </button>
-                            )}
-                        </div>
-
-                    </div>
-                </div>
-            )}
+                )}
             </div>
-        </>
+        </div>
     );
 }
 

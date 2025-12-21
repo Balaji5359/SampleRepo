@@ -23,6 +23,7 @@ const Practice = lazy(() => import("./CommunicationPraticeFiles/Practice.jsx"))
 const Test = lazy(() => import("./CommunicationTestsFiles/Test.jsx"));
 const JAM1 = lazy(() => import("./CommunicationTestsFiles/JAM1.jsx"))
 const Pronunciation = lazy(() => import("./CommunicationTestsFiles/Pronunciation.jsx"));
+const Listening = lazy(() => import("./CommunicationTestsFiles/Listening.jsx"));
 const ImageStory = lazy(() => import("./CommunicationTestsFiles/ImageStory.jsx"));
 const TranslateSpeak = lazy(() => import("./CommunicationTestsFiles/TranslateSpeak.jsx"));
 const ImageSpeak = lazy(() => import("./CommunicationTestsFiles/ImageSpeak.jsx"));
@@ -199,6 +200,7 @@ function App() {
             </ProtectedRoute>
           } />
 
+
           <Route path="/student-dashboard/storyretelling" element={
             <ProtectedRoute>
               <StoryRetellingDashboard />
@@ -249,6 +251,14 @@ function App() {
               </CommunicationPraticeLayout>
             </ProtectedRoute>
           } />
+
+          <Route path = "/test/listening" element={
+            <ProtectedRoute>
+              <CommunicationPraticeLayout>
+                <Listening />
+              </CommunicationPraticeLayout>
+            </ProtectedRoute>
+          }/>
 
           <Route path="/test/translate-speak" element={
             <ProtectedRoute>

@@ -43,7 +43,7 @@ function Login_Navbar({ onProfileClick }) {
             <div className="navbar-container">
                 <div
                     className="navbar-logo"
-                    onClick={() => handleNavigation("/profiledata")}
+                    onClick={() => { document.body.style = ""; document.body.className = ""; window.location.href = "/profiledata"; }}
                     style={{ cursor: "pointer" }}
                 >
                     <span className="logo-text">Skill Route</span>

@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import "./test.css";
 
 /**
  * SituationSpeak
@@ -187,7 +188,7 @@ export default function SituationSpeak({
 
     // UI state
     const [activeTab, setActiveTab] = useState('SituationSpeak Dashboard');
-    const [theme, setTheme] = useState('custom'); // 'dark' | 'light' | 'custom'
+    const [theme, setTheme] = useState('light'); // 'dark' | 'light' | 'custom'
     const [bgIndex, setBgIndex] = useState(0);
     const [recording, setRecording] = useState(false);
     const [recordingDisabled, setRecordingDisabled] = useState(false);
@@ -1065,7 +1066,7 @@ export default function SituationSpeak({
                                 <div className="jam-left">
                                     {!showTestPopup && (
                                         <div className="card" style={{ textAlign: 'center', padding: 60 }}>
-                                            <div style={{ fontWeight: 700, fontSize: 32, marginBottom: 20, color: 'var(--accent)' }}>Situation-Speak Test</div>
+                                            <div style={{ fontWeight: 700, fontSize: 32, marginBottom: 20, color: 'linear-gradient(135deg, #3b9797, #5bb5b5)' }}>Situation-Speak Test</div>
                                             <div style={{ fontSize: 18, color: 'var(--muted)', marginBottom: 20 }}>Test your speaking skills</div>
                                             <div style={{ fontSize: 16, color: 'var(--accent)', marginBottom: 40, fontWeight: 600 }}>
                                                 Remaining Tests: {remainingTests}
@@ -1075,7 +1076,7 @@ export default function SituationSpeak({
                                                 {remainingTests <= 0 ? 'No Tests Remaining' : 'Start Situation-Speak Test'}
                                             </button>
 
-                                            {jamData && (
+                                            {/* {jamData && (
                                                 <>
                                                     <div style={{ marginTop: 40, display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 20, maxWidth: 600, margin: '40px auto 0' }}>
                                                         <div className="stat card" style={{ padding: 20 }}>
@@ -1092,12 +1093,12 @@ export default function SituationSpeak({
                                                         </div>
                                                     </div>
                                                 </>
-                                            )}
+                                            )} */}
                                         </div>
                                     )}
                                 </div>
 
-                                <div className="jam-right">
+                                {/* <div className="jam-right">
                                     <div className="card" style={{
                                         minHeight: 320,
                                         background: theme === 'light' ? 'linear-gradient(135deg, #ffffff, #f8fafc)' :
@@ -1146,7 +1147,7 @@ export default function SituationSpeak({
                                             <ChartArea />
                                         </div>
                                     </div>
-                                </div>
+                                </div> */}
 
                                 {/* <div className="jam-right">
                                     <div className="card">

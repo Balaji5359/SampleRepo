@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-
+import "./test.css";
 function ImageSpeak() {
   const location = useLocation();
   const { remainingTests: initialRemainingTests = 0, testKey = 'image_speak' } = location.state || {};
@@ -1041,58 +1041,34 @@ function ImageSpeak() {
   };
 
   return (
-    <div className="imagespeak-root">
-      
-      {/* JAM-style Header */}
-      <div className="imagespeak-topnav">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div className="imagespeak-title">
-            Image-Based Speaking Test
+    <div className="landing-container">
+      <header className="header">
+        <div className="header-content">
+          <div className="logo">
+            <span className="logo-text">Skill Route</span>
+            <div className="nav-links">
+              <a href="#" onClick={() => window.history.back()}>Back</a>
+              <a href="#" onClick={() => setActiveTab('Practice')}>Practice</a>
+              <a href="#" onClick={() => setActiveTab('ImageSpeak Dashboard')}>Dashboard</a>
+              <a href="#" onClick={() => setActiveTab('ImageSpeak Leaderboard')}>Leaderboard</a>
+            </div>
           </div>
-          <div className="imagespeak-nav">
-            <button onClick={() => window.history.back()}>Back</button>
-            <button>Practice</button>
-            <button
-              className={activeTab === 'ImageSpeak Dashboard' ? 'active' : ''}
-              onClick={() => setActiveTab('ImageSpeak Dashboard')}
-            >
-              ImageSpeak Dashboard
-            </button>
-            <button
-              className={activeTab === 'ImageSpeak Leaderboard' ? 'active' : ''}
-              onClick={() => setActiveTab('ImageSpeak Leaderboard')}
-            >
-              ImageSpeak Leaderboard
-            </button>
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ color: 'var(--muted)', fontSize: 13, marginRight: 6 }}>Theme</div>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <select
-              value={theme}
-              onChange={(e) => setTheme(e.target.value)}
-              style={{
-                background: 'rgba(255,255,255,0.03)',
-                border: 'none',
-                padding: '6px 8px',
-                borderRadius: '8px',
-                color: 'var(--muted)',
-                fontSize: '13px'
-              }}
-            >
+          <div className="auth-buttons">
+            <span style={{ marginRight: '15px', color: '#2c3e50', fontWeight: '600' }}>Theme:</span>
+            <select value={theme} onChange={(e) => setTheme(e.target.value)} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', padding: '6px 8px', borderRadius: '8px', color: '#2c3e50' }}>
               <option value="dark">Dark</option>
               <option value="light">Light</option>
               <option value="custom">Custom</option>
             </select>
           </div>
         </div>
-      </div>
+      </header>
 
       <div className="imagespeak-container">
         {!showTestPopup && (
-          <div className="card" style={{ textAlign: 'center', padding: 60 }}>
+          // bring card to below 50px
+
+          <div className="card" style={{ textAlign: 'center', padding: 60, marginTop: 50 }}>
             <div style={{ fontWeight: 700, fontSize: 32, marginBottom: 20, color: 'var(--accent)' }}>ImageSpeak Practice Test</div>
             <div style={{ fontSize: 18, color: 'var(--muted)', marginBottom: 20 }}>Test your image description speaking skills</div>
             <div style={{ fontSize: 16, color: 'var(--accent)', marginBottom: 40, fontWeight: 600 }}>
@@ -1103,7 +1079,7 @@ function ImageSpeak() {
               {remainingTests <= 0 ? 'No Tests Remaining' : 'Start ImageSpeak Test'}
             </button>
 
-            <div style={{ marginTop: 40, display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 20, maxWidth: 600, margin: '40px auto 0' }}>
+            {/* <div style={{ marginTop: 40, display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 20, maxWidth: 600, margin: '40px auto 0' }}>
               <div className="stat card" style={{ padding: 20 }}>
                 <div className="label">Average Score</div>
                 <div className="value">{imageSpeakData.averageScore}%</div>
@@ -1116,7 +1092,7 @@ function ImageSpeak() {
                 <div className="label">Words Spoken</div>
                 <div className="value">{imageSpeakData.wordsSpoken}</div>
               </div>
-            </div>
+            </div> */}
           </div>
         )}
         {showTestPopup && (

@@ -2,19 +2,6 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import "./test.css";
 
-/**
- * Corrected JAM.jsx
- *
- * Fixes:
- *  - Theme/background changes now affect the whole screen.
- *  - CSS variables are defined on :root (document.documentElement) so JS updates override defaults.
- *  - Component reads colors from CSS variables (text, card bg, accent) so switching theme updates UI instantly.
- *
- * Notes:
- *  - If you want the body to fully show gradients behind the app, ensure the app container does not set an opaque background.
- *  - Optional: remove any global CSS that conflicts with these variables.
- */
-
 let Recharts;
 try {
     Recharts = require('recharts');
@@ -156,20 +143,20 @@ const styles = `
     `;
 
 /* ---------- Component ---------- */
-export default function JAM1({
+export default function Listening({
     initialData = null,
     onUtterance = () => { },
     onThemeChange = () => { },
 }) {
     const location = useLocation();
-    const { remainingTests: initialRemainingTests = 0, testKey = 'jam_test' } = location.state || {};
+    const { remainingTests: initialRemainingTests = 0, testKey = 'listening_test' } = location.state || {};
     const [remainingTests, setRemainingTests] = useState(initialRemainingTests);
-    // default placeholder data if none provided
+    // default placeholder data for listening test
     const placeholder = {
-        jamPoints: 1280,
+        listeningPoints: 1280,
         averageScore: 72.4,
         totalTests: 18,
-        wordsSpoken: 56300,
+        wordsHeard: 56300,
         trends: Array.from({ length: 12 }).map((_, i) => {
             const date = new Date();
             date.setDate(date.getDate() - (11 - i));
@@ -182,12 +169,17 @@ export default function JAM1({
         recentUtterances: [
             { id: 's1', text: 'Hello there', score: 72, datetime: new Date().toISOString() },
         ],
+        audioClips: [
+            'Listen to this audio clip and repeat what you hear.',
+            'Pay attention to the pronunciation and intonation.',
+            'Focus on the speaker\'s tone and rhythm.',
+        ]
     };
 
     // const data = useMemo(() => ({ ...placeholder, ...(initialData || {}) }), [initialData]);
 
     // UI state
-    const [activeTab, setActiveTab] = useState('JAM Dashboard');
+    const [activeTab, setActiveTab] = useState('Listening Dashboard');
     const [theme, setTheme] = useState('light'); // 'dark' | 'light' | 'custom'
     const [bgIndex, setBgIndex] = useState(0);
     const [recording, setRecording] = useState(false);
@@ -195,10 +187,11 @@ export default function JAM1({
     const [recordingUsed, setRecordingUsed] = useState(false);
     const [interim, setInterim] = useState('');
     const [utterances, setUtterances] = useState([]);
+    const [currentAudio, setCurrentAudio] = useState('');
     const [displayCounts, setDisplayCounts] = useState({
-        jamPoints: 0,
+        listeningPoints: 0,
         totalTests: 0,
-        wordsSpoken: 0,
+        wordsHeard: 0,
     });
     const [themeDropdownOpen, setThemeDropdownOpen] = useState(false);
     const [bgDropdownOpen, setBgDropdownOpen] = useState(false);
@@ -213,9 +206,9 @@ export default function JAM1({
     // Chat state
     const [chatMessages, setChatMessages] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [sessionId] = useState(`jam-test-${String(Math.floor(Math.random() * 10000000)).padStart(7, '0')}`);
+    const [sessionId] = useState(`listening-test-${String(Math.floor(Math.random() * 10000000)).padStart(7, '0')}`);
     const [userEmail] = useState(localStorage.getItem('email'));
-    const [jamData, setJamData] = useState(null);
+    const [listeningData, setListeningData] = useState(null);
     const [data, setData] = useState(placeholder);
 
     // Initialize utterances after data is set
@@ -794,81 +787,22 @@ export default function JAM1({
     };
 
 
-    const fetchJamData = async () => {
+    const fetchListeningData = async () => {
         try {
-            const response = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/studentcommunicationtests_retrivalapi', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    college_email: userEmail,
-                    test_type: 'JAM'
-                })
-            });
-            const data = await response.json();
-            const parsedData = JSON.parse(data.body);
-            setJamData(parsedData);
-
-            // Calculate stats
-            const sessions = parsedData.sessions || [];
-            const totalSessions = sessions.length;
-            let totalWords = 0;
-            let totalScore = 0;
-            let scoreCount = 0;
-
-            const chartData = [];
-
-            sessions.forEach(session => {
-                let sessionScore = 0;
-                let sessionWords = 0;
-
-                session.conversationHistory?.forEach(conv => {
-                    if (conv.agent) {
-                        const scoreMatch = conv.agent.match(/JAM Score: ([\d.]+)/i);
-                        const wordMatch = conv.agent.match(/WORD COUNT: (\d+) words/i);
-
-                        if (scoreMatch) {
-                            sessionScore = parseFloat(scoreMatch[1]);
-                            totalScore += sessionScore;
-                            scoreCount++;
-                        }
-
-                        if (wordMatch) {
-                            sessionWords = parseInt(wordMatch[1]);
-                            totalWords += sessionWords;
-                        }
-                    }
-                });
-
-                if (sessionScore > 0 && sessionWords > 0) {
-                    chartData.push({
-                        session: session.sessionId.replace('jam-test-', ''),
-                        score: sessionScore,
-                        words: sessionWords,
-                        date: session.timestamp
-                    });
-                }
-            });
-
-            const avgScore = scoreCount > 0 ? totalScore / scoreCount : 0;
-
+            setListeningData({ sessions: [] });
             setDisplayCounts({
-                jamPoints: Math.round(avgScore * 100),
-                totalTests: totalSessions,
-                wordsSpoken: totalWords
+                listeningPoints: 850,
+                totalTests: 1,
+                wordsHeard: 150
             });
-
-            // Update chart data
-            const updatedData = { ...data, trends: chartData.slice(-12) };
-            setData(updatedData);
-
         } catch (error) {
-            console.error('Error fetching JAM data:', error);
+            console.error('Error fetching listening data:', error);
         }
     };
 
     // Fetch data on mount
     useEffect(() => {
-        fetchJamData();
+        fetchListeningData();
     }, []);
 
     // Cleanup timer on unmount
@@ -1014,14 +948,14 @@ export default function JAM1({
     };
 
     return (
-        <div className="jam-root" role="application" aria-label="JAM Dashboard">
+        <div className="jam-root" role="application" aria-label="Listening Dashboard">
             <div className="jam-topnav" role="navigation" aria-label="Top navigation">
                 <div className="left">
                     <div className="jam-title" aria-hidden>
-                        JAM Test
+                        Listening Test
                     </div>
                     <div className="jam-nav" role="tablist" aria-label="Main tabs">
-                        {['Back', 'Practice', 'JAM Dashboard', 'JAM Leaderboard'].map((t) => (
+                        {['Back', 'Practice', 'Listening Dashboard', 'Listening Leaderboard'].map((t) => (
                             <button
                                 key={t}
                                 role="tab"
@@ -1056,17 +990,17 @@ export default function JAM1({
                                 <div className="jam-left">
                                     {!showTestPopup && (
                                         <div className="card" style={{ textAlign: 'center', padding: 60 }}>
-                                            <div style={{ fontWeight: 700, fontSize: 32, marginBottom: 20, color: 'linear-gradient(135deg, #3b9797, #5bb5b5)' }}>JAM Practice Test</div>
-                                            <div style={{ fontSize: 18, color: 'var(--muted)', marginBottom: 20 }}>Test your Just A Minute speaking skills</div>
+                                            <div style={{ fontWeight: 700, fontSize: 32, marginBottom: 20, color: 'linear-gradient(135deg, #3b9797, #5bb5b5)' }}>Listening Test</div>
+                                            <div style={{ fontSize: 18, color: 'var(--muted)', marginBottom: 20 }}>Enhance your listening comprehension skills</div>
                                             <div style={{ fontSize: 16, color: 'var(--accent)', marginBottom: 40, fontWeight: 600 }}>
                                                 Remaining Tests: {remainingTests}
                                             </div>
 
                                             <button className="start-btn" onClick={startTest} disabled={remainingTests <= 0}>
-                                                {remainingTests <= 0 ? 'No Tests Remaining' : 'Start JAM Test'}
+                                                {remainingTests <= 0 ? 'No Tests Remaining' : 'Start Listening Test'}
                                             </button>
 
-                                            {/* {jamData && (
+                                            {listeningData && false && (
                                                 <>
                                                     <div style={{ marginTop: 40, display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 20, maxWidth: 600, margin: '40px auto 0' }}>
                                                         <div className="stat card" style={{ padding: 20 }}>
@@ -1083,10 +1017,86 @@ export default function JAM1({
                                                         </div>
                                                     </div>
                                                 </>
-                                            )} */}
+                                            )}
                                         </div>
                                     )}
                                 </div>
+
+                                {/* <div className="jam-right">
+                                    <div className="card" style={{
+                                        minHeight: 320,
+                                        background: theme === 'light' ? 'linear-gradient(135deg, #ffffff, #f8fafc)' :
+                                            theme === 'custom' ? 'linear-gradient(135deg, rgba(59,151,151,0.1), rgba(91,181,181,0.1))' :
+                                                'var(--card-bg)',
+                                        border: theme === 'light' ? '1px solid rgba(14,165,164,0.2)' :
+                                            theme === 'custom' ? '1px solid rgba(255,255,255,0.2)' :
+                                                '1px solid rgba(255,255,255,0.04)'
+                                    }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                                            <div>
+                                                <div style={{
+                                                    fontWeight: 700,
+                                                    color: theme === 'light' ? '#0ea5a4' : theme === 'custom' ? '#043e4a' : 'var(--text-color)',
+                                                    fontSize: theme === 'custom' ? '18px' : '16px'
+                                                }}>
+                                                    {theme === 'light' ? '📊 Progress Analytics' :
+                                                        theme === 'custom' ? '✨ Excellence Metrics' :
+                                                            'Performance Over Time'}
+                                                </div>
+                                                <div style={{
+                                                    fontSize: 13,
+                                                    color: theme === 'light' ? '#6b7280' : theme === 'custom' ? 'rgba(4,62,74,0.8)' : 'var(--muted)',
+                                                    fontStyle: theme === 'custom' ? 'italic' : 'normal'
+                                                }}>
+                                                    {theme === 'light' ? 'Track your speaking journey & improvement trends' :
+                                                        theme === 'custom' ? 'Monitor your premium performance evolution' :
+                                                            `Score & Words — last ${data.trends.length} days`}
+                                                </div>
+                                            </div>
+                                            <div style={{
+                                                fontSize: 13,
+                                                color: theme === 'light' ? '#10b981' : theme === 'custom' ? '#043e4a' : 'var(--muted)',
+                                                fontWeight: theme === 'custom' ? '600' : 'normal'
+                                            }}>
+                                                <small>{theme === 'custom' ? '🎯 Live' : 'Interactive'}</small>
+                                            </div>
+                                        </div>
+
+                                        <div className="chart-area card" style={{
+                                            padding: 8,
+                                            background: theme === 'light' ? 'rgba(243,244,246,0.3)' :
+                                                theme === 'custom' ? 'rgba(255,255,255,0.05)' :
+                                                    'var(--card-bg)'
+                                        }}>
+                                            <ChartArea />
+                                        </div>
+                                    </div>
+                                </div> */}
+
+                                {/* <div className="jam-right">
+                                    <div className="card">
+                                        <h3 style={{ margin: '0 0 16px 0', color: 'var(--text-color)' }}>Score Distribution</h3>
+                                        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
+                                            <Donut percent={data.averageScore} />
+                                        </div>
+                                    </div>
+
+                                    <div className="card">
+                                        <h3 style={{ margin: '0 0 16px 0', color: 'var(--text-color)' }}>Recent Utterances</h3>
+                                        <div className="utter-list">
+                                            {utterances.length > 0 ? utterances.map((u) => (
+                                                <div key={u.id} className="utter-item">
+                                                    <span style={{ flex: 1, fontSize: 13 }}>{u.text}</span>
+                                                    <span style={{ color: 'var(--accent)', fontWeight: 600 }}>{u.score}%</span>
+                                                </div>
+                                            )) : (
+                                                <div style={{ color: 'var(--muted)', textAlign: 'center', padding: 20 }}>
+                                                    No recent utterances
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div> */}
                             </div>
                         </div>
 
