@@ -17,7 +17,6 @@ function Dashboard() {
     { key: 'IMAGETOSPEAK', name: 'Image to Speak', icon: '🖼️', route: '/student-dashboard/imagespeak' },
     { key: 'IMAGETOSTORY', name: 'Image to Story', icon: '📖' }
   ];
-
   useEffect(() => {
     const root = document.documentElement;
     document.body.style.margin = '0';

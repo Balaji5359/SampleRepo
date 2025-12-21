@@ -30,5 +30,4 @@ function DashboardDemo() {
     </div>
   );
 }
-
 export default DashboardDemo;

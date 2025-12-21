@@ -454,8 +454,7 @@ function ImageSpeakDashboard() {
                   <option value="custom">Custom</option>
                 </select>
               </div>
-            </div>
-            
+            </div>      
             {loading ? (
               <div className="loading">Loading sessions...</div>
             ) : (

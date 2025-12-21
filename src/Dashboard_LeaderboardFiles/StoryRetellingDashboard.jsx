@@ -75,7 +75,6 @@ const SpeechConfidenceGraph = ({ transcriptUrl }) => {
     </div>
   );
 };
-
 function StoryRetellingDashboard() {
   const [activeSection, setActiveSection] = useState('main');
   const [selectedSession, setSelectedSession] = useState(null);
@@ -404,131 +403,156 @@ function StoryRetellingDashboard() {
               {selectedSession.transcripts && selectedSession.transcripts.length > 0 && (
                 <SpeechConfidenceGraph transcriptUrl={selectedSession.transcripts[0].url} />
               )}
-                    {selectedSession.transcriptAnalytics && (
-                      <div className="transcript-results">
-                        <div className="analytics-overview">
-                          <div className="metric">
-                            <span className="metric-label">Confidence:</span>
-                            <span className="metric-value">{selectedSession.transcriptAnalytics.avgConfidence}%</span>
+              {selectedSession.transcriptAnalytics && (
+                <div className="analytics-card">
+                  <div className="transcript-results">
+                    <div className="analytics-overview">
+                      <div className="metric">
+                        <span className="metric-label">Confidence:</span>
+                        <span className="metric-value">{selectedSession.transcriptAnalytics.avgConfidence}%</span>
+                      </div>
+                      <div className="metric">
+                        <span className="metric-label">Words:</span>
+                        <span className="metric-value">{selectedSession.transcriptAnalytics.wordCount}</span>
+                      </div>
+                      <div className="metric">
+                        <span className="metric-label">Duration:</span>
+                        <span className="metric-value">{selectedSession.transcriptAnalytics.duration}s</span>
+                      </div>
+                    </div>
+                    <div style={{display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '400px', overflowY: 'auto'}}>
+                      {selectedSession.transcriptAnalytics.words?.map((word, idx) => (
+                        <div key={idx} style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '12px',
+                          padding: '10px',
+                          borderRadius: '10px',
+                          background: 'linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005))',
+                          transition: 'transform 0.12s ease',
+                          cursor: 'pointer'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                        onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0px)'}
+                        >
+                          <div style={{minWidth: '110px', fontWeight: '700', color: 'var(--text-primary)'}}>
+                            {word.content}
                           </div>
-                          <div className="metric">
-                            <span className="metric-label">Words:</span>
-                            <span className="metric-value">{selectedSession.transcriptAnalytics.wordCount}</span>
-                          </div>
-                          <div className="metric">
-                            <span className="metric-label">Duration:</span>
-                            <span className="metric-value">{selectedSession.transcriptAnalytics.duration}s</span>
-                          </div>
-                        </div>
-                        <div style={{display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '400px', overflowY: 'auto'}}>
-                          {selectedSession.transcriptAnalytics.words?.map((word, idx) => (
-                            <div key={idx} style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '12px',
-                              padding: '10px',
-                              borderRadius: '10px',
-                              background: 'linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005))',
-                              transition: 'transform 0.12s ease',
-                              cursor: 'pointer'
-                            }}
-                            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-                            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0px)'}
-                            >
-                              <div style={{minWidth: '110px', fontWeight: '700', color: 'var(--text-primary)'}}>
-                                {word.content}
-                              </div>
-                              <div style={{flex: 1, display: 'flex', flexDirection: 'column'}}>
-                                <div style={{
-                                  height: '10px',
-                                  borderRadius: '999px',
-                                  background: 'rgba(255,255,255,0.03)',
-                                  overflow: 'hidden'
-                                }}>
-                                  <div style={{
-                                    height: '100%',
-                                    width: `${word.confidence * 100}%`,
-                                    background: word.confidence >= 0.85 ? 
-                                      'linear-gradient(90deg, #10b981, #34d399)' :
-                                      word.confidence >= 0.6 ?
-                                      'linear-gradient(90deg, #f59e0b, #ffd28a)' :
-                                      'linear-gradient(90deg, #ef4444, #ff7b7b)'
-                                  }}></div>
-                                </div>
-                              </div>
+                          <div style={{flex: 1, display: 'flex', flexDirection: 'column'}}>
+                            <div style={{
+                              height: '10px',
+                              borderRadius: '999px',
+                              background: 'rgba(255,255,255,0.03)',
+                              overflow: 'hidden'
+                            }}>
                               <div style={{
-                                width: '140px',
-                                textAlign: 'right',
-                                fontSize: '13px',
-                                color: 'var(--text-muted)'
-                              }}>
-                                {Math.round(word.confidence * 100)}%<br/>
-                                <small style={{color: 'var(--text-muted)'}}>
-                                  {word.startTime.toFixed(2)}s - {word.endTime.toFixed(2)}s
-                                </small>
-                              </div>
-                              {(word.confidence < 0.75) && (
-                                <div style={{
-                                  marginLeft: '12px',
-                                  fontSize: '13px',
-                                  color: 'var(--text-muted)',
-                                  fontStyle: 'italic',
-                                  minWidth: '200px'
-                                }}>
-                                  {word.confidence < 0.6 ? 'Tip: slow down & stress vowel sounds' :
-                                   'Tip: focus on consonant ending'}
-                                </div>
-                              )}
+                                height: '100%',
+                                width: `${word.confidence * 100}%`,
+                                background: word.confidence >= 0.85 ? 
+                                  'linear-gradient(90deg, #10b981, #34d399)' :
+                                  word.confidence >= 0.6 ?
+                                  'linear-gradient(90deg, #f59e0b, #ffd28a)' :
+                                  'linear-gradient(90deg, #ef4444, #ff7b7b)'
+                              }}></div>
                             </div>
-                          ))}
+                          </div>
+                          <div style={{
+                            width: '140px',
+                            textAlign: 'right',
+                            fontSize: '13px',
+                            color: 'var(--text-muted)'
+                          }}>
+                            {Math.round(word.confidence * 100)}%<br/>
+                            <small style={{color: 'var(--text-muted)'}}>
+                              {word.startTime.toFixed(2)}s - {word.endTime.toFixed(2)}s
+                            </small>
+                          </div>
+                          {(word.confidence < 0.75) && (
+                            <div style={{
+                              marginLeft: '12px',
+                              fontSize: '13px',
+                              color: 'var(--text-muted)',
+                              fontStyle: 'italic',
+                              minWidth: '200px'
+                            }}>
+                              {word.confidence < 0.6 ? 'Tip: slow down & stress vowel sounds' :
+                               'Tip: focus on consonant ending'}
+                            </div>
+                          )}
                         </div>
-                        <div style={{marginTop: '20px'}}>
-                          <h4>Confidence Over Time</h4>
-                          <svg width="100%" height="200" viewBox="0 0 800 200" style={{background: 'rgba(255,255,255,0.02)', borderRadius: '8px'}}>
-                            <defs>
-                              <linearGradient id="confidenceGradient3" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" stopColor="#60a5fa" stopOpacity="0.3"/>
-                                <stop offset="100%" stopColor="#60a5fa" stopOpacity="0.1"/>
-                              </linearGradient>
-                            </defs>
-                            {selectedSession.transcriptAnalytics.words?.length > 1 && (
-                              <>
-                                <polyline
-                                  fill="none"
-                                  stroke="#60a5fa"
-                                  strokeWidth="2"
-                                  points={selectedSession.transcriptAnalytics.words.map((word, i) => 
-                                    `${(i / (selectedSession.transcriptAnalytics.words.length - 1)) * 780 + 10},${190 - (word.confidence * 170)}`
-                                  ).join(' ')}
-                                />
-                                <polygon
-                                  fill="url(#confidenceGradient3)"
-                                  points={`10,190 ${selectedSession.transcriptAnalytics.words.map((word, i) => 
-                                    `${(i / (selectedSession.transcriptAnalytics.words.length - 1)) * 780 + 10},${190 - (word.confidence * 170)}`
-                                  ).join(' ')} 790,190`}
-                                />
-                                {selectedSession.transcriptAnalytics.words.map((word, i) => (
-                                  <circle
-                                    key={i}
-                                    cx={(i / (selectedSession.transcriptAnalytics.words.length - 1)) * 780 + 10}
-                                    cy={190 - (word.confidence * 170)}
-                                    r="3"
-                                    fill={word.confidence > 0.85 ? '#10b981' : word.confidence > 0.6 ? '#f59e0b' : '#ef4444'}
-                                  />
-                                ))}
-                              </>
-                            )}
-                            <line x1="10" y1="190" x2="790" y2="190" stroke="rgba(255,255,255,0.1)" strokeWidth="1"/>
-                            <line x1="10" y1="20" x2="790" y2="20" stroke="rgba(255,255,255,0.1)" strokeWidth="1"/>
-                            <text x="15" y="15" fill="#94a3b8" fontSize="12">100%</text>
-                            <text x="15" y="200" fill="#94a3b8" fontSize="12">0%</text>
-                          </svg>
-                        </div>
+                      ))}
+                    </div>
+                    <div style={{marginTop: '20px'}}>
+                      <h4>Confidence Over Time</h4>
+                      <svg width="100%" height="200" viewBox="0 0 800 200" style={{background: 'rgba(255,255,255,0.02)', borderRadius: '8px'}}>
+                        <defs>
+                          <linearGradient id="confidenceGradient3" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stopColor="#60a5fa" stopOpacity="0.3"/>
+                            <stop offset="100%" stopColor="#60a5fa" stopOpacity="0.1"/>
+                          </linearGradient>
+                        </defs>
+                        {selectedSession.transcriptAnalytics.words?.length > 1 && (
+                          <>
+                            <polyline
+                              fill="none"
+                              stroke="#60a5fa"
+                              strokeWidth="2"
+                              points={selectedSession.transcriptAnalytics.words.map((word, i) => 
+                                `${(i / (selectedSession.transcriptAnalytics.words.length - 1)) * 780 + 10},${190 - (word.confidence * 170)}`
+                              ).join(' ')}
+                            />
+                            <polygon
+                              fill="url(#confidenceGradient3)"
+                              points={`10,190 ${selectedSession.transcriptAnalytics.words.map((word, i) => 
+                                `${(i / (selectedSession.transcriptAnalytics.words.length - 1)) * 780 + 10},${190 - (word.confidence * 170)}`
+                              ).join(' ')} 790,190`}
+                            />
+                            {selectedSession.transcriptAnalytics.words.map((word, i) => (
+                              <circle
+                                key={i}
+                                cx={(i / (selectedSession.transcriptAnalytics.words.length - 1)) * 780 + 10}
+                                cy={190 - (word.confidence * 170)}
+                                r="3"
+                                fill={word.confidence > 0.85 ? '#10b981' : word.confidence > 0.6 ? '#f59e0b' : '#ef4444'}
+                              />
+                            ))}
+                          </>
+                        )}
+                        <line x1="10" y1="190" x2="790" y2="190" stroke="rgba(255,255,255,0.1)" strokeWidth="1"/>
+                        <line x1="10" y1="20" x2="790" y2="20" stroke="rgba(255,255,255,0.1)" strokeWidth="1"/>
+                        <text x="15" y="15" fill="#94a3b8" fontSize="12">100%</text>
+                        <text x="15" y="200" fill="#94a3b8" fontSize="12">0%</text>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="session-summary">
+                <div className="summary-card">
+                  <h3>Session Summary</h3>
+                  <div className="summary-stats">
+                    <div className="summary-stat">
+                      <span className="stat-label">Session Date:</span>
+                      <span className="stat-value">{new Date(selectedSession.timestamp).toLocaleString()}</span>
+                    </div>
+                    <div className="summary-stat">
+                      <span className="stat-label">Test Type:</span>
+                      <span className="stat-value">Story Retelling</span>
+                    </div>
+                    <div className="summary-stat">
+                      <span className="stat-label">Session ID:</span>
+                      <span className="stat-value">{selectedSession.sessionId}</span>
+                    </div>
+                    {selectedSession.transcriptAnalytics && (
+                      <div className="summary-stat">
+                        <span className="stat-label">Speech Quality:</span>
+                        <span className="stat-value">{selectedSession.transcriptAnalytics.avgConfidence}% confidence</span>
                       </div>
                     )}
                   </div>
                 </div>
-              )}
+              </div>
             </div>
           </div>
         </>
