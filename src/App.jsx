@@ -32,9 +32,11 @@ const SituationSpeak = lazy(() => import("./CommunicationTestsFiles/SituationSpe
 // Student Dashboard and Leaderboard files
 const Dashboard = lazy(() => import("./Dashboard_LeaderboardFiles/Dashboard.jsx"));
 const JAMDashboard = lazy(() => import("./Dashboard_LeaderboardFiles/JAMDashboard.jsx"));
+const PronunciationDashboard = lazy(() => import("./Dashboard_LeaderboardFiles/PronunciationDashboard.jsx"))
+const ListeningDashboard = lazy(()=> import("./Dashboard_LeaderboardFiles/ListeningDashboard.jsx"))
 const SituationSpeakDashboard = lazy(() => import("./Dashboard_LeaderboardFiles/SituationSpeakDashboard.jsx"));
-const StoryRetellingDashboard = lazy(() => import("./Dashboard_LeaderboardFiles/StoryRetellingDashboard.jsx"));
 const ImageSpeakDashboard = lazy(() => import("./Dashboard_LeaderboardFiles/ImageSpeakDashboard.jsx"));
+const ImageStoryDashboard = lazy(() => import("./Dashboard_LeaderboardFiles/ImageStoryDashboard.jsx"))
 const Leaderboard = lazy(() => import("./Dashboard_LeaderboardFiles/Leaderboard.jsx"))
 
 
@@ -194,6 +196,18 @@ function App() {
             </ProtectedRoute>
           } />
 
+          <Route path="/student-dashboard/pronunciation" element={
+            <ProtectedRoute>
+              <PronunciationDashboard />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/student-dashboard/listening" element={
+            <ProtectedRoute>
+              <ListeningDashboard />
+            </ProtectedRoute>
+          } />
+
           <Route path="/student-dashboard/situationspeak" element={
             <ProtectedRoute>
               <SituationSpeakDashboard />
@@ -201,15 +215,15 @@ function App() {
           } />
 
 
-          <Route path="/student-dashboard/storyretelling" element={
-            <ProtectedRoute>
-              <StoryRetellingDashboard />
-            </ProtectedRoute>
-          } />
-
           <Route path="/student-dashboard/imagespeak" element={
             <ProtectedRoute>
               <ImageSpeakDashboard />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/student-dashboard/imagestory" element={
+            <ProtectedRoute>
+              <ImageStoryDashboard />
             </ProtectedRoute>
           } />
 

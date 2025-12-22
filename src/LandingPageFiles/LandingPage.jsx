@@ -133,7 +133,6 @@ function LandingPage() {
       <header className="header">
         <div className="header-content">
           <div className="logo">
-            <span className="logo-icon">🚀</span>
             <span className="logo-text">Skill Route</span>
             <div className="nav-links">
               <a href="#home" onClick={(e) => handleNavClick(e, 'home')}>Home</a>

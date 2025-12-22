@@ -1,153 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import Login_Navbar from '../RegisterFiles/Login_Navbar.jsx';
+import { useNavigate } from 'react-router-dom';
 import './dashboard.css';
 
-const SpeechConfidenceGraph = ({ transcriptUrl }) => {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  const loadData = () => {
-    setLoading(true);
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    iframe.src = transcriptUrl;
-    
-    iframe.onload = () => {
-      try {
-        const json = JSON.parse(iframe.contentDocument.body.textContent);
-        const items = json.results?.items || [];
-        const words = items.filter(item => item.type === 'pronunciation').map(word => ({
-          content: word.alternatives?.[0]?.content || '',
-          confidence: parseFloat(word.alternatives?.[0]?.confidence || 0),
-          startTime: parseFloat(word.start_time || 0),
-          endTime: parseFloat(word.end_time || 0)
-        }));
-        setData(words);
-        document.body.removeChild(iframe);
-      } catch (error) {
-        console.error('Failed to parse transcript:', error);
-        document.body.removeChild(iframe);
-      }
-      setLoading(false);
-    };
-    
-    iframe.onerror = () => {
-      console.error('Failed to load transcript via iframe');
-      document.body.removeChild(iframe);
-      setLoading(false);
-    };
-    
-    document.body.appendChild(iframe);
-  };
-
-  useEffect(() => {
-    loadData();
-  }, [transcriptUrl]);
-
-  if (loading) return <div style={{padding: '20px', textAlign: 'center'}}>Loading speech analysis...</div>;
-  if (!data || data.length === 0) return null;
-
-  const avgConfidence = data.reduce((sum, word) => sum + word.confidence, 0) / data.length;
-  const goodWords = data.filter(w => w.confidence > 0.85).length;
-  const badWords = data.filter(w => w.confidence < 0.6).length;
-
-  return (
-    <div className="analytics-card" style={{marginTop: '20px'}}>
-      <h3>Speech Confidence Analysis</h3>
-      
-      <div style={{display: 'flex', gap: '20px', marginBottom: '20px', padding: '15px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px'}}>
-        <div style={{flex: 1, textAlign: 'center'}}>
-          <div style={{fontSize: '24px', fontWeight: 'bold', color: '#60a5fa'}}>{Math.round(avgConfidence * 100)}%</div>
-          <div style={{fontSize: '12px', color: 'var(--text-muted)'}}>avg confidence</div>
-        </div>
-        <div style={{flex: 1, textAlign: 'center'}}>
-          <div style={{fontSize: '24px', fontWeight: 'bold', color: '#10b981'}}>{goodWords}</div>
-          <div style={{fontSize: '12px', color: 'var(--text-muted)'}}>good words (&gt;85%)</div>
-        </div>
-        <div style={{flex: 1, textAlign: 'center'}}>
-          <div style={{fontSize: '24px', fontWeight: 'bold', color: '#ef4444'}}>{badWords}</div>
-          <div style={{fontSize: '12px', color: 'var(--text-muted)'}}>low words (&lt;60%)</div>
-        </div>
-      </div>
-
-      <div style={{maxHeight: '400px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px'}}>
-        {data.map((word, idx) => {
-          const pct = Math.round(word.confidence * 100);
-          const bgColor = word.confidence >= 0.85 ? 
-            'linear-gradient(90deg, #10b981, #34d399)' :
-            word.confidence >= 0.6 ?
-            'linear-gradient(90deg, #f59e0b, #ffd28a)' :
-            'linear-gradient(90deg, #ef4444, #ff7b7b)';
-          
-          return (
-            <div key={idx} style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              padding: '10px',
-              borderRadius: '10px',
-              background: 'linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005))',
-              transition: 'transform 0.12s ease',
-              cursor: 'pointer'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0px)'}
-            >
-              <div style={{minWidth: '110px', fontWeight: '700', color: 'var(--text-primary)'}}>
-                {word.content}
-              </div>
-              <div style={{flex: 1, display: 'flex', flexDirection: 'column'}}>
-                <div style={{
-                  height: '10px',
-                  borderRadius: '999px',
-                  background: 'rgba(255,255,255,0.03)',
-                  overflow: 'hidden'
-                }}>
-                  <div style={{
-                    height: '100%',
-                    width: `${pct}%`,
-                    background: bgColor
-                  }}></div>
-                </div>
-              </div>
-              <div style={{
-                width: '140px',
-                textAlign: 'right',
-                fontSize: '13px',
-                color: 'var(--text-muted)'
-              }}>
-                {pct}%<br/>
-                <small style={{color: 'var(--text-muted)'}}>
-                  {word.startTime.toFixed(2)}s - {word.endTime.toFixed(2)}s
-                </small>
-              </div>
-              {word.confidence < 0.75 && (
-                <div style={{
-                  marginLeft: '12px',
-                  fontSize: '13px',
-                  color: 'var(--text-muted)',
-                  fontStyle: 'italic',
-                  minWidth: '200px'
-                }}>
-                  {word.confidence < 0.6 ? 'Tip: slow down & stress vowel sounds' :
-                   'Tip: focus on consonant ending'}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-};
-
 function ImageSpeakDashboard() {
+  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('main');
   const [selectedSession, setSelectedSession] = useState(null);
   const [apiData, setApiData] = useState({});
   const [loading, setLoading] = useState(false);
   const [userEmail] = useState(localStorage.getItem('email'));
   const [theme, setTheme] = useState('light');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [dateFilter, setDateFilter] = useState('');
+  const [filteredSessions, setFilteredSessions] = useState([]);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -212,7 +77,63 @@ function ImageSpeakDashboard() {
     fetchImageSpeakData();
   }, [userEmail]);
 
+  useEffect(() => {
+    if (!apiData.sessions) {
+      setFilteredSessions([]);
+      return;
+    }
 
+    let filtered = apiData.sessions.filter(session => {
+      const matchesSearch = searchTerm === '' || 
+        session.sessionId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        new Date(session.timestamp).toLocaleString().toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesDate = dateFilter === '' || 
+        new Date(session.timestamp).toDateString() === new Date(dateFilter).toDateString();
+      
+      return matchesSearch && matchesDate;
+    });
+
+    setFilteredSessions(filtered);
+  }, [apiData.sessions, searchTerm, dateFilter]);
+
+  const renderFilterHeader = () => (
+    <div className="filter-header">
+      <div className="filter-container">
+        <div className="search-box">
+          <span className="search-icon">🔍</span>
+          <input
+            type="text"
+            placeholder="Search by session ID or time..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
+        </div>
+        <div className="date-filter">
+          <span className="filter-icon">📅</span>
+          <input
+            type="date"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+            className="date-input"
+          />
+        </div>
+        <button 
+          className="clear-filters-btn"
+          onClick={() => {
+            setSearchTerm('');
+            setDateFilter('');
+          }}
+        >
+          Clear Filters
+        </button>
+      </div>
+      <div className="results-count">
+        {filteredSessions.length} session{filteredSessions.length !== 1 ? 's' : ''} found
+      </div>
+    </div>
+  );
 
   const renderSessionAnalytics = () => {
     const session = selectedSession;
@@ -221,20 +142,39 @@ function ImageSpeakDashboard() {
       <div className="session-analytics-view">
         <div className="analytics-header">
           <button className="back-btn" onClick={() => setSelectedSession(null)}>← Back to Sessions</button>
-          <h2>IMAGETOSPEAK Analytics — {session.sessionId}</h2>
-          <p className="analytics-subtitle">Image prompt, audio recording, and AI feedback analysis</p>
+          <h2>Image to Speak Analytics — {session.sessionId}</h2>
+          <p className="analytics-subtitle">Image description analysis and feedback</p>
         </div>
 
-        <div className="imagetospeak-layout">
-          {/* Left side - Image and Audio */}
-          <div className="media-section">
+        <div className="session-summary">
+          <div className="summary-card">
+            <div className="summary-stats">
+              <div className="summary-stat">
+                <span className="stat-label">Session Date:</span>
+                <span className="stat-value">{new Date(session.timestamp).toLocaleString()}</span>
+              </div>
+              <div className="summary-stat">
+                <span className="stat-label">Test Type:</span>
+                <span className="stat-value">Image to Speak</span>
+              </div>
+              <div className="summary-stat">
+                <span className="stat-label">Session ID:</span>
+                <span className="stat-value">{session.sessionId}</span>
+              </div>
+            </div>
+          </div>
+        </div><br></br>
+
+        {/* Image and Audio Section */}
+        <div className="analytics-grid-layout">
+          <div className="analytics-left">
             <div className="analytics-card image-card">
               <h3>Image Prompt</h3>
               {session.images && session.images.length > 0 ? (
                 <div className="media-container">
                   <img
                     src={session.images[0].url}
-                    alt="IMAGESPEAK prompt"
+                    alt="Image prompt"
                     onLoad={() => console.log('✅ Image loaded successfully:', session.images[0].url)}
                     onError={(e) => {
                       console.error('❌ Image failed to load:', session.images[0].url);
@@ -251,8 +191,7 @@ function ImageSpeakDashboard() {
                   <div className="media-error" style={{display: 'none'}}>
                     <div className="error-icon">🖼️</div>
                     <div className="error-text">Image not accessible</div>
-                    <div className="error-suggestion">S3 bucket CORS policy blocks image access. Image files are available but cannot be displayed in browser due to security restrictions.</div>
-                    <a href={session.images[0].url} target="_blank" rel="noopener noreferrer" className="download-link" style={{color: 'var(--accent-blue)', textDecoration: 'underline', fontSize: '0.9rem', marginTop: '8px', display: 'block'}}>Open Image in New Tab</a>
+                    <div className="error-suggestion">S3 bucket CORS policy blocks image access.</div>
                   </div>
                 </div>
               ) : (
@@ -273,9 +212,13 @@ function ImageSpeakDashboard() {
                     onLoadedData={() => console.log('✅ Audio loaded successfully:', session.audioFiles[0].url)}
                     onError={(e) => {
                       console.error('❌ Audio failed to load:', session.audioFiles[0].url);
-                      e.target.style.display = 'none';
-                      e.target.nextSibling.style.display = 'block';
+                      const errorDiv = e.target.parentNode.querySelector('.media-error');
+                      if (errorDiv) {
+                        e.target.style.display = 'none';
+                        errorDiv.style.display = 'block';
+                      }
                     }}
+                    onCanPlay={() => console.log('🎵 Audio ready to play')}
                     preload="none"
                   >
                     <source src={session.audioFiles[0].url} type="audio/webm" />
@@ -286,12 +229,11 @@ function ImageSpeakDashboard() {
                   </audio>
                   <div className="media-error" style={{display: 'none'}}>
                     <div className="error-icon">🎵</div>
-                    <div className="error-text">Audio not accessible</div>
-                    <div className="error-suggestion">S3 bucket CORS policy blocks audio access. Audio files are available but cannot be played in browser due to security restrictions.</div>
-                    <a href={session.audioFiles[0].url} target="_blank" rel="noopener noreferrer" className="download-link" style={{color: 'var(--accent-blue)', textDecoration: 'underline', fontSize: '0.9rem', marginTop: '8px', display: 'block'}}>Open Audio File in New Tab</a>
+                    <div className="error-text">Audio file not accessible</div>
+                    <div className="error-suggestion">S3 bucket CORS policy blocks audio access.</div>
                   </div>
                   <div className="audio-tip">
-                    Listen to your recorded speech
+                    Listen to your image description recording
                   </div>
                 </div>
               ) : (
@@ -303,11 +245,10 @@ function ImageSpeakDashboard() {
             </div>
           </div>
 
-          {/* Right side - User and AI Descriptions */}
-          <div className="descriptions-section">
+          <div className="analytics-right">
             {session.conversationHistory && session.conversationHistory.some(conv => conv.user) && (
               <div className="analytics-card user-description-card">
-                <h3>Your Description of the Image</h3>
+                <h3>Your Description</h3>
                 <div className="description-content">
                   {session.conversationHistory.map((conv, idx) => (
                     conv.user && (
@@ -317,190 +258,188 @@ function ImageSpeakDashboard() {
                 </div>
               </div>
             )}
-
-            {session.conversationHistory && session.conversationHistory.length > 0 && session.conversationHistory[0].agent && (
-              <div className="analytics-card ai-description-card">
-                <h3>AI Description of the Image</h3>
-                <div className="description-content">
-                  <div className="ai-text">
-                    <p>{session.conversationHistory[0].agent}</p>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
         {/* AI Feedback Section */}
-        {session.conversationHistory && session.conversationHistory.length > 1 && session.conversationHistory[1].agent && (
+        {session.conversationHistory && session.conversationHistory.some(conv => conv.agent) && (
           <div className="feedback-section-bottom">
             <div className="analytics-card feedback-card">
-              <h3>AI Feedback & Suggestions</h3>
+              <h3>AI Feedback & Analysis</h3>
               <div className="feedback-content">
-                <div className="feedback-item">
-                  {session.conversationHistory[1].agent.split('\n').map((line, lineIdx) => (
-                    line.trim() && <p key={lineIdx} className="feedback-line">{line}</p>
-                  ))}
-                </div>
+                {session.conversationHistory.map((conv, idx) => (
+                  conv.agent && (
+                    <div key={idx} className="feedback-item">
+                      {conv.agent.split('\n').map((line, lineIdx) => (
+                        line.trim() && <p key={lineIdx} className="feedback-line">{line}</p>
+                      ))}
+                    </div>
+                  )
+                ))}
               </div>
             </div>
           </div>
         )}
-
-        {/* Transcript Analytics */}
-        {session.transcripts && session.transcripts.length > 0 && (
-          <SpeechConfidenceGraph transcriptUrl={session.transcripts[0].url} />
-        )}
-
-        <div className="session-summary">
-          <div className="summary-card">
-            <h3>Session Summary</h3>
-            <div className="summary-stats">
-              <div className="summary-stat">
-                <span className="stat-label">Session Date:</span>
-                <span className="stat-value">{new Date(session.timestamp).toLocaleString()}</span>
-              </div>
-              <div className="summary-stat">
-                <span className="stat-label">Test Type:</span>
-                <span className="stat-value">IMAGETOSPEAK</span>
-              </div>
-              <div className="summary-stat">
-                <span className="stat-label">Session ID:</span>
-                <span className="stat-value">{session.sessionId}</span>
-              </div>
-              {session.transcriptAnalytics && (
-                <div className="summary-stat">
-                  <span className="stat-label">Speech Quality:</span>
-                  <span className="stat-value">{session.transcriptAnalytics.avgConfidence}% confidence</span>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
       </div>
     );
   };
 
-  if (activeSection === 'history') {
-    return (
-      <>
-        <Login_Navbar />
-        <div className="dashboard-container">
-          <div className="dashboard-main">
-            <div className="dashboard-header">
-              <button className="back-btn" onClick={() => setActiveSection('main')}>← Back</button>
-              <h1>🖼️ Image to Speak History</h1>
-              <div className="theme-selector">
-                <label>Theme: </label>
-                <select value={theme} onChange={(e) => setTheme(e.target.value)}>
-                  <option value="dark">Dark</option>
-                  <option value="light">Light</option>
-                  <option value="custom">Custom</option>
-                </select>
-              </div>
-            </div>
-            
-            {loading ? (
-              <div className="loading">Loading sessions...</div>
-            ) : (
-              <div className="sessions-list">
-                {apiData.sessions?.map(session => (
-                  <div key={session.sessionId} className="session-card">
-                    <div className="session-info">
-                      <div className="session-id">{session.sessionId}</div>
-                      <div className="session-details">
-                        <span className="session-type">IMAGETOSPEAK</span>
-                        <span className="session-date">{new Date(session.timestamp).toLocaleString()}</span>
-                      </div>
-                    </div>
-                    <div className="session-metrics">
-                      <div className="session-conversations">{session.conversationHistory?.length || 0} messages</div>
-                    </div>
-                  </div>
-                )) || <div className="no-data">No sessions found</div>}
-              </div>
-            )}
-          </div>
-        </div>
-      </>
-    );
-  }
-
-  if (activeSection === 'analytics') {
+  const renderHistoryContent = () => {
     if (selectedSession) {
       return (
-        <>
-          <Login_Navbar />
-          <div className="dashboard-container">
-            {renderSessionAnalytics()}
+        <div className="session-analytics-view">
+          <div className="analytics-header">
+            <button className="back-btn" onClick={() => setSelectedSession(null)}>← Back to History</button>
+            <h2>Image to Speak Conversation — {selectedSession.sessionId}</h2>
+            <p className="analytics-subtitle">View complete conversation history</p>
           </div>
-        </>
+
+          <div className="analytics-card">
+            <h3>Session Information</h3>
+            <div className="session-info-header">
+              <p><strong>Session ID:</strong> {selectedSession.sessionId}</p>
+              <p><strong>Date:</strong> {new Date(selectedSession.timestamp).toLocaleString()}</p>
+              <p><strong>Messages:</strong> {selectedSession.conversationHistory?.length || 0}</p>
+            </div>
+          </div>
+
+          {selectedSession.conversationHistory && selectedSession.conversationHistory.length > 0 ? (
+            <div className="analytics-card">
+              <h3>Conversation History</h3>
+              <div className="conversation-messages">
+                {selectedSession.conversationHistory.map((conv, idx) => (
+                  <div key={idx}>
+                    {conv.user && (
+                      <div className="message user">
+                        <div className="message-sender">You</div>
+                        <div className="message-text">{conv.user}</div>
+                      </div>
+                    )}
+                    {conv.agent && (
+                      <div className="message ai">
+                        <div className="message-sender">AI Assistant</div>
+                        <div className="message-text">
+                          {conv.agent.split('\n').map((line, lineIdx) => (
+                            line.trim() && <p key={lineIdx}>{line}</p>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="analytics-card">
+              <div className="no-data">No conversation history available for this session</div>
+            </div>
+          )}
+        </div>
       );
     }
 
     return (
-      <>
-        <Login_Navbar />
-        <div className="dashboard-container">
-          <div className="dashboard-main">
-            <div className="dashboard-header">
-              <button className="back-btn" onClick={() => setActiveSection('main')}>← Back</button>
-              <h1>🖼️ Image to Speak Analytics</h1>
-              <div className="theme-selector">
-                <label>Theme: </label>
-                <select value={theme} onChange={(e) => setTheme(e.target.value)}>
-                  <option value="dark">Dark</option>
-                  <option value="light">Light</option>
-                  <option value="custom">Custom</option>
-                </select>
-              </div>
-            </div>      
-            {loading ? (
-              <div className="loading">Loading sessions...</div>
-            ) : (
-              <div className="sessions-list">
-                {apiData.sessions?.map(session => (
-                  <div
-                    key={session.sessionId}
-                    className="session-card analytics-session-card"
-                    onClick={() => setSelectedSession(session)}
-                  >
-                    <div className="session-info">
-                      <div className="session-id">{session.sessionId}</div>
-                      <div className="session-details">
-                        <span className="session-type">IMAGETOSPEAK</span>
-                        <span className="session-date">{new Date(session.timestamp).toLocaleString()}</span>
-                      </div>
-                    </div>
-                    <div className="session-metrics">
-                      <div className="analytics-indicator">📊 View Analytics</div>
-                    </div>
+      <div>
+        <h2>Image to Speak History</h2>
+        {renderFilterHeader()}
+        {loading ? (
+          <div className="loading">Loading sessions...</div>
+        ) : (
+          <div className="sessions-list">
+            {filteredSessions.map(session => (
+              <div 
+                key={session.sessionId} 
+                className="session-card"
+                onClick={() => setSelectedSession(session)}
+                style={{ cursor: 'pointer' }}
+              >
+                <div className="session-info">
+                  <div className="session-id">{session.sessionId}</div>
+                  <div className="session-details">
+                    <span className="session-type">Image to Speak</span>
+                    <span className="session-date">{new Date(session.timestamp).toLocaleString()}</span>
                   </div>
-                )) || <div className="no-data">No sessions found</div>}
+                </div>
+                <div className="session-metrics">
+                  <div className="session-conversations">{session.conversationHistory?.length || 0} messages</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px' }}>Click to view conversation</div>
+                </div>
               </div>
-            )}
+            )) || <div className="no-data">No sessions found</div>}
           </div>
-        </div>
-      </>
+        )}
+      </div>
     );
-  }
+  };
+
+  const renderAnalyticsContent = () => {
+    if (selectedSession) {
+      return renderSessionAnalytics();
+    }
+
+    return (
+      <div>
+        <h2>Image to Speak Analytics</h2>
+        {renderFilterHeader()}
+        {loading ? (
+          <div className="loading">Loading sessions...</div>
+        ) : (
+          <div className="sessions-list">
+            {filteredSessions.map(session => (
+              <div
+                key={session.sessionId}
+                className="session-card analytics-session-card"
+                onClick={() => setSelectedSession(session)}
+              >
+                <div className="session-info">
+                  <div className="session-id">{session.sessionId}</div>
+                  <div className="session-details">
+                    <span className="session-type">Image to Speak</span>
+                    <span className="session-date">{new Date(session.timestamp).toLocaleString()}</span>
+                  </div>
+                </div>
+                <div className="session-metrics">
+                  <div className="analytics-indicator">📊 View Analytics</div>
+                </div>
+              </div>
+            )) || <div className="no-data">No sessions found</div>}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
-    <>
-      <Login_Navbar />
-      <div className="dashboard-container">
+    <div>
+      <header className="header">
+        <div className="header-content">
+          <div className="logo">
+            <span className="logo-text">Skill Route</span>
+            <div className="nav-links">
+              <a href="#" onClick={() => navigate('/student-dashboard')}>Back to Main Dashboard</a>
+              <a href="#" onClick={() => navigate('/practice')}>Practice</a>
+              <a href="#" onClick={() => navigate('/student-leaderboard')}>Leaderboard</a>
+            </div>
+          </div>
+          <div className="auth-buttons">
+            <button 
+              className="btn-signup"
+              onClick={() => {
+                localStorage.removeItem('email');
+                navigate('/signup');
+              }}
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+      </header>
+      
+      <div style={{ padding: '20px', marginTop: '80px' }}>
         <div className="dashboard-main">
           <div className="dashboard-header">
-            <h1>🖼️ Image to Speak Dashboard</h1>
+            <h1>Image to Speak Dashboard</h1>
             <p className="dashboard-subtitle">Analyze your image description sessions</p>
-            <div className="theme-selector">
-              <label>Theme: </label>
-              <select value={theme} onChange={(e) => setTheme(e.target.value)}>
-                <option value="dark">Dark</option>
-                <option value="light">Light</option>
-                <option value="custom">Custom</option>
-              </select>
-            </div>
           </div>
           
           <div className="dashboard-actions">
@@ -519,9 +458,21 @@ function ImageSpeakDashboard() {
               Analytics
             </button>
           </div>
+          
+          {activeSection === 'history' && (
+            <div style={{ marginTop: '30px' }}>
+              {renderHistoryContent()}
+            </div>
+          )}
+          
+          {activeSection === 'analytics' && (
+            <div style={{ marginTop: '30px' }}>
+              {renderAnalyticsContent()}
+            </div>
+          )}
         </div>
       </div>
-    </>
+    </div>
   );
 }
 

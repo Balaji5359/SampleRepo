@@ -31,11 +31,52 @@ function Test() {
         })
         .catch(() => setLoading(false));
     }, []);
+    const getScoreFromStorage = (testType) => {
+        const scores = JSON.parse(localStorage.getItem('testScores') || '{}');
+        return scores[testType] || 0;
+    };
+
+    const isInterviewLevelUnlocked = (level) => {
+        if (level === 1) return true;
+        const prevLevel = level - 1;
+        const prevScore = getScoreFromStorage(`interview_level_${prevLevel}`);
+        return prevScore >= 70;
+    };
+
+    const interviewLevels = [
+        {
+            level: 1,
+            title: 'Basic Interview Skills',
+            color: '#28a745',
+            steps: [
+                { id: 1, title: 'JD-Based Self Introduction', activities: 'JAM Session • Pronunciation Test • Listening Test' },
+                { id: 2, title: 'Programming Knowledge', activities: 'Image-Based Speaking • JAM Session • Listening Test' },
+                { id: 3, title: 'Worked Domain', activities: 'Image-Based Storytelling • JAM Session • Vocabulary' },
+                { id: 4, title: 'Project Discussion', activities: 'Storytelling • JAM Session • Pronunciation' },
+                { id: 5, title: 'Future Career Planning', activities: 'JAM Session • Listening Test • Goal Clarity' },
+                { id: 6, title: 'Hobbies & Interests', activities: 'Free-flow Speaking • Confidence Analysis' },
+                { id: 7, title: 'Certifications & Internships', activities: 'Structured Explanation • Keyword Clarity' }
+            ]
+        },
+        {
+            level: 2,
+            title: 'Advanced Interview Skills',
+            color: '#007bff',
+            steps: [
+                { id: 8, title: 'Role-Based Interview', activities: 'Mock Interview • JAM Answers • Stress Analysis' },
+                { id: 9, title: 'Resume-Based Interview', activities: 'Resume Q&A • Consistency Check • Coherence' },
+                { id: 10, title: 'Technical Interview', activities: 'Think-aloud JAM • Response Accuracy • Logic' },
+                { id: 11, title: 'Follow-Up Questioning', activities: 'Multi-round Tasks • Memory Checks • Continuity' },
+                { id: 12, title: 'Stress/Pressure Questions', activities: 'Rapid-fire Speaking • Emotion Detection • Recovery' },
+                { id: 13, title: 'Logical Puzzles', activities: 'Problem Solving • Clarity Analysis • Think-aloud' }
+            ]
+        }
+    ];
     const activities = [
         {
             id: 'jam',
             title: 'JAM Sessions',
-            description: 'Just A Minute speaking sessions to improve spontaneous communication',
+            description: 'JAM',
             count: tests.jam_test || 0,
             route: '/test/jam'
         },
@@ -185,19 +226,21 @@ function Test() {
             <div style={{ padding: '20px', marginTop: '80px' }}>
                 <div style={{ textAlign: 'center', marginBottom: '40px' }}>
                     <h1 style={{ fontSize: '2.5rem', color: '#2c3e50', marginBottom: '10px' }}>
-                        Communication Tests
+                        Communication & Interview Tests
                     </h1>
                     <p style={{ fontSize: '1.1rem', color: '#666' }}>
-                        Assess your communication skills with comprehensive tests
+                        Master communication skills and ace your interviews with structured learning
                     </p>
                 </div>
-                
+                <h1 style={{ fontSize: '2rem', color: '#0d8888ff', marginBottom: '10px', marginLeft: '150px' }}>
+                    Communication Tests
+                </h1>
                 <div style={{ 
                     display: 'grid', 
                     gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
                     gap: '20px',
                     maxWidth: '1200px',
-                    margin: '0 auto',
+                    margin: '0 auto 60px auto',
                     filter: activeChallenge ? 'blur(3px)' : 'none'
                 }}>
                     {activities.map((activity) => (
@@ -238,27 +281,152 @@ function Test() {
                             </p>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <button 
-                                    onClick={() => handleStartChallenge(activity.id)}
+                                    onClick={() => activity.count > 0 ? handleStartChallenge(activity.id) : null}
                                     style={{
-                                        background: '#3B9797',
+                                        background: activity.count > 0 ? '#3B9797' : '#ccc',
                                         color: 'white',
                                         border: 'none',
                                         padding: '10px 20px',
                                         borderRadius: '6px',
-                                        cursor: 'pointer',
+                                        cursor: activity.count > 0 ? 'pointer' : 'not-allowed',
                                         fontWeight: '500'
                                     }}
+                                    disabled={activity.count === 0}
                                 >
-                                    START TEST →
+                                    {activity.count > 0 ? 'START TEST →' : 'NO TESTS LEFT'}
                                 </button>
                                 {activity.count !== undefined && (
-                                    <span style={{ color: '#666', fontSize: '0.9rem' }}>
+                                    <span style={{ color: activity.count > 0 ? '#666' : '#999', fontSize: '0.9rem' }}>
                                         Remaining: {activity.count}
                                     </span>
                                 )}
                             </div>
                         </div>
                     ))}
+                </div>
+
+                {/* Interview Preparation Roadmap */}
+                <div style={{ maxWidth: '1200px', margin: '0 auto', filter: activeChallenge ? 'blur(3px)' : 'none' }}>
+                    {interviewLevels.map((level, levelIndex) => {
+                        const unlocked = isInterviewLevelUnlocked(level.level);
+                        const score = getScoreFromStorage(`interview_level_${level.level}`);
+                        
+                        return (
+                            <div key={level.level} style={{ marginBottom: '60px' }}>
+                                <h1 style={{ fontSize: '2rem', color: '#0d8888ff', marginBottom: '30px', textAlign: 'center' }}>
+                                    {level.title}
+                                </h1>
+                                
+                                {/* Steps Grid */}
+                                <div className="roadmap-row">
+                                    {level.steps.map((step, stepIndex) => {
+                                        const stepUnlocked = unlocked && (stepIndex === 0 || getScoreFromStorage(`interview_step_${step.id - 1}`) >= 70);
+                                        
+                                        return (
+                                            <React.Fragment key={step.id}>
+                                                <div 
+                                                    className="roadmap-step"
+                                                    style={{
+                                                        background: 'white',
+                                                        borderRadius: '15px',
+                                                        padding: '25px',
+                                                        boxShadow: '0 8px 25px rgba(0,0,0,0.1)',
+                                                        border: stepUnlocked ? '3px solid #0d8888ff' : '3px solid #ccc',
+                                                        textAlign: 'center',
+                                                        transition: 'all 0.3s ease',
+                                                        cursor: stepUnlocked ? 'pointer' : 'not-allowed',
+                                                        opacity: stepUnlocked ? 1 : 0.6,
+                                                        minWidth: '250px'
+                                                    }}
+                                                    onMouseEnter={(e) => {
+                                                        if (stepUnlocked) {
+                                                            e.currentTarget.style.transform = 'translateY(-5px)';
+                                                            e.currentTarget.style.boxShadow = '0 15px 35px rgba(0,0,0,0.15)';
+                                                        }
+                                                    }}
+                                                    onMouseLeave={(e) => {
+                                                        if (stepUnlocked) {
+                                                            e.currentTarget.style.transform = 'translateY(0)';
+                                                            e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.1)';
+                                                        }
+                                                    }}
+                                                >
+                                                    <div className="step-number" style={{
+                                                        width: '50px',
+                                                        height: '50px',
+                                                        borderRadius: '50%',
+                                                        background: stepUnlocked ? 'linear-gradient(135deg, #0d8888ff, #0d8888dd)' : '#ccc',
+                                                        color: 'white',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        fontWeight: 'bold',
+                                                        fontSize: '1.2rem',
+                                                        margin: '0 auto 15px',
+                                                        boxShadow: stepUnlocked ? '0 4px 15px #0d888830' : 'none'
+                                                    }}>
+                                                        {stepUnlocked ? step.id : '🔒'}
+                                                    </div>
+                                                    <div className="step-content">
+                                                        <h4 style={{
+                                                            color: stepUnlocked ? '#2c3e50' : '#999',
+                                                            fontSize: '1.2rem',
+                                                            marginBottom: '10px',
+                                                            fontWeight: '600'
+                                                        }}>
+                                                            {step.title}
+                                                        </h4>
+                                                        <p style={{
+                                                            color: stepUnlocked ? '#666' : '#999',
+                                                            fontSize: '0.9rem',
+                                                            lineHeight: '1.4',
+                                                            margin: 0
+                                                        }}>
+                                                            {step.activities}
+                                                        </p>
+                                                    </div>
+                                                    {stepUnlocked && (
+                                                        <button 
+                                                            style={{
+                                                                marginTop: '15px',
+                                                                background: '#0d8888ff',
+                                                                color: 'white',
+                                                                border: 'none',
+                                                                padding: '8px 16px',
+                                                                borderRadius: '20px',
+                                                                fontSize: '0.9rem',
+                                                                fontWeight: '500',
+                                                                cursor: 'pointer'
+                                                            }}
+                                                        >
+                                                            START STEP
+                                                        </button>
+                                                    )}
+                                                </div>
+                                                {stepIndex < level.steps.length - 1 && (
+                                                    <div className="roadmap-connector horizontal"></div>
+                                                )}
+                                            </React.Fragment>
+                                        );
+                                    })}
+                                </div>
+                                
+                                {/* Level Connector */}
+                                {levelIndex < interviewLevels.length - 1 && (
+                                    <div className="roadmap-connector vertical-center"></div>
+                                )}
+                            </div>
+                        );
+                    })}
+                    
+                    <div style={{ textAlign: 'center', marginTop: '40px' }}>
+                        <div style={{ display: 'inline-block', padding: '20px 40px', background: 'white', borderRadius: '25px', boxShadow: '0 8px 25px rgba(0,0,0,0.1)', border: '3px solid #3B9797' }}>
+                            <div style={{ width: '200px', height: '8px', background: '#e0e0e0', borderRadius: '4px', margin: '0 auto 10px', position: 'relative', overflow: 'hidden' }}>
+                                <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: '30%', background: 'linear-gradient(90deg, #3B9797, #2c7a7a)', borderRadius: '4px' }}></div>
+                            </div>
+                            <div style={{ color: '#2c3e50', fontWeight: '600', fontSize: '1.1rem' }}>Complete Your Interview Journey</div>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Modal */}
