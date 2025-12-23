@@ -1,4 +1,0 @@
-aws lambda invoke \
-  --function-name Students-recording-communication-toS3-activities-Function \
-  --payload file://C:/Users/rrbal/Downloads/lambda_test.json \
-  response.json
