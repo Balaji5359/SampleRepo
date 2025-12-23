@@ -46,29 +46,29 @@ function Test() {
     const interviewLevels = [
         {
             level: 1,
-            title: 'Basic Interview Skills',
+            title: 'Basic Interview Tests',
             color: '#28a745',
             steps: [
-                { id: 1, title: 'JD-Based Self Introduction', activities: 'JAM Session • Pronunciation Test • Listening Test' },
-                { id: 2, title: 'Programming Knowledge', activities: 'Image-Based Speaking • JAM Session • Listening Test' },
-                { id: 3, title: 'Worked Domain', activities: 'Image-Based Storytelling • JAM Session • Vocabulary' },
-                { id: 4, title: 'Project Discussion', activities: 'Storytelling • JAM Session • Pronunciation' },
-                { id: 5, title: 'Future Career Planning', activities: 'JAM Session • Listening Test • Goal Clarity' },
-                { id: 6, title: 'Hobbies & Interests', activities: 'Free-flow Speaking • Confidence Analysis' },
-                { id: 7, title: 'Certifications & Internships', activities: 'Structured Explanation • Keyword Clarity' }
+                { id: 1, title: 'JD-Based Self Introduction', activities: '' },
+                { id: 2, title: 'Programming Knowledge', activities: '' },
+                { id: 3, title: 'Worked Domain', activities: '' },
+                { id: 4, title: 'Project Discussion', activities: '' },
+                { id: 5, title: 'Future Career Planning', activities: '' },
+                { id: 6, title: 'Hobbies & Interests', activities: '' },
+                { id: 7, title: 'Certifications & Internships', activities: '' }
             ]
         },
         {
             level: 2,
-            title: 'Advanced Interview Skills',
+            title: 'Advanced Interview Tests',
             color: '#007bff',
             steps: [
-                { id: 8, title: 'Role-Based Interview', activities: 'Mock Interview • JAM Answers • Stress Analysis' },
-                { id: 9, title: 'Resume-Based Interview', activities: 'Resume Q&A • Consistency Check • Coherence' },
-                { id: 10, title: 'Technical Interview', activities: 'Think-aloud JAM • Response Accuracy • Logic' },
-                { id: 11, title: 'Follow-Up Questioning', activities: 'Multi-round Tasks • Memory Checks • Continuity' },
-                { id: 12, title: 'Stress/Pressure Questions', activities: 'Rapid-fire Speaking • Emotion Detection • Recovery' },
-                { id: 13, title: 'Logical Puzzles', activities: 'Problem Solving • Clarity Analysis • Think-aloud' }
+                { id: 8, title: 'Role-Based Interview', activities: '' },
+                { id: 9, title: 'Resume-Based Interview', activities: '' },
+                { id: 10, title: 'Technical Interview', activities: '' },
+                { id: 11, title: 'Follow-Up Questioning', activities: '' },
+                { id: 12, title: 'Stress/Pressure Questions', activities: '' },
+                { id: 13, title: 'Logical Puzzles', activities: '' }
             ]
         }
     ];
@@ -232,9 +232,11 @@ function Test() {
                         Master communication skills and ace your interviews with structured learning
                     </p>
                 </div>
-                <h1 style={{ fontSize: '2rem', color: '#0d8888ff', marginBottom: '10px', marginLeft: '150px' }}>
+                <center>
+                <h1 style={{ fontSize: '2rem', color: '#0d8888ff', marginBottom: '10px' }}>
                     Communication Tests
                 </h1>
+                </center>
                 <div style={{ 
                     display: 'grid', 
                     gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 

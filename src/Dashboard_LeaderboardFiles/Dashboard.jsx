@@ -14,13 +14,13 @@ function Dashboard() {
       id: 'interview-basic',
       title: 'Basic Interview Skills',
       description: 'Master fundamental interview communication skills',
-      icon: <span style={{ fontSize: '2rem' }}>🟢</span>
+      // icon: <span style={{ fontSize: '2rem' }}>🟢</span>
     },
     {
       id: 'interview-advanced', 
       title: 'Advanced Interview Skills',
       description: 'Advanced interview techniques and complex scenarios',
-      icon: <span style={{ fontSize: '2rem' }}>🔵</span>
+      // icon: <span style={{ fontSize: '2rem' }}>🔵</span>
     }
   ];
 
