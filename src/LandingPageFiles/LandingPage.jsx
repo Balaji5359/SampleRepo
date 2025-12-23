@@ -292,14 +292,14 @@ function LandingPage() {
       {/* Interview Activities Roadmap Section */}
       <section id="interview-activities" className="interview-roadmap">
         <div className="section-header">
-          <h2>Interview Preparation Roadmap</h2>
+          <h2>Interview Activities Path</h2>
           <p>Master your interview skills step by step with our structured learning path</p>
         </div>
         
         {/* Basic Interview Skills */}
         <div className="roadmap-section">
           <div className="section-title">
-            <h3>🟢 Basic Interview Skills</h3>
+            <h3>Basic Interview Skills</h3>
           </div>
           
           {/* Row 1: Left to Right */}
@@ -308,7 +308,7 @@ function LandingPage() {
               <div className="step-number">1</div>
               <div className="step-content">
                 <h4>JD-Based Self Introduction</h4>
-                <p>JAM Session • Pronunciation Test • Listening Test</p>
+                {/* <p>JAM Session • Pronunciation Test • Listening Test</p> */}
               </div>
             </div>
             <div className="roadmap-connector horizontal"></div>
@@ -316,7 +316,7 @@ function LandingPage() {
               <div className="step-number">2</div>
               <div className="step-content">
                 <h4>Programming Knowledge</h4>
-                <p>Image-Based Speaking • JAM Session • Listening Test</p>
+                {/* <p>Image-Based Speaking • JAM Session • Listening Test</p> */}
               </div>
             </div>
             <div className="roadmap-connector horizontal"></div>
@@ -324,7 +324,7 @@ function LandingPage() {
               <div className="step-number">3</div>
               <div className="step-content">
                 <h4>Worked Domain</h4>
-                <p>Image-Based Storytelling • JAM Session • Vocabulary</p>
+                {/* <p>Image-Based Storytelling • JAM Session • Vocabulary</p> */}
               </div>
             </div>
             <div className="roadmap-connector horizontal"></div>
@@ -332,7 +332,7 @@ function LandingPage() {
               <div className="step-number">4</div>
               <div className="step-content">
                 <h4>Project Discussion</h4>
-                <p>Storytelling • JAM Session • Pronunciation</p>
+                {/* <p>Storytelling • JAM Session • Pronunciation</p> */}
               </div>
             </div>
           </div>
@@ -346,7 +346,7 @@ function LandingPage() {
               <div className="step-number">7</div>
               <div className="step-content">
                 <h4>Certifications & Internships</h4>
-                <p>Structured Explanation • Keyword Clarity</p>
+                {/* <p>Structured Explanation • Keyword Clarity</p> */}
               </div>
             </div>
             <div className="roadmap-connector horizontal"></div>
@@ -354,7 +354,7 @@ function LandingPage() {
               <div className="step-number">6</div>
               <div className="step-content">
                 <h4>Hobbies & Interests</h4>
-                <p>Free-flow Speaking • Confidence Analysis</p>
+                {/* <p>Free-flow Speaking • Confidence Analysis</p> */}
               </div>
             </div>
             <div className="roadmap-connector horizontal"></div>
@@ -362,7 +362,7 @@ function LandingPage() {
               <div className="step-number">5</div>
               <div className="step-content">
                 <h4>Future Career Planning</h4>
-                <p>JAM Session • Listening Test • Goal Clarity</p>
+                {/* <p>JAM Session • Listening Test • Goal Clarity</p> */}
               </div>
             </div>
           </div>
@@ -371,7 +371,7 @@ function LandingPage() {
         {/* Advanced Interview Skills */}
         <div className="roadmap-section">
           <div className="section-title">
-            <h3>🔵 Advanced Interview Skills</h3>
+            <h3>Advanced Interview Skills</h3>
           </div>
           
           {/* Vertical Connector from Basic to Advanced */}
@@ -383,7 +383,7 @@ function LandingPage() {
               <div className="step-number">8</div>
               <div className="step-content">
                 <h4>Role-Based Interview</h4>
-                <p>Mock Interview • JAM Answers • Stress Analysis</p>
+                {/* <p>Mock Interview • JAM Answers • Stress Analysis</p> */}
               </div>
             </div>
             <div className="roadmap-connector horizontal"></div>
@@ -391,7 +391,7 @@ function LandingPage() {
               <div className="step-number">9</div>
               <div className="step-content">
                 <h4>Resume-Based Interview</h4>
-                <p>Resume Q&A • Consistency Check • Coherence</p>
+                {/* <p>Resume Q&A • Consistency Check • Coherence</p> */}
               </div>
             </div>
             <div className="roadmap-connector horizontal"></div>
@@ -399,7 +399,7 @@ function LandingPage() {
               <div className="step-number">10</div>
               <div className="step-content">
                 <h4>Technical Interview</h4>
-                <p>Think-aloud JAM • Response Accuracy • Logic</p>
+                {/* <p>Think-aloud JAM • Response Accuracy • Logic</p> */}
               </div>
             </div>
           </div>
@@ -413,7 +413,7 @@ function LandingPage() {
               <div className="step-number">13</div>
               <div className="step-content">
                 <h4>Logical Puzzles</h4>
-                <p>Problem Solving • Clarity Analysis • Think-aloud</p>
+                {/* <p>Problem Solving • Clarity Analysis • Think-aloud</p> */}
               </div>
             </div>
             <div className="roadmap-connector horizontal"></div>
@@ -421,7 +421,7 @@ function LandingPage() {
               <div className="step-number">12</div>
               <div className="step-content">
                 <h4>Stress/Pressure Questions</h4>
-                <p>Rapid-fire Speaking • Emotion Detection • Recovery</p>
+                {/* <p>Rapid-fire Speaking • Emotion Detection • Recovery</p> */}
               </div>
             </div>
             <div className="roadmap-connector horizontal"></div>
@@ -429,7 +429,7 @@ function LandingPage() {
               <div className="step-number">11</div>
               <div className="step-content">
                 <h4>Follow-Up Questioning</h4>
-                <p>Multi-round Tasks • Memory Checks • Continuity</p>
+                {/* <p>Multi-round Tasks • Memory Checks • Continuity</p> */}
               </div>
             </div>
           </div>
