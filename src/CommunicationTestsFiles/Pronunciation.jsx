@@ -149,7 +149,7 @@ export default function Pronunciation({
     onThemeChange = () => { },
 }) {
     const location = useLocation();
-    const { remainingTests: initialRemainingTests = 0, testKey = 'pronunciation_test' } = location.state || {};
+    const { remainingTests: initialRemainingTests = 0, testKey = 'pronu_test' } = location.state || {};
     const [remainingTests, setRemainingTests] = useState(initialRemainingTests);
     // default placeholder data for pronunciation test
     const placeholder = {
@@ -258,7 +258,7 @@ export default function Pronunciation({
                     });
                     const data = await response.json();
                     const parsedData = typeof data.body === 'string' ? JSON.parse(data.body) : data.body;
-                    setRemainingTests(parsedData.tests?.jam_test || 0);
+                    setRemainingTests(parsedData.tests?.pronu_test || 0);
                 } catch (error) {
                     console.error('Error fetching test counts:', error);
                 }
@@ -643,13 +643,14 @@ export default function Pronunciation({
                 },
                 body: JSON.stringify({
                     college_email: email,
-                    test_key: testKey
+                    test_key: 'pronu_test'
                 })
             });
             
             const data = await response.json();
             if (data.statusCode === 200) {
                 console.log('Test count decremented successfully');
+                setRemainingTests(prev => Math.max(0, prev - 1));
             }
         } catch (error) {
             console.error('Error decrementing test count:', error);

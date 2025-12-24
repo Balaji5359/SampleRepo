@@ -840,13 +840,14 @@ function ImageSpeak() {
         },
         body: JSON.stringify({
           college_email: email,
-          test_key: testKey
+          test_key: 'image_speak'
         })
       });
       
       const data = await response.json();
       if (data.statusCode === 200) {
         console.log('Test count decremented successfully');
+        setRemainingTests(prev => Math.max(0, prev - 1));
       }
     } catch (error) {
       console.error('Error decrementing test count:', error);

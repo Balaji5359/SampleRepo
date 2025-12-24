@@ -648,13 +648,15 @@ export default function JAM1({
                 },
                 body: JSON.stringify({
                     college_email: email,
-                    test_key: testKey
+                    test_key: 'jam_test'
                 })
             });
             
             const data = await response.json();
             if (data.statusCode === 200) {
                 console.log('Test count decremented successfully');
+                // Update remaining tests locally
+                setRemainingTests(prev => Math.max(0, prev - 1));
             }
         } catch (error) {
             console.error('Error decrementing test count:', error);
