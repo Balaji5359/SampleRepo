@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import Login_Navbar from '../Login_Navbar';
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import '../../LandingPageFiles/landing.css';
 import '../../CommunicationTestsFiles/test.css';
 import './dashboard-minimal.css';
-
+import '../../LandingPageFiles/mobile-responsive.css';
+import './profile-mobile.css';
 function ProfileData() {
     const navigate = useNavigate();
     const [apiData, setApi] = useState(null);
@@ -204,356 +204,209 @@ function ProfileData() {
 
     return (
         <>
-            <Login_Navbar />
-            <div className="practice-container page-with-navbar"><br></br><br></br><br></br>
-                <div className="dashboard-header">
-                    <div className="greeting-section">
-                        <h1 className="greeting-text">
-                            {greeting}, {userData.full_name || "Student"}! 👋
-                        </h1>
-                        <p className="motivational-quote">"{motivationalQuote}"</p>
-                    </div>
-                    {/* <div className="profile-avatar">
-                        <div className="avatar-circle">
-                            {userData.Name ? userData.Name.charAt(0).toUpperCase() : "S"}
+            <header className="header">
+                <div className="header-content">
+                    <div className="logo">
+                        <span className="logo-text">Skill Route</span>
+                        <div className="nav-links">
+                            <a href="#" onClick={() => navigate('/profiledata')}>Home</a>
+                            <a href="#" onClick={() => navigate('/test')}>Tests</a>
+                            <a href="#" onClick={() => navigate('/practice')}>Practice</a>
+                            <a href="#" onClick={() => navigate('/student-dashboard')}>Dashboard</a>
+                            <a href="#" onClick={() => navigate('/student-leaderboard')}>Leaderboard</a>
                         </div>
-                    </div> */}
+                    </div>
+
+                    <div className="auth-buttons">
+                        <span style={{ 
+                            marginRight: '15px', 
+                            color: '#2c3e50', 
+                            fontWeight: '600',
+                            background: 'linear-gradient(135deg, #3B9797, #2c7a7a)',
+                            color: 'white',
+                            padding: '8px 16px',
+                            borderRadius: '20px',
+                            fontSize: '0.9rem'
+                        }}>
+                            🔥 {userData.streak || 0}
+                        </span>
+                        <span style={{ 
+                            marginRight: '15px', 
+                            color: '#2c3e50', 
+                            fontWeight: '600',
+                            background: '#f8f9fa',
+                            padding: '8px 16px',
+                            borderRadius: '20px',
+                            border: '2px solid #3B9797',
+                            fontSize: '0.9rem'
+                        }}>
+                            {userData.roll_no || "Roll No"}
+                        </span>
+                        <button 
+                            className="btn-signup"
+                            onClick={() => {
+                                localStorage.removeItem('email');
+                                navigate('/signup');
+                            }}
+                        >
+                            Logout
+                        </button>
+                        
+                        {/* Mobile Navigation Links */}
+                        <div className="mobile-nav-scroll">
+                            <a href="#" onClick={() => navigate('/profiledata')}>Home</a>
+                            <a href="#" onClick={() => navigate('/test')}>Tests</a>
+                            <a href="#" onClick={() => navigate('/practice')}>Practice</a>
+                            <a href="#" onClick={() => navigate('/student-dashboard')}>Dashboard</a>
+                            <a href="#" onClick={() => navigate('/student-leaderboard')}>Leaderboard</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <div style={{ padding: '20px', marginTop: '80px' }}>
+                <div className="greeting-section" style={{ textAlign: 'center', marginBottom: '40px' }}>
+                    <h1 style={{ 
+                        fontSize: '2.5rem', 
+                        color: '#2c3e50', 
+                        marginBottom: '10px',
+                        background: 'linear-gradient(135deg, #3B9797, #2c7a7a)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text'
+                    }}>
+                        {greeting}, {userData.full_name || "Student"}! <span style={{ fontSize: '2rem' }}>👋</span>
+                    </h1>
+                    <p style={{ 
+                        fontSize: '1.1rem', 
+                        color: '#666',
+                        fontStyle: 'italic',
+                        textShadow: '1px 1px 2px rgba(0,0,0,0.1)'
+                    }}>
+                        "{motivationalQuote}"
+                    </p>
                 </div>
 
 
                 {/* Subscription Status */}
                 {userData.user_type === "free" && (
                     <>
-                    <div className="subscription-banner">
+                    <div className="subscription-banner" style={{
+                        background: 'linear-gradient(135deg, #3B9797, #2c7a7a)',
+                        borderRadius: '15px',
+                        boxShadow: '0 8px 25px rgba(59, 151, 151, 0.3)'
+                    }}>
                         <div className="subscription-content">
                             <div className="subscription-icon">🎯</div>
                             <div className="subscription-text">
                                 <h3>You're on the Free Plan</h3>
                                 <p>Upgrade to unlock unlimited access to all features and premium content</p>
                             </div>
-                            <button className="upgrade-btn" onClick={() => navigate('/pricing')}>Upgrade Now</button>
+                            <button className="upgrade-btn" 
+                                style={{
+                                    background: 'white',
+                                    color: '#3B9797',
+                                    border: '2px solid white',
+                                    fontWeight: '600'
+                                }}
+                                onClick={() => navigate('/pricing')}>Upgrade Now</button>
                         </div>
                     </div>
-                    <div>
-                        <section id="pricing" className="pricing-section">
+                    <section id="pricing" className="pricing-section">
                         <div className="section-header">
-                            <h2>Choose Your Learning Path</h2>
-                            <p>Flexible plans designed for every learner's needs</p>
+                            <h2 style={{
+                                background: 'linear-gradient(135deg, #3B9797, #2c7a7a)',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                                backgroundClip: 'text'
+                            }}>Choose Your Learning Path</h2>
+                            <p style={{ color: '#666', fontStyle: 'italic' }}>Flexible plans designed for every learner's needs</p>
                         </div>
                         <div className="pricing-container">
+                            {/* First Row */}
                             <div className="pricing-row">
                                 <div className="pricing-card-item current-plan">
-                                <div className="plan-badge current">Current Plan</div>
-                                <div className="plan-price">
-                                    <span className="currency">₹</span>
-                                    <span className="amount">0</span>
-                                    <span className="period">/Free Trial</span>
+                                    <div className="plan-badge current">Current Plan</div>
+                                    <div className="plan-price">
+                                        <span className="currency">₹</span>
+                                        <span className="amount">0</span>
+                                        <span className="period">/Free Trial</span>
+                                    </div>
+                                    <ul className="plan-features">
+                                        <li>✓ 1 Free trial for JAM</li>
+                                        <li>✓ 1 Free trial for Image-Based Speaking</li>
+                                        <li>✓ Limited AI feedback</li>
+                                        <li>✓ Basic progress tracking</li>
+                                        <li>✗ Advanced analytics</li>
+                                        <li>✗ Premium activities</li>
+                                    </ul>
+                                    <button className="plan-btn" disabled>Current Plan</button>
                                 </div>
-                                <ul className="plan-features">
-                                    <li>✓ 1 Free trial for JAM</li>
-                                    <li>✓ 1 Free trial for Image-Based Speaking</li>
-                                    <li>✓ Limited AI feedback</li>
-                                    <li>✓ Basic progress tracking</li>
-                                    <li>✗ Advanced analytics</li>
-                                    <li>✗ Premium activities</li>
-                                </ul>
-                                <button className="plan-btn" disabled>Current Plan</button>
-                            </div>
-
-                            <div className="pricing-card-item">
-                                <div className="plan-badge">1 Month</div>
-                                <div className="plan-price">
-                                    <span className="currency">₹</span>
-                                    <span className="amount">199</span>
-                                    <span className="period">/month</span>
+                                <div className="pricing-card-item">
+                                    <div className="plan-badge">1 Month</div>
+                                    <div className="plan-price">
+                                        <span className="currency">₹</span>
+                                        <span className="amount">199</span>
+                                        <span className="period">/month</span>
+                                    </div>
+                                    <ul className="plan-features">
+                                        <li>✓ Access to all activities</li>
+                                        <li>✓ 1 free trial for every test</li>
+                                        <li>✓ 10 min practice sessions</li>
+                                        <li>✓ 2 free Image-Based Speaking trials</li>
+                                        <li>✓ Basic AI feedback</li>
+                                        <li>✓ Progress tracking</li>
+                                    </ul>
+                                    <button className="plan-btn">Get Started</button>
                                 </div>
-                                <ul className="plan-features">
-                                    <li>✓ Access to all activities</li>
-                                    <li>✓ 1 free trial for every test</li>
-                                    <li>✓ 10 min practice sessions</li>
-                                    <li>✓ 2 free Image-Based Speaking trials</li>
-                                    <li>✓ Basic AI feedback</li>
-                                    <li>✓ Progress tracking</li>
-                                </ul>
-                                <button className="plan-btn">Get Started</button>
                             </div>
-
-                            <div className="pricing-card-item featured">
-                                <div className="plan-badge popular">Most Popular</div>
-                                <div className="plan-price">
-                                    <span className="currency">₹</span>
-                                    <span className="amount">499</span>
-                                    <span className="period">/3 months</span>
+                            {/* Second Row */}
+                            <div className="pricing-row">
+                                <div className="pricing-card-item featured">
+                                    <div className="plan-badge popular">Most Popular</div>
+                                    <div className="plan-price">
+                                        <span className="currency">₹</span>
+                                        <span className="amount">499</span>
+                                        <span className="period">/3 months</span>
+                                    </div>
+                                    <ul className="plan-features">
+                                        <li>✓ Access to all activities</li>
+                                        <li>✓ 2 free trials for every test</li>
+                                        <li>✓ 20 min practice sessions</li>
+                                        <li>✓ 3 free Image-Based Speaking trials</li>
+                                        <li>✓ Advanced AI feedback</li>
+                                        <li>✓ Detailed analytics</li>
+                                        <li>✓ Progress tracking</li>
+                                    </ul>
+                                    <button className="plan-btn">Upgrade Now</button>
                                 </div>
-                                <ul className="plan-features">
-                                    <li>✓ Access to all activities</li>
-                                    <li>✓ 2 free trials for every test</li>
-                                    <li>✓ 20 min practice sessions</li>
-                                    <li>✓ 3 free Image-Based Speaking trials</li>
-                                    <li>✓ Advanced AI feedback</li>
-                                    <li>✓ Detailed analytics</li>
-                                    <li>✓ Progress tracking</li>
-                                </ul>
-                                <button className="plan-btn">Upgrade Now</button>
-                            </div>
-
-                            <div className="pricing-card-item">
-                                <div className="plan-badge">Premium</div>
-                                <div className="plan-price">
-                                    <span className="currency">₹</span>
-                                    <span className="amount">1399</span>
-                                    <span className="period">/year 🌟</span>
+                                <div className="pricing-card-item">
+                                    <div className="plan-badge">Premium</div>
+                                    <div className="plan-price">
+                                        <span className="currency">₹</span>
+                                        <span className="amount">1399</span>
+                                        <span className="period">/year 🌟</span>
+                                    </div>
+                                    <ul className="plan-features">
+                                        <li>✓ Everything in Pro</li>
+                                        <li>✓ Unlimited test trials</li>
+                                        <li>✓ 40 min practice sessions</li>
+                                        <li>✓ 5 free Image-Based Speaking trials</li>
+                                        <li>✓ Premium AI feedback</li>
+                                        <li>✓ 24/7 support</li>
+                                    </ul>
+                                    <button className="plan-btn">Go Premium</button>
                                 </div>
-                                <ul className="plan-features">
-                                    <li>✓ Everything in Pro</li>
-                                    <li>✓ Unlimited test trials</li>
-                                    <li>✓ 40 min practice sessions</li>
-                                    <li>✓ 5 free Image-Based Speaking trials</li>
-                                    <li>✓ Premium AI feedback</li>
-                                    <li>✓ 24/7 support</li>
-                                </ul>
-                                <button className="plan-btn">Go Premium</button>
-                            </div>
                             </div>
                         </div>
                     </section>
-                    </div>
                     </>
                 )}
 
-                {/* Debug user type */}
-                {/* <div style={{padding: '1rem', background: '#f0f0f0', margin: '1rem 0'}}>
-                    <p>Debug: User Type = "{userData.user_type}"</p>
-                    <p>Show Pricing: {userData.user_type === "free" ? "Yes" : "No"}</p>
-                </div> */}
 
 
-
-                {/* Action Buttons */}
-                <div className="action-buttons">
-                    <button className="action-btn practice-btn" onClick={() => navigate('/practice')}>
-                        <div className="btn-icon">🎯</div>
-                        <div className="btn-content">
-                            <h3>Practice</h3>
-                            <p>Improve your skills</p>
-                        </div>
-                    </button>
-                    <button className="action-btn test-btn" onClick={() => navigate('/test', { state: { tests: testsRemaining } })}>
-                        <div className="btn-icon">📝</div>
-                        <div className="btn-content">
-                            <h3>Start Test</h3>
-                            <p>Assess your progress</p>
-                        </div>
-                    </button>
-                </div>
-
-
-                {/* Dashboard Grid */}
-                <div className="dashboard-grid">
-                    {/* Analytics Card */}
-                    <div className="analytics-card">
-                        <div className="card-header">
-                            <h3>Your Performance</h3>
-                            <div className="score-badge">
-                                <span className="score-number">{analyticsData.averageJAMScore}</span>
-                                <span className="score-label">Avg JAM Score</span>
-                            </div>
-                        </div>
-                        <div className="analytics-content">
-                            <div className="stat-item">
-                                <div className="stat-icon">📊</div>
-                                <div className="stat-info">
-                                    <span className="stat-value">{analyticsData.totalTests}</span>
-                                    <span className="stat-label">Tests Completed</span>
-                                </div>
-                            </div>
-                            <div className="stat-item">
-                                <div className="stat-icon">📈</div>
-                                <div className="stat-info">
-                                    <span className="stat-value">+{analyticsData.improvementRate}%</span>
-                                    <span className="stat-label">Improvement</span>
-                                </div>
-                            </div>
-                        </div>
-                        <button className="view-analytics-btn" onClick={() => navigate('/dashboard')}>
-                            View Full Analytics →
-                        </button>
-                    </div>
-
-                    {/* Leaderboard Card */}
-                    <div className="leaderboard-card">
-                        <div className="card-header">
-                            <h3>🏆 Leaderboard Highlights</h3>
-                        </div>
-                        <div className="leaderboard-tabs">
-                            <button className="tab-btn active">Overall</button>
-                            <button className="tab-btn">JAM</button>
-                            <button className="tab-btn">Pronunciation</button>
-                            <button className="tab-btn">Vocabulary</button>
-                        </div>
-                        <div className="leaderboard-list">
-                            {leaderboardData.overall.map((user, index) => (
-                                <div key={index} className="leaderboard-item">
-                                    <div className="rank-badge">{index + 1}</div>
-                                    <div className="user-avatar">{user.avatar}</div>
-                                    <div className="user-info">
-                                        <span className="user-name">{user.name}</span>
-                                        <span className="user-score">{user.score} pts</span>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                        <button className="view-leaderboard-btn" onClick={() => navigate('/leaderboard')}>
-                            View Full Leaderboard
-                        </button>
-                    </div>
-
-                    {/* Quick Actions Card */}
-                    <div className="quick-actions-card">
-                        <h3>Quick Actions - Tests</h3>
-                        <div className="quick-actions-grid">
-                            <button className="quick-action-item" onClick={() => navigate('/test')}>
-                                <div className="action-icon">⏱️</div>
-                                <span>JAM Session</span>
-                            </button>
-                            <button className="quick-action-item" onClick={() => navigate('/test')}>
-                                <div className="action-icon">🗣️</div>
-                                <span>Pronunciation</span>
-                            </button>
-                            <button className="quick-action-item" onClick={() => navigate('/test')}>
-                                <div className="action-icon">📚</div>
-                                <span>Vocabulary</span>
-                            </button>
-                            <button className="quick-action-item" onClick={() => navigate('/test')}>
-                                <div className="action-icon">🎤</div>
-                                <span>Speaking Test</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Progress Card */}
-                    <div className="progress-card">
-                        <h3>Weekly Progress</h3>
-                        <div className="progress-chart">
-                            {analyticsData.weeklyProgress.map((score, index) => (
-                                <div key={index} className="progress-bar">
-                                    <div
-                                        className="progress-fill"
-                                        style={{ height: `${score}%` }}
-                                    ></div>
-                                    <span className="day-label">
-                                        {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][index]}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-
-
-                {/* Chatbot */}
-                {/* <div className="chatbot-container">
-                    <button className="chatbot-toggle">
-                        <div className="chatbot-icon">💬</div>
-                        <span>AI Assistant</span>
-                    </button>
-                </div> */}
             </div>
 
-            {/* Profile Popup */}
-            {showProfilePopup && (
-                <div className="profile-popup-overlay" onClick={closeProfilePopup}>
-                    <div className="profile-popup" onClick={(e) => e.stopPropagation()}>
-                        <div className="profile-popup-header">
-                            <h2>User Profile</h2>
-                            <button className="close-popup-btn" onClick={closeProfilePopup}>×</button>
-                        </div>
-                        <div className="profile-popup-content">
-                            <div className="profile-avatar-section">
-                                <div className="profile-avatar-circle">
-                                    {userData.full_name ? userData.full_name.charAt(0).toUpperCase() : "U"}
-                                </div>
-                                <h3>{userData.full_name || "User"}</h3>
-                            </div>
-                            <div className="profile-details">
-                                <div className="profile-detail-item">
-                                    <span className="detail-label">Full Name:</span>
-                                    <span className="detail-value">{userData.full_name}</span>
-                                </div>
-                                <div className="profile-detail-item">
-                                    <span className="detail-label">Gender:</span>
-                                    <span className="detail-value">{userData.gender}</span>
-                                </div>
-                                <div className="profile-detail-item">
-                                    <span className="detail-label">Date of Birth:</span>
-                                    <span className="detail-value">{userData.date_of_birth}</span>
-                                </div>
-                                <div className="profile-detail-item">
-                                    <span className="detail-label">Age:</span>
-                                    <span className="detail-value">{userData.age}</span>
-                                </div>
-                                <div className="profile-detail-item">
-                                    <span className="detail-label">Username:</span>
-                                    <span className="detail-value">{userData.username}</span>
-                                </div>
-                                <div className="profile-detail-item">
-                                    <span className="detail-label">Roll No:</span>
-                                    <span className="detail-value">{userData.roll_no}</span>
-                                </div>
-                                <div className="profile-detail-item">
-                                    <span className="detail-label">User Type:</span>
-                                    <span className="detail-value">{userData.user_type}</span>
-                                </div>
-                                <div className="profile-detail-item">
-                                    <span className="detail-label">College Email:</span>
-                                    <span className="detail-value">{userData.college_email}</span>
-                                </div>
-                                <div className="profile-detail-item">
-                                    <span className="detail-label">College Name:</span>
-                                    <span className="detail-value">{userData.college_name}</span>
-                                </div>
-                                <div className="profile-detail-item">
-                                    <span className="detail-label">Program:</span>
-                                    <span className="detail-value">{userData.program}</span>
-                                </div>
-                                <div className="profile-detail-item">
-                                    <span className="detail-label">Branch:</span>
-                                    <span className="detail-value">{userData.branch}</span>
-                                </div>
-                                <div className="profile-detail-item">
-                                    <span className="detail-label">Year:</span>
-                                    <span className="detail-value">{userData.year}</span>
-                                </div>
-                                <div className="profile-detail-item">
-                                    <span className="detail-label">Semester:</span>
-                                    <span className="detail-value">{userData.sem}</span>
-                                </div>
-                                <div className="profile-detail-item">
-                                    <span className="detail-label">Section:</span>
-                                    <span className="detail-value">{userData.section}</span>
-                                </div>
-                                <div className="profile-detail-item">
-                                    <span className="detail-label">Account Creation Date:</span>
-                                    <span className="detail-value">{userData.account_creation_date}</span>
-                                </div>
-                                <div className="profile-detail-item">
-                                    <span className="detail-label">Account Creation Time:</span>
-                                    <span className="detail-value">{userData.account_creation_time}</span>
-                                </div>
-                                <div className="profile-detail-item">
-                                    <span className="detail-label">Profile Last Updated:</span>
-                                    <span className="detail-value">{userData.profile_last_updated}</span>
-                                </div>
-                                <div className="profile-detail-item">
-                                    <span className="detail-label">Unique ID:</span>
-                                    <span className="detail-value">{userData.unique_id}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
+          
         </>
     );
 }

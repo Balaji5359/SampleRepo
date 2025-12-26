@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './landing.css';
+import './mobile-responsive.css';
 
 
 function LandingPage() {
@@ -7,6 +8,7 @@ function LandingPage() {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const observerOptions = {
@@ -39,6 +41,11 @@ function LandingPage() {
         behavior: 'smooth'
       });
     }
+    setIsMobileMenuOpen(false); // Close mobile menu after navigation
+  };
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
   const handleSubmit = async (e) => {
@@ -139,15 +146,48 @@ function LandingPage() {
               <a href="#features" onClick={(e) => handleNavClick(e, 'features')}>Features</a>
               <a href="#activities" onClick={(e) => handleNavClick(e, 'activities')}>Activities</a>
               <a href="#pricing" onClick={(e) => handleNavClick(e, 'pricing')}>Pricing</a>
-              <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')}>Contact</a>    
-            </div>       
+              <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')}>Contact</a>
+            </div>
           </div>
 
           <div className="auth-buttons">
             <button className="btn-signup" onClick={() => { window.location.href = '/signup'; }}>Get started now !</button>
+            
+            {/* Mobile Navigation Links */}
+            <div className="mobile-nav-scroll">
+              <a href="#home" onClick={(e) => handleNavClick(e, 'home')}>Home</a>
+              <a href="#features" onClick={(e) => handleNavClick(e, 'features')}>Features</a>
+              <a href="#activities" onClick={(e) => handleNavClick(e, 'activities')}>Activities</a>
+              <a href="#pricing" onClick={(e) => handleNavClick(e, 'pricing')}>Pricing</a>
+              <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')}>Contact</a>
+            </div>
           </div>
+
+          {/* Hamburger Menu Button */}
+          <button className="hamburger-menu" onClick={toggleMobileMenu}>
+            <span className="hamburger-line"></span>
+            <span className="hamburger-line"></span>
+            <span className="hamburger-line"></span>
+          </button>
         </div>
       </header>
+
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className="mobile-menu-overlay" onClick={toggleMobileMenu}>
+          <div className="mobile-menu" onClick={(e) => e.stopPropagation()}>
+            <button className="mobile-menu-close" onClick={toggleMobileMenu}>×</button>
+            <nav className="mobile-nav">
+              <a href="#home" onClick={(e) => handleNavClick(e, 'home')}>Home</a>
+              <a href="#features" onClick={(e) => handleNavClick(e, 'features')}>Features</a>
+              <a href="#activities" onClick={(e) => handleNavClick(e, 'activities')}>Activities</a>
+              <a href="#pricing" onClick={(e) => handleNavClick(e, 'pricing')}>Pricing</a>
+              <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')}>Contact</a>
+              <button className="mobile-btn-signup" onClick={() => { window.location.href = '/signup'; toggleMobileMenu(); }}>Get started now !</button>
+            </nav>
+          </div>
+        </div>
+      )}
 
       {/* Hero Section */}
       <section id="home" className="hero">
@@ -308,7 +348,6 @@ function LandingPage() {
               <div className="step-number">1</div>
               <div className="step-content">
                 <h4>JD-Based Self Introduction</h4>
-                {/* <p>JAM Session • Pronunciation Test • Listening Test</p> */}
               </div>
             </div>
             <div className="roadmap-connector horizontal"></div>
@@ -316,7 +355,6 @@ function LandingPage() {
               <div className="step-number">2</div>
               <div className="step-content">
                 <h4>Programming Knowledge</h4>
-                {/* <p>Image-Based Speaking • JAM Session • Listening Test</p> */}
               </div>
             </div>
             <div className="roadmap-connector horizontal"></div>
@@ -324,45 +362,46 @@ function LandingPage() {
               <div className="step-number">3</div>
               <div className="step-content">
                 <h4>Worked Domain</h4>
-                {/* <p>Image-Based Storytelling • JAM Session • Vocabulary</p> */}
-              </div>
-            </div>
-            <div className="roadmap-connector horizontal"></div>
-            <div className="roadmap-step">
-              <div className="step-number">4</div>
-              <div className="step-content">
-                <h4>Project Discussion</h4>
-                {/* <p>Storytelling • JAM Session • Pronunciation</p> */}
               </div>
             </div>
           </div>
           
           {/* Vertical Connector */}
-          <div className="roadmap-connector vertical-right"></div>
+          <div className="roadmap-connector vertical-center"></div>
           
           {/* Row 2: Right to Left */}
           <div className="roadmap-row reverse">
             <div className="roadmap-step">
-              <div className="step-number">7</div>
-              <div className="step-content">
-                <h4>Certifications & Internships</h4>
-                {/* <p>Structured Explanation • Keyword Clarity</p> */}
-              </div>
-            </div>
-            <div className="roadmap-connector horizontal"></div>
-            <div className="roadmap-step">
               <div className="step-number">6</div>
               <div className="step-content">
                 <h4>Hobbies & Interests</h4>
-                {/* <p>Free-flow Speaking • Confidence Analysis</p> */}
               </div>
             </div>
-            <div className="roadmap-connector horizontal"></div>
+            <div className="roadmap-connector horizontal reverse"></div>
             <div className="roadmap-step">
               <div className="step-number">5</div>
               <div className="step-content">
                 <h4>Future Career Planning</h4>
-                {/* <p>JAM Session • Listening Test • Goal Clarity</p> */}
+              </div>
+            </div>
+            <div className="roadmap-connector horizontal reverse"></div>
+            <div className="roadmap-step">
+              <div className="step-number">4</div>
+              <div className="step-content">
+                <h4>Project Discussion</h4>
+              </div>
+            </div>
+          </div>
+          
+          {/* Vertical Connector */}
+          <div className="roadmap-connector vertical-center"></div>
+          
+          {/* Row 3: Left to Right */}
+          <div className="roadmap-row">
+            <div className="roadmap-step">
+              <div className="step-number">7</div>
+              <div className="step-content">
+                <h4>Certifications & Internships</h4>
               </div>
             </div>
           </div>
@@ -377,13 +416,12 @@ function LandingPage() {
           {/* Vertical Connector from Basic to Advanced */}
           <div className="roadmap-connector vertical-center"></div>
           
-          {/* Row 3: Left to Right */}
+          {/* Row 1: Left to Right */}
           <div className="roadmap-row">
             <div className="roadmap-step">
               <div className="step-number">8</div>
               <div className="step-content">
                 <h4>Role-Based Interview</h4>
-                {/* <p>Mock Interview • JAM Answers • Stress Analysis</p> */}
               </div>
             </div>
             <div className="roadmap-connector horizontal"></div>
@@ -391,7 +429,6 @@ function LandingPage() {
               <div className="step-number">9</div>
               <div className="step-content">
                 <h4>Resume-Based Interview</h4>
-                {/* <p>Resume Q&A • Consistency Check • Coherence</p> */}
               </div>
             </div>
             <div className="roadmap-connector horizontal"></div>
@@ -399,37 +436,33 @@ function LandingPage() {
               <div className="step-number">10</div>
               <div className="step-content">
                 <h4>Technical Interview</h4>
-                {/* <p>Think-aloud JAM • Response Accuracy • Logic</p> */}
               </div>
             </div>
           </div>
           
           {/* Vertical Connector */}
-          <div className="roadmap-connector vertical-right"></div>
+          <div className="roadmap-connector vertical-center"></div>
           
-          {/* Row 4: Right to Left */}
+          {/* Row 2: Right to Left */}
           <div className="roadmap-row reverse">
             <div className="roadmap-step">
               <div className="step-number">13</div>
               <div className="step-content">
                 <h4>Logical Puzzles</h4>
-                {/* <p>Problem Solving • Clarity Analysis • Think-aloud</p> */}
               </div>
             </div>
-            <div className="roadmap-connector horizontal"></div>
+            <div className="roadmap-connector horizontal reverse"></div>
             <div className="roadmap-step">
               <div className="step-number">12</div>
               <div className="step-content">
                 <h4>Stress/Pressure Questions</h4>
-                {/* <p>Rapid-fire Speaking • Emotion Detection • Recovery</p> */}
               </div>
             </div>
-            <div className="roadmap-connector horizontal"></div>
+            <div className="roadmap-connector horizontal reverse"></div>
             <div className="roadmap-step">
               <div className="step-number">11</div>
               <div className="step-content">
                 <h4>Follow-Up Questioning</h4>
-                {/* <p>Multi-round Tasks • Memory Checks • Continuity</p> */}
               </div>
             </div>
           </div>
