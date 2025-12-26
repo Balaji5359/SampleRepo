@@ -14,6 +14,41 @@ function PronunciationDashboard() {
   const [dateFilter, setDateFilter] = useState('');
   const [filteredSessions, setFilteredSessions] = useState([]);
 
+  const formatDateTime = (dateTimeString) => {
+    if (!dateTimeString) return 'Not available';
+    try {
+      const date = new Date(dateTimeString);
+      return date.toLocaleString();
+    } catch (error) {
+      return dateTimeString;
+    }
+  };
+
+  const formatDate = (dateTimeString) => {
+    if (!dateTimeString) return 'Not available';
+    try {
+      const date = new Date(dateTimeString);
+      return date.toLocaleDateString('en-IN');
+    } catch (error) {
+      return dateTimeString;
+    }
+  };
+
+  const formatTime = (dateTimeString) => {
+    if (!dateTimeString) return 'Not available';
+    try {
+      const date = new Date(dateTimeString);
+      return date.toLocaleTimeString('en-IN', { 
+        hour12: true,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      }).replace(/am|pm/g, match => match.toUpperCase());
+    } catch (error) {
+      return dateTimeString;
+    }
+  };
+
   useEffect(() => {
     const root = document.documentElement;
     document.body.style.margin = '0';
@@ -86,10 +121,10 @@ function PronunciationDashboard() {
     let filtered = apiData.sessions.filter(session => {
       const matchesSearch = searchTerm === '' || 
         session.sessionId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        new Date(session.timestamp).toLocaleString().toLowerCase().includes(searchTerm.toLowerCase());
+        formatDateTime(session.start_time).toLowerCase().includes(searchTerm.toLowerCase());
       
       const matchesDate = dateFilter === '' || 
-        new Date(session.timestamp).toDateString() === new Date(dateFilter).toDateString();
+        formatDate(session.start_time) === new Date(dateFilter).toLocaleDateString();
       
       return matchesSearch && matchesDate;
     });
@@ -154,7 +189,12 @@ function PronunciationDashboard() {
                 <div className="session-id">{session.sessionId}</div>
                 <div className="session-details">
                   <span className="session-type">Pronunciation Test</span>
-                  <span className="session-date">{new Date(session.timestamp).toLocaleString()}</span>
+                  <div className="session-datetime">
+                    <div className="session-date">{formatDate(session.start_time)}</div>
+                    <div className="session-time">
+                      Start: {formatTime(session.start_time)}
+                    </div>
+                  </div>
                 </div>
               </div>
               <div className="session-metrics">
@@ -185,7 +225,12 @@ function PronunciationDashboard() {
                 <div className="session-id">{session.sessionId}</div>
                 <div className="session-details">
                   <span className="session-type">Pronunciation Test</span>
-                  <span className="session-date">{new Date(session.timestamp).toLocaleString()}</span>
+                  <div className="session-datetime">
+                    <div className="session-date">{formatDate(session.start_time)}</div>
+                    <div className="session-time">
+                      Start: {formatTime(session.start_time)}
+                    </div>
+                  </div>
                 </div>
               </div>
               <div className="session-metrics">
@@ -216,8 +261,12 @@ function PronunciationDashboard() {
                 <span className="value">{selectedSession.sessionId}</span>
               </div>
               <div className="overview-item">
-                <span className="label">Date & Time:</span>
-                <span className="value">{new Date(selectedSession.timestamp).toLocaleString()}</span>
+                <span className="label">Start Date:</span>
+                <span className="value">{formatDate(selectedSession.start_time)}</span>
+              </div>
+              <div className="overview-item">
+                <span className="label">Start Time:</span>
+                <span className="value">{formatTime(selectedSession.start_time)}</span>
               </div>
               <div className="overview-item">
                 <span className="label">Total Messages:</span>

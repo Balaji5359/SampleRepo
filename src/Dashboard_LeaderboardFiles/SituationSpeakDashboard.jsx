@@ -14,6 +14,41 @@ function SituationSpeakDashboard() {
   const [dateFilter, setDateFilter] = useState('');
   const [filteredSessions, setFilteredSessions] = useState([]);
 
+  const formatDateTime = (dateTimeString) => {
+    if (!dateTimeString) return 'Not available';
+    try {
+      const date = new Date(dateTimeString);
+      return date.toLocaleString();
+    } catch (error) {
+      return dateTimeString;
+    }
+  };
+
+  const formatDate = (dateTimeString) => {
+    if (!dateTimeString) return 'Not available';
+    try {
+      const date = new Date(dateTimeString);
+      return date.toLocaleDateString('en-IN');
+    } catch (error) {
+      return dateTimeString;
+    }
+  };
+
+  const formatTime = (dateTimeString) => {
+    if (!dateTimeString) return 'Not available';
+    try {
+      const date = new Date(dateTimeString);
+      return date.toLocaleTimeString('en-IN', { 
+        hour12: true,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      }).replace(/am|pm/g, match => match.toUpperCase());
+    } catch (error) {
+      return dateTimeString;
+    }
+  };
+
   useEffect(() => {
     const root = document.documentElement;
     document.body.style.margin = '0';
@@ -86,10 +121,10 @@ function SituationSpeakDashboard() {
     let filtered = apiData.sessions.filter(session => {
       const matchesSearch = searchTerm === '' || 
         session.sessionId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        new Date(session.timestamp).toLocaleString().toLowerCase().includes(searchTerm.toLowerCase());
+        formatDateTime(session.start_time).toLowerCase().includes(searchTerm.toLowerCase());
       
       const matchesDate = dateFilter === '' || 
-        new Date(session.timestamp).toDateString() === new Date(dateFilter).toDateString();
+        formatDate(session.start_time) === new Date(dateFilter).toLocaleDateString();
       
       return matchesSearch && matchesDate;
     });
@@ -150,8 +185,12 @@ function SituationSpeakDashboard() {
           <div className="summary-card">
             <div className="summary-stats">
               <div className="summary-stat">
-                <span className="stat-label">Session Date:</span>
-                <span className="stat-value">{new Date(session.timestamp).toLocaleString()}</span>
+                <span className="stat-label">Start Date:</span>
+                <span className="stat-value">{formatDate(session.start_time)}</span>
+              </div>
+              <div className="summary-stat">
+                <span className="stat-label">Start Time:</span>
+                <span className="stat-value">{formatTime(session.start_time)}</span>
               </div>
               <div className="summary-stat">
                 <span className="stat-label">Test Type:</span>
@@ -265,7 +304,8 @@ function SituationSpeakDashboard() {
             <h3>Session Information</h3>
             <div className="session-info-header">
               <p><strong>Session ID:</strong> {selectedSession.sessionId}</p>
-              <p><strong>Date:</strong> {new Date(selectedSession.timestamp).toLocaleString()}</p>
+              <p><strong>Start Date:</strong> {formatDate(selectedSession.start_time)}</p>
+              <p><strong>Start Time:</strong> {formatTime(selectedSession.start_time)}</p>
               <p><strong>Messages:</strong> {selectedSession.conversationHistory?.length || 0}</p>
             </div>
           </div>
@@ -324,7 +364,12 @@ function SituationSpeakDashboard() {
                   <div className="session-id">{session.sessionId}</div>
                   <div className="session-details">
                     <span className="session-type">Situation Speak</span>
-                    <span className="session-date">{new Date(session.timestamp).toLocaleString()}</span>
+                    <div className="session-datetime">
+                      <div className="session-date">{formatDate(session.start_time)}</div>
+                      <div className="session-time">
+                        Start: {formatTime(session.start_time)}
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div className="session-metrics">
@@ -362,7 +407,12 @@ function SituationSpeakDashboard() {
                   <div className="session-id">{session.sessionId}</div>
                   <div className="session-details">
                     <span className="session-type">Situation Speak</span>
-                    <span className="session-date">{new Date(session.timestamp).toLocaleString()}</span>
+                    <div className="session-datetime">
+                      <div className="session-date">{formatDate(session.start_time)}</div>
+                      <div className="session-time">
+                        Start: {formatTime(session.start_time)}
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div className="session-metrics">
