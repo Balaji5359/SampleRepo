@@ -103,69 +103,48 @@ function Dashboard() {
   }, [theme]);
 
   useEffect(() => {
-    const fetchAllTestData = async () => {
+    const fetchDashboardData = async () => {
       if (!userEmail) return;
       
       setLoading(true);
-      const allData = {};
-      
-      for (const activity of activities) {
-        try {
-          const response = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/studentcommunicationtests_retrivalapi', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              college_email: userEmail,
-              test_type: activity.id.toUpperCase()
-            })
-          });
-          
-          const data = await response.json();
-          const parsedData = JSON.parse(data.body);
-          allData[activity.id.toUpperCase()] = parsedData;
-        } catch (error) {
-          console.error(`Error fetching ${activity.id} data:`, error);
-        }
+      try {
+        const response = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/comm-test-send-results', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ college_email: userEmail })
+        });
+        
+        const data = await response.json();
+        const dashboardData = JSON.parse(data.body).dashboard;
+        setApiData(dashboardData);
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
       }
-      
-      setApiData(allData);
       setLoading(false);
     };
     
-    fetchAllTestData();
+    fetchDashboardData();
   }, [userEmail]);
 
-  const calculateTestStats = (testKey) => {
-    const testData = apiData[testKey];
-    if (!testData || !testData.sessions) {
-      return { avgScore: 0, testCount: 0, trend: [] };
+  const getTestStats = (activityId) => {
+    const testMap = {
+      'jam': 'jam',
+      'pronunciation': 'pronunciation', 
+      'listening': 'listening',
+      'situational': 'situation',
+      'image-speak': 'image_speak',
+      'image-story': 'image_story'
+    };
+    
+    const testData = apiData[testMap[activityId]];
+    if (!testData) {
+      return { avgScore: '0', testCount: 0, trend: [] };
     }
 
-    const sessions = testData.sessions;
-    let totalScore = 0;
-    let scoreCount = 0;
-    const trend = [];
-
-    sessions.forEach(session => {
-      session.conversationHistory?.forEach(conv => {
-        if (conv.agent) {
-          const scoreMatch = conv.agent.match(/Score: ([\d.]+)/i) || conv.agent.match(/JAM Score: ([\d.]+)/i);
-          if (scoreMatch) {
-            const score = parseFloat(scoreMatch[1]);
-            if (!isNaN(score) && score > 0) {
-              totalScore += score;
-              scoreCount++;
-              trend.push(score);
-            }
-          }
-        }
-      });
-    });
-
     return {
-      avgScore: scoreCount > 0 ? (totalScore / scoreCount).toFixed(1) : '0',
-      testCount: sessions.length,
-      trend: trend.slice(-5) // Last 5 scores for mini chart
+      avgScore: testData.avgScore?.toFixed(1) || '0',
+      testCount: testData.tests || 0,
+      trend: testData.trend || []
     };
   };
 
@@ -243,7 +222,7 @@ function Dashboard() {
           margin: '0 auto 40px auto'
         }}>
           {activities.map((activity) => {
-            const stats = calculateTestStats(activity.id.toUpperCase());
+            const stats = getTestStats(activity.id);
             return (
               <div 
                 key={activity.id}

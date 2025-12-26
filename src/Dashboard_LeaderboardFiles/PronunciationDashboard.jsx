@@ -198,6 +198,87 @@ function PronunciationDashboard() {
     </div>
   );
 
+  const renderSessionModal = () => {
+    if (!selectedSession) return null;
+
+    return (
+      <div className="modal-overlay" onClick={() => setSelectedSession(null)}>
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <h3>Session Details: {selectedSession.sessionId}</h3>
+            <button className="close-btn" onClick={() => setSelectedSession(null)}>×</button>
+          </div>
+          
+          <div className="modal-body">
+            <div className="session-overview">
+              <div className="overview-item">
+                <span className="label">Session ID:</span>
+                <span className="value">{selectedSession.sessionId}</span>
+              </div>
+              <div className="overview-item">
+                <span className="label">Date & Time:</span>
+                <span className="value">{new Date(selectedSession.timestamp).toLocaleString()}</span>
+              </div>
+              <div className="overview-item">
+                <span className="label">Total Messages:</span>
+                <span className="value">{selectedSession.conversationHistory?.length || 0}</span>
+              </div>
+            </div>
+
+            <div className="conversation-history">
+              <h4>Conversation History</h4>
+              <div className="messages-container">
+                {selectedSession.conversationHistory?.map((msg, index) => (
+                  <div key={index} className="message-group">
+                    {msg.user && (
+                      <div className="message user-message">
+                        <div className="message-label">User:</div>
+                        <div className="message-content">{msg.user}</div>
+                      </div>
+                    )}
+                    {msg.agent && (
+                      <div className="message agent-message">
+                        <div className="message-label">Agent:</div>
+                        <div className="message-content">{msg.agent}</div>
+                      </div>
+                    )}
+                  </div>
+                )) || <div className="no-messages">No conversation history available</div>}
+              </div>
+            </div>
+
+            {selectedSession.audioFiles && selectedSession.audioFiles.length > 0 && (
+              <div className="audio-files">
+                <h4>Audio Files</h4>
+                <div className="files-list">
+                  {selectedSession.audioFiles.map((file, index) => (
+                    <div key={index} className="file-item">
+                      <span className="file-icon">🎵</span>
+                      <span className="file-name">{file}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {selectedSession.transcripts && selectedSession.transcripts.length > 0 && (
+              <div className="transcripts">
+                <h4>Transcripts</h4>
+                <div className="transcripts-list">
+                  {selectedSession.transcripts.map((transcript, index) => (
+                    <div key={index} className="transcript-item">
+                      <div className="transcript-content">{transcript}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div>
       <header className="header">
@@ -261,6 +342,8 @@ function PronunciationDashboard() {
           )}
         </div>
       </div>
+      
+      {renderSessionModal()}
     </div>
   );
 }

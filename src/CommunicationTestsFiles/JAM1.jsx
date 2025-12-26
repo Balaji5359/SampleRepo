@@ -275,13 +275,14 @@ export default function JAM1({
     }, []);
 
     // Background options for custom themes
-    const backgroundOptions = [
-        { id: 0, label: 'Aurora', css: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
-        { id: 1, label: 'Sunset', css: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' },
-        { id: 2, label: 'Ocean', css: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' },
-        { id: 3, label: 'Forest', css: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' },
-        { id: 4, label: 'Purple', css: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)' },
-    ];
+    // const back
+    // groundOptions = [
+    //     { id: 0, label: 'Aurora', css: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
+    //     { id: 1, label: 'Sunset', css: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' },
+    //     { id: 2, label: 'Ocean', css: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' },
+    //     { id: 3, label: 'Forest', css: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' },
+    //     { id: 4, label: 'Purple', css: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)' },
+    // ];
 
     // animate counts when data changes
     useEffect(() => {
@@ -719,6 +720,45 @@ export default function JAM1({
         try { onUtterance(text); } catch (e) { /* ignore */ }
     };
 
+    // Function to update feedback score
+    const updateFeedbackScore = async (aiResponse) => {
+        try {
+            // Check if this is a final assessment report
+            if (aiResponse.includes('ASSESSMENT REPORT') || aiResponse.includes('JAM Score:')) {
+                // Extract score from AI response
+                const scoreMatch = aiResponse.match(/JAM Score:\s*([\d.]+)\s*\/\s*([\d.]+)/i);
+                if (scoreMatch) {
+                    const score = parseFloat(scoreMatch[1]);
+                    const maxScore = parseFloat(scoreMatch[2]);
+                    const normalizedScore = (score / maxScore) * 10; // Normalize to 10
+                    
+                    const feedbackData = {
+                        college_email: userEmail,
+                        test_type: 'jam_test',
+                        test_id: sessionId,
+                        final_score: normalizedScore,
+                        ai_feedback: aiResponse
+                    };
+                    
+                    console.log('Updating feedback score:', feedbackData);
+                    
+                    const response = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/comm-test-feedback-update', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(feedbackData)
+                    });
+                    
+                    const result = await response.json();
+                    console.log('Feedback update result:', result);
+                }
+            }
+        } catch (error) {
+            console.error('Error updating feedback score:', error);
+        }
+    };
+
     // Chat API integration
     const sendMessageToJAM = async (message) => {
         setIsLoading(true);
@@ -758,6 +798,9 @@ export default function JAM1({
             // Decode HTML entities
             aiResponse = decodeHtmlEntities(aiResponse);
 
+            // Check if this is a final feedback and update score
+            await updateFeedbackScore(aiResponse);
+
             // Add user message
             setChatMessages(prev => [...prev, { type: 'user', content: message, timestamp: Date.now() }]);
 
@@ -775,20 +818,67 @@ export default function JAM1({
         }
     };
 
-    const handleButtonClick = (buttonText) => {
+    const [buttonClicked, setButtonClicked] = useState(new Set());
+
+    const handleButtonClick = (buttonText, messageIndex) => {
+        setButtonClicked(prev => new Set([...prev, messageIndex]));
         sendMessageToJAM(buttonText);
+    };
+
+    /* ---------- Enhanced Message Formatting ---------- */
+    const formatAIMessage = (content) => {
+        return content
+            // Main headings - larger, accent color with icons
+            .replace(/(WELCOME TO THE JAM SESSION ASSESSMENT|ASSESSMENT REPORT|JAM SESSION ASSESSMENT|FINAL JAM ASSESSMENT)/g, 
+                '<div style="color: var(--accent); font-size: 18px; font-weight: 700; margin: 16px 0 12px 0; text-align: center; border-bottom: 2px solid var(--accent); padding-bottom: 8px;">🎯 $1</div>')
+            
+            // Section headers - structured boxes
+            .replace(/(PERFORMANCE SUMMARY|DETAILED EVALUATION|PROFESSIONAL DEVELOPMENT AREAS|PLACEMENT READINESS|TOPIC):/g, 
+                '<div style="color: var(--text-color); font-size: 15px; font-weight: 600; margin: 16px 0 8px 0; padding: 8px 12px; background: rgba(79,70,229,0.1); border-radius: 8px; border-left: 4px solid var(--accent);">📊 $1:</div>')
+            
+            // JAM Scores - highlighted with gradient
+            .replace(/(JAM Score: [\d.]+\s*\/\s*[\d.]+|\d+\.\d+\s*\/\s*\d+\.\d+)/g, 
+                '<span style="background: linear-gradient(135deg, var(--accent), #764ba2); color: white; padding: 6px 12px; border-radius: 8px; font-weight: 700; margin: 0 4px; box-shadow: 0 3px 6px rgba(0,0,0,0.2); font-size: 16px;">🏆 $1</span>')
+            
+            // Quality ratings - color-coded badges
+            .replace(/(Good|Excellent|Outstanding)/g, 
+                '<span style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;">✨ $1</span>')
+            .replace(/(Average|Fair)/g, 
+                '<span style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;">👍 $1</span>')
+            .replace(/(Needs Improvement|Poor)/g, 
+                '<span style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;">⚠️ $1</span>')
+            
+            // Topic selection - highlighted boxes
+            .replace(/(\d+\. [^\n]+)/g, 
+                '<div style="background: rgba(79,70,229,0.08); padding: 10px 16px; border-radius: 8px; margin: 6px 0; border-left: 4px solid var(--accent); font-weight: 500;">📝 $1</div>')
+            
+            // Evaluation criteria with dashes
+            .replace(/^-\s+(.+)$/gm, 
+                '<div style="margin: 8px 0; padding: 8px 12px; background: rgba(255,255,255,0.02); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0;">• $1</div>')
+            
+            // Instructions with 'Type' - button-like appearance
+            .replace(/(Type '[^']+' [^.\n]+|Type "[^"]+" [^.\n]+)/g, 
+                '<div style="background: linear-gradient(135deg, rgba(79,70,229,0.1), rgba(34,211,238,0.05)); padding: 12px 16px; border-radius: 8px; margin: 10px 0; border: 1px solid rgba(79,70,229,0.2); text-align: center; font-weight: 500;">💬 $1</div>')
+            
+            // Assessment categories
+            .replace(/(Grammar & Language|Vocabulary & Expression|Content Relevance|Fluency & Delivery|Structure & Organization|Time Utilization):/g, 
+                '<div style="display: flex; justify-content: space-between; padding: 6px 12px; margin: 4px 0; background: rgba(79,70,229,0.05); border-radius: 6px; border-left: 3px solid var(--accent); font-weight: 500;"><span>$1:</span></div>')
+            
+            // Professional readiness status
+            .replace(/(PLACEMENT READINESS: .+)/g, 
+                '<div style="background: linear-gradient(135deg, rgba(79,70,229,0.1), rgba(34,211,238,0.05)); padding: 12px; border-radius: 8px; margin: 16px 0; border: 2px solid rgba(79,70,229,0.2); text-align: center; font-weight: 600; font-size: 15px;">🎯 $1</div>');
     };
 
     const extractButtons = (text) => {
         const buttons = [];
 
         // Check for yes/no buttons
-        if (text.includes('yes') && text.includes('no')) {
-            buttons.push('yes', 'no');
+        if ((text.includes("'yes'") || text.includes('"yes"')) && (text.includes("'no'") || text.includes('"no"'))) {
+            buttons.push('YES', 'NO');
         }
 
         // Check for topic selection (1 or 2)
-        if (text.includes('type \'1\' or \'2\'') || text.includes('type \"1\" or \"2\"')) {
+        if (text.includes("'1'") && text.includes("'2'")) {
             buttons.push('1', '2');
         }
 
@@ -1102,7 +1192,7 @@ export default function JAM1({
                         {showTestPopup && (
                             <div className="popup-overlay">
                                 <div className="popup-content" style={{
-                                    maxWidth: '1200px',
+                                    maxWidth: '1400px',
                                     width: '95%',
                                     background: theme === 'light' ? 'linear-gradient(135deg, #ffffff, #f0f9ff)' :
                                         theme === 'custom' ? 'linear-gradient(135deg, rgba(59,151,151,0.95), rgba(91,181,181,0.95))' :
@@ -1131,8 +1221,8 @@ export default function JAM1({
                                                         'Express your thoughts clearly and confidently.'}
                                             </p>
 
-                                            <div className="chat-container" style={{
-                                                height: '300px',
+                                            <div className="chat-container" ref={chatContainerRef} style={{
+                                                height: '500px',
                                                 marginBottom: 20,
                                                 background: theme === 'light' ? 'rgba(243,244,246,0.5)' :
                                                     theme === 'custom' ? 'rgba(255,255,255,0.1)' :
@@ -1146,18 +1236,47 @@ export default function JAM1({
                                         return (
                                             <div key={index} className={`chat-message ${msg.type}`}>
                                                 <div className={`message-bubble ${msg.type}`}>
-                                                    {cleanText.split('\n').map((line, i) => (
-                                                        <div key={i}>{line}</div>
-                                                    ))}
+                                                    {msg.type === 'ai' ? (
+                                                        <div 
+                                                            dangerouslySetInnerHTML={{ 
+                                                                __html: formatAIMessage(cleanText) 
+                                                            }}
+                                                            style={{
+                                                                lineHeight: '1.6',
+                                                                fontSize: '14px'
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        <div style={{ whiteSpace: 'pre-wrap' }}>{cleanText}</div>
+                                                    )}
                                                 </div>
-                                                {msg.type === 'ai' && buttons.length > 0 && (
-                                                    <div className="chat-buttons">
+                                                {msg.type === 'ai' && buttons.length > 0 && !buttonClicked.has(index) && (
+                                                    <div style={{ marginTop: '6px' }}>
                                                         {buttons.map((button, btnIndex) => (
                                                             <button
                                                                 key={btnIndex}
-                                                                className="chat-btn"
-                                                                onClick={() => handleButtonClick(button)}
+                                                                onClick={() => handleButtonClick(button.toLowerCase(), index)}
                                                                 disabled={isLoading}
+                                                                style={{
+                                                                    padding: '2px 6px',
+                                                                    fontSize: '20px',
+                                                                    fontWeight: '500',
+                                                                    borderRadius: '8px',
+                                                                    border: '1px solid var(--accent)',
+                                                                    background: 'transparent',
+                                                                    color: 'var(--accent)',
+                                                                    cursor: 'pointer',
+                                                                    marginRight: '4px',
+                                                                    transition: 'all 150ms'
+                                                                }}
+                                                                onMouseEnter={(e) => {
+                                                                    e.target.style.background = 'var(--accent)';
+                                                                    e.target.style.color = 'white';
+                                                                }}
+                                                                onMouseLeave={(e) => {
+                                                                    e.target.style.background = 'transparent';
+                                                                    e.target.style.color = 'var(--accent)';
+                                                                }}
                                                             >
                                                                 {button}
                                                             </button>

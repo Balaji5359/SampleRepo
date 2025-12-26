@@ -30,6 +30,8 @@ const ProfileCreation = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [usernameChecking, setUsernameChecking] = useState(false);
+  const [usernameAvailable, setUsernameAvailable] = useState(null);
 
   useEffect(() => {
     // Check if user is already authenticated/profile completed
@@ -71,6 +73,30 @@ const ProfileCreation = () => {
   const [profilePreview, setProfilePreview] = useState(null);
   const [isCompleted, setIsCompleted] = useState(false);
 
+  const checkUsernameAvailability = async (username) => {
+    if (!username.trim()) {
+      setUsernameAvailable(null);
+      return;
+    }
+
+    setUsernameChecking(true);
+    try {
+      const response = await fetch('https://ntjkr8rnd6.execute-api.ap-south-1.amazonaws.com/dev/checkusername-availability', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: username.trim() })
+      });
+      
+      const data = await response.json();
+      const result = JSON.parse(data.body);
+      setUsernameAvailable(result.available);
+    } catch (error) {
+      console.error('Username check error:', error);
+      setUsernameAvailable(null);
+    }
+    setUsernameChecking(false);
+  };
+
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
 
@@ -85,20 +111,27 @@ const ProfileCreation = () => {
       });
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
-    }
-
-    // Auto-advance survey cards when answered (but don't auto-submit)
-    if (currentSection === 2) {
-      const surveyFields = ['englishLevel', 'communicationGoals', 'speakingLevel', 'timeAvailable', 'speakingFrequency'];
-      const currentField = surveyFields[currentSurveyCard];
-
-      if (name === currentField && (value || (type === 'checkbox' && checked))) {
-        if (currentSurveyCard < surveyFields.length - 1) {
-          setTimeout(() => setCurrentSurveyCard(prev => prev + 1), 800);
+      
+      // Check username availability when username changes
+      if (name === 'username') {
+        setUsernameAvailable(null);
+        if (value.trim()) {
+          setTimeout(() => checkUsernameAvailability(value), 500);
         }
-        // Removed auto-submit logic - user must manually click "Complete Profile"
       }
     }
+
+    // Remove auto-advance for survey cards
+    // if (currentSection === 2) {
+    //   const surveyFields = ['englishLevel', 'communicationGoals', 'speakingLevel', 'timeAvailable', 'speakingFrequency'];
+    //   const currentField = surveyFields[currentSurveyCard];
+
+    //   if (name === currentField && (value || (type === 'checkbox' && checked))) {
+    //     if (currentSurveyCard < surveyFields.length - 1) {
+    //       setTimeout(() => setCurrentSurveyCard(prev => prev + 1), 800);
+    //     }
+    //   }
+    // }
   };
 
   const handleFileChange = (e) => {
@@ -119,6 +152,7 @@ const ProfileCreation = () => {
     if (sectionIndex === 0) {
       // Personal Information validation
       if (!formData.username.trim()) errors.push('Username is required');
+      if (usernameAvailable === false) errors.push('Username is already taken. Please choose a different one.');
       if (!formData.dateOfBirth) errors.push('Date of Birth is required');
       if (!formData.gender) errors.push('Gender is required');
     } else if (sectionIndex === 1) {
@@ -146,6 +180,18 @@ const ProfileCreation = () => {
     }
 
     return errors;
+  };
+
+  const nextSurveyCard = () => {
+    if (currentSurveyCard < surveyQuestions.length - 1) {
+      setCurrentSurveyCard(prev => prev + 1);
+    }
+  };
+
+  const prevSurveyCard = () => {
+    if (currentSurveyCard > 0) {
+      setCurrentSurveyCard(prev => prev - 1);
+    }
   };
 
   const nextSection = () => {
@@ -350,7 +396,19 @@ return (
                     </div>
                     <div className="input-group">
                       <label>Username *</label>
-                      <input type="text" name="username" value={formData.username} onChange={handleInputChange} placeholder="Choose a unique username" required />
+                      <div className="username-input-container">
+                        <input 
+                          type="text" 
+                          name="username" 
+                          value={formData.username} 
+                          onChange={handleInputChange} 
+                          placeholder="Choose a unique username" 
+                          required 
+                        />
+                        {usernameChecking && <span className="username-status checking">Checking...</span>}
+                        {usernameAvailable === true && <span className="username-status available">✓ Available</span>}
+                        {usernameAvailable === false && <span className="username-status taken">✗ Taken</span>}
+                      </div>
                     </div>
                     <div className="input-group">
                       <label>Date of Birth *</label>
@@ -541,10 +599,7 @@ return (
                                     name="notSpeakingReasons"
                                     value={reason}
                                     checked={isSelected}
-                                    onChange={(e) => {
-                                      handleInputChange(e);
-                                      // Removed auto-submit logic - user must manually click "Complete Profile"
-                                    }}
+                                    onChange={handleInputChange}
                                   />
                                   <div className="option-content">
                                     <div className="radio-indicator"></div>
@@ -559,10 +614,7 @@ return (
                               type="text"
                               name="otherReasons"
                               value={formData.otherReasons}
-                              onChange={(e) => {
-                                handleInputChange(e);
-                                // Removed auto-submit logic - user must manually click "Complete Profile"
-                              }}
+                              onChange={handleInputChange}
                               placeholder="Please specify..."
                               className="other-reasons-input"
                               required
@@ -570,6 +622,19 @@ return (
                           )}
                         </div>
                       )}
+                      
+                      <div className="survey-navigation">
+                        {currentSurveyCard > 0 && (
+                          <button type="button" onClick={prevSurveyCard} className="btn-survey-nav">
+                            ← Previous
+                          </button>
+                        )}
+                        {currentSurveyCard < surveyQuestions.length - 1 && (
+                          <button type="button" onClick={nextSurveyCard} className="btn-survey-nav btn-next">
+                            Next →
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -647,7 +712,7 @@ return (
             <div className="trust-indicators">
               <div className="trust-item">
                 <span>🏆</span>
-                <small>Trusted by 10K+ students</small>
+                <small>Built for students</small>
               </div>
               <div className="trust-item">
                 <span>⚡</span>

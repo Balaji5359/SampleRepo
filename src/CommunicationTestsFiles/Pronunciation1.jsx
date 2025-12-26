@@ -104,7 +104,7 @@ const styles = `
 `;
 
 /* ---------- Helpers ---------- */
-const generateSessionId = () => `listen-test-${Math.floor(1000000 + Math.random() * 9000000)}`;
+const generateSessionId = () => `pronu-test-${Math.floor(1000000 + Math.random() * 9000000)}`;
 
 const decodeHtmlEntities = (text) => {
     const textarea = document.createElement('textarea');
@@ -112,12 +112,12 @@ const decodeHtmlEntities = (text) => {
     return textarea.value;
 };
 
-export default function Listening() {
+export default function Pronunciation1() {
     const location = useLocation();
     const { remainingTests: initialRemainingTests = 0 } = location.state || {};
 
     /* ---------- State ---------- */
-    const [activeTab, setActiveTab] = useState('Listening Dashboard');
+    const [activeTab, setActiveTab] = useState('Pronunciation Dashboard');
     const [remainingTests, setRemainingTests] = useState(initialRemainingTests);
     const [sessionId] = useState(generateSessionId());
     const [userEmail] = useState(localStorage.getItem("email"));
@@ -129,8 +129,6 @@ export default function Listening() {
     const [testActive, setTestActive] = useState(false);
     const [theme, setTheme] = useState('light');
     const [bgIndex, setBgIndex] = useState(0);
-    const [audioPlayed, setAudioPlayed] = useState(new Set());
-    const [currentSentence, setCurrentSentence] = useState('');
     
     const chatRef = useRef(null);
     const recognitionRef = useRef(null);
@@ -167,7 +165,7 @@ export default function Listening() {
                     });
                     const data = await response.json();
                     const parsedData = typeof data.body === 'string' ? JSON.parse(data.body) : data.body;
-                    setRemainingTests(parsedData.tests?.listen_test || 0);
+                    setRemainingTests(parsedData.tests?.pronu_test || 0);
                 } catch (error) {
                     console.error('Error fetching test counts:', error);
                 }
@@ -209,9 +207,9 @@ export default function Listening() {
     const updateFeedbackScore = async (aiResponse) => {
         try {
             // Check if this is a final assessment report
-            if (aiResponse.includes('OVERALL LISTENING PERFORMANCE') || aiResponse.includes('Final Listening Score:')) {
+            if (aiResponse.includes('FINAL SPEAKING ASSESSMENT REPORT') || aiResponse.includes('Final Speaking Score:')) {
                 // Extract score from AI response
-                const scoreMatch = aiResponse.match(/Final Listening Score:\s*([\d.]+)\s*\/\s*([\d.]+)/i);
+                const scoreMatch = aiResponse.match(/Final Speaking Score:\s*([\d.]+)\s*\/\s*([\d.]+)/i);
                 if (scoreMatch) {
                     const score = parseFloat(scoreMatch[1]);
                     const maxScore = parseFloat(scoreMatch[2]);
@@ -219,7 +217,7 @@ export default function Listening() {
                     
                     const feedbackData = {
                         college_email: userEmail,
-                        test_type: 'listen_test',
+                        test_type: 'pronu_test',
                         test_id: sessionId,
                         final_score: normalizedScore,
                         ai_feedback: aiResponse
@@ -256,7 +254,7 @@ export default function Listening() {
                 }
             };
 
-            const response = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/listenagent-test', {
+            const response = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/prounagent-test', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(requestBody)
@@ -299,7 +297,7 @@ export default function Listening() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     college_email: email,
-                    test_key: 'listen_test'
+                    test_key: 'pronu_test'
                 })
             });
             
@@ -408,7 +406,6 @@ export default function Listening() {
         if (text.includes("'start'") || text.includes('"start"')) buttons.push('START');
         if (text.includes("'next'") || text.includes('"next"')) buttons.push('NEXT');
         if (text.includes("'done'") || text.includes('"done"')) buttons.push('DONE');
-        if (text.includes("'DONE'") || text.includes('"DONE"')) buttons.push('DONE');
         if ((text.includes("'yes'") || text.includes('"yes"')) && (text.includes("'no'") || text.includes('"no"'))) {
             buttons.push('YES', 'NO');
         }
@@ -421,28 +418,6 @@ export default function Listening() {
     const handleButtonClick = (buttonText, messageIndex) => {
         setButtonClicked(prev => new Set([...prev, messageIndex]));
         sendMessageToPronunciation(buttonText);
-    };
-
-    /* ---------- Text-to-Speech Function ---------- */
-    const speakSentence = (text, messageIndex) => {
-        if (audioPlayed.has(messageIndex)) return;
-        
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 0.8;
-        utterance.pitch = 1;
-        utterance.volume = 1;
-        
-        utterance.onend = () => {
-            setAudioPlayed(prev => new Set([...prev, messageIndex]));
-        };
-        
-        speechSynthesis.speak(utterance);
-    };
-
-    /* ---------- Extract Sentence from AI Response ---------- */
-    const extractSentence = (content) => {
-        const sentenceMatch = content.match(/LISTENING ASSESSMENT - SENTENCE \([^)]+\): ([^\n]+)/i);
-        return sentenceMatch ? sentenceMatch[1].trim() : null;
     };
 
     /* ---------- Enhanced Message Formatting ---------- */
@@ -555,17 +530,16 @@ export default function Listening() {
             .replace(/&lt;/g, '<')
             .replace(/&amp;/g, '&');
 
-        // Hide the sentence text from display - replace with audio instruction
-        text = text.replace(/LISTENING ASSESSMENT - SENTENCE \([^)]+\): [^\n]+/gi, 
-            'LISTENING ASSESSMENT - Click the audio button below to listen to the sentence.');
-
         // normalize headers and insert line breaks
         text = text
-            .replace(/LISTENING COMPREHENSION ANALYSIS/gi, '\nLISTENING COMPREHENSION ANALYSIS\n')
-            .replace(/YOUR REPETITION:/gi, '\nYOUR REPETITION:')
-            .replace(/COMPREHENSION ANALYSIS:/gi, '\nCOMPREHENSION ANALYSIS:\n')
-            .replace(/LISTENING PERFORMANCE:/gi, '\nLISTENING PERFORMANCE:\n')
-            .replace(/LISTENING FOCUS:/gi, '\nLISTENING FOCUS:\n')
+            .replace(/PRONUNCIATION ANALYSIS REPORT\s*YOUR SPEECH:/gi, 'PRONUNCIATION ANALYSIS REPORT\nYOUR SPEECH:')
+            .replace(/PRONUNCIATION ANALYSIS REPORT/gi, '\nPRONUNCIATION ANALYSIS REPORT\n')
+            .replace(/YOUR SPEECH:/gi, '\nYOUR SPEECH:')
+            .replace(/ACCURACY ANALYSIS:/gi, '\nACCURACY ANALYSIS:\n')
+            .replace(/PERFORMANCE METRICS:/gi, '\nPERFORMANCE METRICS:\n')
+            .replace(/IMPROVEMENT FOCUS:/gi, '\nIMPROVEMENT FOCUS:\n')
+            .replace(/FINAL SPEAKING ASSESSMENT REPORT/gi, '\nFINAL SPEAKING ASSESSMENT REPORT\n')
+            .replace(/OVERALL PERFORMANCE SUMMARY:/gi, '\nOVERALL PERFORMANCE SUMMARY:\n')
             .replace(/SENTENCE SCORE:/gi, '\nSENTENCE SCORE:\n')
             .replace(/Type\s+'?\w+'?/gi, (m) => `\n${m}\n`);
 
@@ -582,10 +556,10 @@ export default function Listening() {
             <div className="pronunciation-topnav">
                 <div className="left">
                     <div className="jam-title" aria-hidden>
-                        Listening Test
+                        Pronunciation Test
                     </div>
                     <div className="jam-nav" role="tablist" aria-label="Main tabs">
-                        {['Back', 'Practice', 'Listening Dashboard', 'Listening Leaderboard'].map((t) => (
+                        {['Back', 'Practice', 'Pronunciation Dashboard', 'Pronunciation Leaderboard'].map((t) => (
                             <button
                                 key={t}
                                 role="tab"
@@ -628,10 +602,10 @@ export default function Listening() {
                         {!showTestPopup && (
                             <div className="card" style={{ textAlign: 'center', padding: 60 }}>
                                 <div style={{ fontWeight: 700, fontSize: 32, marginBottom: 20, color: 'var(--accent)' }}>
-                                    Listening Assessment
+                                    Pronunciation Assessment
                                 </div>
                                 <div style={{ fontSize: 18, color: 'var(--muted)', marginBottom: 20 }}>
-                                    Test your listening skills by listen and speaking of 5 sentences
+                                    Test your pronunciation accuracy with 5 sentences
                                 </div>
                                 <div style={{ fontSize: 16, color: 'var(--accent)', marginBottom: 40, fontWeight: 600 }}>
                                     Remaining Tests: {remainingTests}
@@ -641,7 +615,7 @@ export default function Listening() {
                                     onClick={startTest} 
                                     disabled={remainingTests <= 0}
                                 >
-                                    {remainingTests <= 0 ? 'No Tests Remaining' : 'Start Listening Test'}
+                                    {remainingTests <= 0 ? 'No Tests Remaining' : 'Start Pronunciation Test'}
                                 </button>
                             </div>
                         )}
@@ -655,60 +629,21 @@ export default function Listening() {
                         <div style={{ display: 'flex', gap: 20 }}>
                             <div style={{ flex: 1 }}>
                                 <h2 style={{ color: 'var(--accent)' }}>
-                                    Listening Assessment
+                                    Pronunciation Assessment
                                 </h2>
                                 <p style={{ fontSize: 14, marginBottom: 20, color: 'var(--muted)' }}>
-                                    Speak the sentences correctly, after listening to voice clearly
+                                    Read each sentence clearly and accurately. Your pronunciation will be analyzed.
                                 </p>
 
                                 <div className="chat-container" ref={chatRef} style={{ height: '550px', width: "800px" }}>
                                     {chatMessages.map((msg, index) => {
                                         const { cleanText, buttons } = extractButtons(msg.content);
-                                        const sentence = msg.type === 'ai' ? extractSentence(msg.content) : null;
-                                        
                                         return (
                                             <div key={index} className={`chat-message ${msg.type}`}>
                                                 <div className={`message-bubble ${msg.type}`}>
                                                     {msg.type === 'ai' ? (
                                                         <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6', fontSize: '14px' }}>
                                                             {formatAIMessagePlain(msg.content)}
-                                                            
-                                                            {/* Audio button for sentences */}
-                                                            {sentence && (
-                                                                <div style={{ 
-                                                                    display: 'flex', 
-                                                                    justifyContent: 'center', 
-                                                                    marginTop: '12px',
-                                                                    padding: '8px'
-                                                                }}>
-                                                                    <button
-                                                                        onClick={() => speakSentence(sentence, index)}
-                                                                        disabled={audioPlayed.has(index)}
-                                                                        style={{
-                                                                            padding: '12px 24px',
-                                                                            fontSize: '16px',
-                                                                            fontWeight: '600',
-                                                                            borderRadius: '25px',
-                                                                            border: 'none',
-                                                                            background: audioPlayed.has(index) 
-                                                                                ? 'linear-gradient(135deg, #6b7280, #4b5563)' 
-                                                                                : 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-                                                                            color: 'white',
-                                                                            cursor: audioPlayed.has(index) ? 'not-allowed' : 'pointer',
-                                                                            display: 'flex',
-                                                                            alignItems: 'center',
-                                                                            gap: '8px',
-                                                                            boxShadow: '0 4px 12px rgba(59,130,246,0.3)',
-                                                                            transition: 'all 200ms'
-                                                                        }}
-                                                                    >
-                                                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                                                            <path d="M8 5v14l11-7z"/>
-                                                                        </svg>
-                                                                        {audioPlayed.has(index) ? 'Audio Played' : 'Play Audio'}
-                                                                    </button>
-                                                                </div>
-                                                            )}
                                                         </div>
                                                     ) : (
                                                         <div style={{ whiteSpace: 'pre-wrap' }}>{msg.content}</div>
@@ -778,7 +713,7 @@ export default function Listening() {
                                         Voice Recording
                                     </h3>
                                     
-                                    
+
                                     {recording && (
                                         <div style={{ fontSize: '18px', fontWeight: '600', color: 'var(--accent)', marginBottom: 16 }}>
                                             Recording: {timeLeft}s

@@ -718,6 +718,45 @@ export default function SituationSpeak({
         try { onUtterance(text); } catch (e) { /* ignore */ }
     };
 
+    // Function to update feedback score
+    const updateFeedbackScore = async (aiResponse) => {
+        try {
+            // Check if this is a final assessment report
+            if (aiResponse.includes('SITUATIONAL ASSESSMENT REPORT') || aiResponse.includes('Situational Score:')) {
+                // Extract score from AI response
+                const scoreMatch = aiResponse.match(/Situational Score:\s*([\d.]+)\s*\/\s*([\d.]+)/i);
+                if (scoreMatch) {
+                    const score = parseFloat(scoreMatch[1]);
+                    const maxScore = parseFloat(scoreMatch[2]);
+                    const normalizedScore = (score / maxScore) * 10; // Normalize to 10
+                    
+                    const feedbackData = {
+                        college_email: userEmail,
+                        test_type: 'situation_test',
+                        test_id: sessionId,
+                        final_score: normalizedScore,
+                        ai_feedback: aiResponse
+                    };
+                    
+                    console.log('Updating feedback score:', feedbackData);
+                    
+                    const response = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/comm-test-feedback-update', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(feedbackData)
+                    });
+                    
+                    const result = await response.json();
+                    console.log('Feedback update result:', result);
+                }
+            }
+        } catch (error) {
+            console.error('Error updating feedback score:', error);
+        }
+    };
+
     // Chat API integration
     const sendMessageToJAM = async (message) => {
         setIsLoading(true);
@@ -757,6 +796,9 @@ export default function SituationSpeak({
             // Decode HTML entities
             aiResponse = decodeHtmlEntities(aiResponse);
 
+            // Check if this is a final feedback and update score
+            await updateFeedbackScore(aiResponse);
+
             // Add user message
             setChatMessages(prev => [...prev, { type: 'user', content: message, timestamp: Date.now() }]);
 
@@ -774,30 +816,22 @@ export default function SituationSpeak({
         }
     };
 
-    const handleButtonClick = (buttonText) => {
+    const [buttonClicked, setButtonClicked] = useState(new Set());
+
+    const handleButtonClick = (buttonText, messageIndex) => {
+        setButtonClicked(prev => new Set([...prev, messageIndex]));
         sendMessageToJAM(buttonText);
     };
 
     const extractButtons = (text) => {
         const buttons = [];
 
-        // Check for yes/no buttons
-        if (text.includes('yes') && text.includes('no')) {
-            buttons.push('yes', 'no');
+        // Check for start button
+        if (text.includes("'start'") || text.includes('"START"')) {
+            buttons.push('Start');
         }
-
-        // Check for language selection (1-5)
-        if (text.includes('1. Telugu') || text.includes('2. Hindi') || text.includes('3. Kannada') || text.includes('4. Tamil') || text.includes('5. Malayalam')) {
-            buttons.push('1', '2', '3', '4', '5');
-        }
-
-        // Check for topic selection (1 or 2)
-        if (text.includes('type \'1\' or \'2\'') || text.includes('type \"1\" or \"2\"')) {
-            buttons.push('1', '2');
-        }
-        // check for "start" text
-        if (text.toLowerCase().includes("start")) {
-            buttons.push('start');
+        if ((text.includes("'yes'") || text.includes('"yes"')) && (text.includes("'no'") || text.includes('"no"'))) {
+            buttons.push('YES', 'NO');
         }
         return { cleanText: text, buttons };
     };
@@ -1183,12 +1217,14 @@ export default function SituationSpeak({
                                 <p style={{ color: 'var(--muted)' }}>Coming soon - compete with other students!</p>
                             </div>
                         )}
-
+                        {/* Increase Height of pop-up to 1500px */}
                         {showTestPopup && (
                             <div className="popup-overlay">
                                 <div className="popup-content" style={{
-                                    maxWidth: '1200px',
+                                    maxWidth: '1400px',
+                                    maxHeight: '2500px',
                                     width: '95%',
+                                    height: '90%',
                                     background: theme === 'light' ? 'linear-gradient(135deg, #ffffff, #f0f9ff)' :
                                         theme === 'custom' ? 'linear-gradient(135deg, rgba(59,151,151,0.95), rgba(91,181,181,0.95))' :
                                             'var(--card-bg)',
@@ -1217,7 +1253,8 @@ export default function SituationSpeak({
                                             </p>
 
                                             <div className="chat-container" style={{
-                                                height: '300px',
+                                                height: '500px',
+                                                width: '800px',
                                                 marginBottom: 20,
                                                 background: theme === 'light' ? 'rgba(243,244,246,0.5)' :
                                                     theme === 'custom' ? 'rgba(255,255,255,0.1)' :
@@ -1235,20 +1272,6 @@ export default function SituationSpeak({
                                                         <div key={i}>{line}</div>
                                                     ))}
                                                 </div>
-                                                {msg.type === 'ai' && buttons.length > 0 && (
-                                                    <div className="chat-buttons">
-                                                        {buttons.map((button, btnIndex) => (
-                                                            <button
-                                                                key={btnIndex}
-                                                                className="chat-btn"
-                                                                onClick={() => handleButtonClick(button)}
-                                                                disabled={isLoading}
-                                                            >
-                                                                {button}
-                                                            </button>
-                                                        ))}
-                                                    </div>
-                                                )}
                                             </div>
                                         );
                                     })}
@@ -1259,18 +1282,62 @@ export default function SituationSpeak({
                                             </div>
                                         </div>
                                     )}
+                                    
+                                    {/* Buttons at bottom of chat */}
+                                    {chatMessages.length > 0 && (() => {
+                                        const lastMsg = chatMessages[chatMessages.length - 1];
+                                        if (lastMsg.type === 'ai') {
+                                            const { buttons } = extractButtons(lastMsg.content);
+                                            const lastIndex = chatMessages.length - 1;
+                                            if (buttons.length > 0 && !buttonClicked.has(lastIndex)) {
+                                                return (
+                                                    <div style={{ 
+                                                        display: 'flex', 
+                                                        gap: '8px', 
+                                                        justifyContent: 'center', 
+                                                        marginTop: '16px',
+                                                        padding: '12px',
+                                                        borderTop: '1px solid rgba(255,255,255,0.1)'
+                                                    }}>
+                                                        {buttons.map((button, btnIndex) => (
+                                                            <button
+                                                                key={btnIndex}
+                                                                onClick={() => handleButtonClick(button.toLowerCase(), lastIndex)}
+                                                                disabled={isLoading}
+                                                                style={{
+                                                                    padding: '8px 16px',
+                                                                    fontSize: '14px',
+                                                                    fontWeight: '600',
+                                                                    borderRadius: '12px',
+                                                                    border: '2px solid var(--accent)',
+                                                                    background: 'var(--accent)',
+                                                                    color: 'white',
+                                                                    cursor: 'pointer',
+                                                                    transition: 'all 200ms',
+                                                                    boxShadow: '0 4px 12px rgba(79,70,229,0.3)'
+                                                                }}
+                                                            >
+                                                                {button}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                );
+                                            }
+                                        }
+                                        return null;
+                                    })()}
                                 </div>
 
                                 
                             </div>
 
                             <div style={{ flex: 1, textAlign: 'center' }}>
-                                <div style={{ display: 'flex', gap: 40, justifyContent: 'center', marginBottom: 30 }}>
+                                <div style={{ display: 'flex', gap: 40, justifyContent: 'center', marginBottom: 100 }}>
                                     {/* <TimerCircle time={timeLeft} maxTime={120} label="Test Time" /> */}
                                     {recording && <TimerCircle time={micTimeLeft} maxTime={50} label="Recording" />}
                                 </div>
-                                <h1 style={{ color: 'var(--text-color)', marginBottom: 20,fontSize: 28 }}>Click on the Mic to Start Recording</h1>
-                                <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+                                <h1 style={{ color: 'var(--text-color)', marginBottom: 10,fontSize: 28 }}>Click on the Mic to Start Recording</h1>
+                                <div style={{ marginTop: 54, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
                                     <button
                                         className={`mic-btn ${recording ? 'recording' : ''}`}
                                         onClick={toggleMic}
@@ -1309,18 +1376,20 @@ export default function SituationSpeak({
                                     )}
 
                                     {recordingDisabled && !recording && !recordingUsed && (
-                                        <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '8px' }}>
+                                        <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '10px' }}>
                                             Processing audio...
                                         </div>
                                     )}
 
                                     {recordingUsed && !recording && (
-                                        <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '8px' }}>
+                                        <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '10px' }}>
                                             Recording used - One chance only
                                         </div>
+                                        
+                                        
                                     )}
-
-                                    <button className="end-btn" onClick={endTest}>
+                                    {/* bring the button to 50px down */}
+                                    <button className="end-btn" onClick={endTest} style={{ marginTop: '200px' }}>
                                         End Test
                                     </button>
                                 </div>
