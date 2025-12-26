@@ -417,12 +417,12 @@ function ImageSpeakDashboard() {
             <span className="logo-text">Skill Route</span>
             <div className="nav-links">
               <a href="#" onClick={() => navigate('/student-dashboard')}>Back to Main Dashboard</a>
-              <a href="#" onClick={() => navigate('/practice')}>Practice</a>
-              <a href="#" onClick={() => navigate('/student-leaderboard')}>Leaderboard</a>
+              {/* <a href="#" onClick={() => navigate('/practice')}>Practice</a>
+              <a href="#" onClick={() => navigate('/student-leaderboard')}>Leaderboard</a> */}
             </div>
           </div>
           <div className="auth-buttons">
-            <button 
+            {/* <button 
               className="btn-signup"
               onClick={() => {
                 localStorage.removeItem('email');
@@ -430,7 +430,7 @@ function ImageSpeakDashboard() {
               }}
             >
               Logout
-            </button>
+            </button> */}
           </div>
         </div>
       </header>

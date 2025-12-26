@@ -188,12 +188,45 @@ function Dashboard() {
           <div className="logo">
             <span className="logo-text">Skill Route</span>
             <div className="nav-links">
-              <a href="#" onClick={() => navigate('/test')}>Back to Tests</a>
+              <a href="#" onClick={() => navigate('/profiledata')}>Home</a>
+              <a href="#" onClick={() => navigate('/test')}>Tests</a>
               <a href="#" onClick={() => navigate('/practice')}>Practice</a>
+              <a href="#" onClick={() => navigate('/student-dashboard')}
+                                style={{
+                                color:"#3B9797",
+                                fontWeight: "600",
+                                textDecoration: "none",
+                                paddingBottom: "6px",
+                                borderBottom: "2.5px solid #3B9797",
+                                cursor: "pointer",
+                            }}>Dashboard</a>
               <a href="#" onClick={() => navigate('/student-leaderboard')}>Leaderboard</a>
             </div>
           </div>
           <div className="auth-buttons">
+            <span style={{ 
+                            marginRight: '15px', 
+                            fontWeight: '600',
+                            background: 'linear-gradient(135deg, #3B9797, #2c7a7a)',
+                            color: 'white',
+                            padding: '8px 16px',
+                            borderRadius: '20px',
+                            fontSize: '0.9rem'
+                        }}>
+                            🔥0
+            </span>
+            <span style={{ 
+                            marginRight: '15px', 
+                            color: '#2c3e50', 
+                            fontWeight: '600',
+                            background: '#f8f9fa',
+                            padding: '8px 16px',
+                            borderRadius: '20px',
+                            border: '2px solid #3B9797',
+                            fontSize: '0.9rem'
+                        }}>
+                            {localStorage.getItem('email')?.slice(0, 10) || 'User'}
+            </span>
             <button 
               className="btn-signup"
               onClick={() => {

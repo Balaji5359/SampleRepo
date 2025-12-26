@@ -36,35 +36,24 @@ function ProfileData() {
         unique_id: "",
     });
     const [testsRemaining, setTestsRemaining] = useState({});
-
-    // Mock data for analytics and leaderboard
-    const [analyticsData, setAnalyticsData] = useState({
-        averageJAMScore: 78,
-        totalTests: 24,
-        improvementRate: 15,
-        weeklyProgress: [65, 70, 75, 78, 82, 85, 88]
-    });
-    const [totalTests, setTotalTests] = useState(0);
-    const [profileApiData, setProfileApiData] = useState(null);
     const [showProfilePopup, setShowProfilePopup] = useState(false);
 
-    const [leaderboardData] = useState({
-        overall: [
-            { name: "Alex Johnson", score: 95, avatar: "👨‍💼" },
-            { name: "Sarah Chen", score: 92, avatar: "👩‍🎓" },
-            { name: "Mike Wilson", score: 89, avatar: "👨‍🎓" }
-        ],
-        jam: [
-            { name: "Emma Davis", score: 94, avatar: "👩‍💼" },
-            { name: "John Smith", score: 91, avatar: "👨‍🎓" },
-            { name: "Lisa Brown", score: 88, avatar: "👩‍🎓" }
-        ],
-        test: [
-            { name: "David Lee", score: 96, avatar: "👨‍💼" },
-            { name: "Anna Taylor", score: 93, avatar: "👩‍🎓" },
-            { name: "Chris Wang", score: 90, avatar: "👨‍🎓" }
-        ]
-    });
+    //     overall: [
+    //         { name: "Alex Johnson", score: 95, avatar: "👨‍💼" },
+    //         { name: "Sarah Chen", score: 92, avatar: "👩‍🎓" },
+    //         { name: "Mike Wilson", score: 89, avatar: "👨‍🎓" }
+    //     ],
+    //     jam: [
+    //         { name: "Emma Davis", score: 94, avatar: "👩‍💼" },
+    //         { name: "John Smith", score: 91, avatar: "👨‍🎓" },
+    //         { name: "Lisa Brown", score: 88, avatar: "👩‍🎓" }
+    //     ],
+    //     test: [
+    //         { name: "David Lee", score: 96, avatar: "👨‍💼" },
+    //         { name: "Anna Taylor", score: 93, avatar: "👩‍🎓" },
+    //         { name: "Chris Wang", score: 90, avatar: "👨‍🎓" }
+    //     ]
+    // });
 
     const quotes = [
         "The limits of my language mean the limits of my world. - Ludwig Wittgenstein",
@@ -155,35 +144,7 @@ function ProfileData() {
                 setLoading(false);
             });
 
-        // Fetch profile API data for popup
-        const profileUrl = 'https://ntjkr8rnd6.execute-api.ap-south-1.amazonaws.com/dev/student_profilecreate/student_profile_senddata';
-        fetch(profileUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ college_email: storedEmail }),
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                setProfileApiData(data);
-                if (data && data.body) {
-                    const parsedProfileData = typeof data.body === "string" ? JSON.parse(data.body) : data.body;
-                    // Calculate total tests
-                    const testKeys = Object.keys(parsedProfileData).filter(key => key.includes('-Test-Id'));
-                    let total = 0;
-                    testKeys.forEach(key => {
-                        const tests = parsedProfileData[key];
-                        total += Object.keys(tests).length;
-                    });
-                    setTotalTests(total);
-                    setAnalyticsData(prev => ({ ...prev, totalTests: total }));
-                }
-            })
-
-            .catch((error) => {
-                console.error('Error fetching profile data:', error);
-            });
+    // NOTE: removed duplicate profile fetch and analytics code per request - UI uses only name and roll number
 
     }, []);
 
@@ -202,6 +163,7 @@ function ProfileData() {
         setShowProfilePopup(false);
     };
 
+
     return (
         <>
             <header className="header">
@@ -209,7 +171,23 @@ function ProfileData() {
                     <div className="logo">
                         <span className="logo-text">Skill Route</span>
                         <div className="nav-links">
-                            <a href="#" onClick={() => navigate('/profiledata')}>Home</a>
+                            {/* disable Hover on Home button when cursor is pointed*/}
+                            <a
+                                href="#"
+                                onClick={() => navigate('/profiledata')}
+                                style={{
+                                    color: "#3B9797",
+                                    fontWeight: "600",
+                                    textDecoration: "none",
+                                    paddingBottom: "6px",
+                                    borderBottom: "2.5px solid #3B9797",
+                                    cursor: "pointer",
+                                    transition: "none",
+                                }}
+                                >
+                                Home
+                            </a>
+
                             <a href="#" onClick={() => navigate('/test')}>Tests</a>
                             <a href="#" onClick={() => navigate('/practice')}>Practice</a>
                             <a href="#" onClick={() => navigate('/student-dashboard')}>Dashboard</a>
@@ -220,7 +198,6 @@ function ProfileData() {
                     <div className="auth-buttons">
                         <span style={{ 
                             marginRight: '15px', 
-                            color: '#2c3e50', 
                             fontWeight: '600',
                             background: 'linear-gradient(135deg, #3B9797, #2c7a7a)',
                             color: 'white',
@@ -264,7 +241,7 @@ function ProfileData() {
                 </div>
             </header>
             <div style={{ padding: '20px', marginTop: '80px' }}>
-                <div className="greeting-section" style={{ textAlign: 'center', marginBottom: '40px' }}>
+                <div className="greeting-section" style={{ textAlign: 'left', marginBottom: '40px' }}>
                     <h1 style={{ 
                         fontSize: '2.5rem', 
                         color: '#2c3e50', 
@@ -288,7 +265,7 @@ function ProfileData() {
 
 
                 {/* Subscription Status */}
-                {userData.user_type === "free" && (
+                {(userData?.user_type || '').toString().toLowerCase() === "free" && (
                     <>
                     <div className="subscription-banner" style={{
                         background: 'linear-gradient(135deg, #3B9797, #2c7a7a)',
@@ -311,102 +288,9 @@ function ProfileData() {
                                 onClick={() => navigate('/pricing')}>Upgrade Now</button>
                         </div>
                     </div>
-                    <section id="pricing" className="pricing-section">
-                        <div className="section-header">
-                            <h2 style={{
-                                background: 'linear-gradient(135deg, #3B9797, #2c7a7a)',
-                                WebkitBackgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent',
-                                backgroundClip: 'text'
-                            }}>Choose Your Learning Path</h2>
-                            <p style={{ color: '#666', fontStyle: 'italic' }}>Flexible plans designed for every learner's needs</p>
-                        </div>
-                        <div className="pricing-container">
-                            {/* First Row */}
-                            <div className="pricing-row">
-                                <div className="pricing-card-item current-plan">
-                                    <div className="plan-badge current">Current Plan</div>
-                                    <div className="plan-price">
-                                        <span className="currency">₹</span>
-                                        <span className="amount">0</span>
-                                        <span className="period">/Free Trial</span>
-                                    </div>
-                                    <ul className="plan-features">
-                                        <li>✓ 1 Free trial for JAM</li>
-                                        <li>✓ 1 Free trial for Image-Based Speaking</li>
-                                        <li>✓ Limited AI feedback</li>
-                                        <li>✓ Basic progress tracking</li>
-                                        <li>✗ Advanced analytics</li>
-                                        <li>✗ Premium activities</li>
-                                    </ul>
-                                    <button className="plan-btn" disabled>Current Plan</button>
-                                </div>
-                                <div className="pricing-card-item">
-                                    <div className="plan-badge">1 Month</div>
-                                    <div className="plan-price">
-                                        <span className="currency">₹</span>
-                                        <span className="amount">199</span>
-                                        <span className="period">/month</span>
-                                    </div>
-                                    <ul className="plan-features">
-                                        <li>✓ Access to all activities</li>
-                                        <li>✓ 1 free trial for every test</li>
-                                        <li>✓ 10 min practice sessions</li>
-                                        <li>✓ 2 free Image-Based Speaking trials</li>
-                                        <li>✓ Basic AI feedback</li>
-                                        <li>✓ Progress tracking</li>
-                                    </ul>
-                                    <button className="plan-btn">Get Started</button>
-                                </div>
-                            </div>
-                            {/* Second Row */}
-                            <div className="pricing-row">
-                                <div className="pricing-card-item featured">
-                                    <div className="plan-badge popular">Most Popular</div>
-                                    <div className="plan-price">
-                                        <span className="currency">₹</span>
-                                        <span className="amount">499</span>
-                                        <span className="period">/3 months</span>
-                                    </div>
-                                    <ul className="plan-features">
-                                        <li>✓ Access to all activities</li>
-                                        <li>✓ 2 free trials for every test</li>
-                                        <li>✓ 20 min practice sessions</li>
-                                        <li>✓ 3 free Image-Based Speaking trials</li>
-                                        <li>✓ Advanced AI feedback</li>
-                                        <li>✓ Detailed analytics</li>
-                                        <li>✓ Progress tracking</li>
-                                    </ul>
-                                    <button className="plan-btn">Upgrade Now</button>
-                                </div>
-                                <div className="pricing-card-item">
-                                    <div className="plan-badge">Premium</div>
-                                    <div className="plan-price">
-                                        <span className="currency">₹</span>
-                                        <span className="amount">1399</span>
-                                        <span className="period">/year 🌟</span>
-                                    </div>
-                                    <ul className="plan-features">
-                                        <li>✓ Everything in Pro</li>
-                                        <li>✓ Unlimited test trials</li>
-                                        <li>✓ 40 min practice sessions</li>
-                                        <li>✓ 5 free Image-Based Speaking trials</li>
-                                        <li>✓ Premium AI feedback</li>
-                                        <li>✓ 24/7 support</li>
-                                    </ul>
-                                    <button className="plan-btn">Go Premium</button>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
                     </>
                 )}
-
-
-
             </div>
-
-          
         </>
     );
 }

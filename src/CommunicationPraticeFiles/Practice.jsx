@@ -1,248 +1,149 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import Login_Navbar from "../RegisterFiles/Login_Navbar";
-import '../LandingPageFiles/landing.css';
+import { useNavigate } from "react-router-dom";
 import "../CommunicationTestsFiles/test.css";
 
-
 function Practice() {
+    // const [tests, setTests] = useState({});
+    const [loading, setLoading] = useState(true);
     const [activeChallenge, setActiveChallenge] = useState(null);
     const [instructionIndex, setInstructionIndex] = useState(0);
+    const [userName, setUserName] = useState("");
     const navigate = useNavigate();
 
-    const practices = [
-        { id: "jam", title: "JAM Practice", description: "Speak on a random topic for 60 seconds.", icon: "🎤" },
-        { id: "image-speaking", title: "Image-Based Speaking", description: "Describe images.", icon: "🖼️" },
-        { id: "situation-speak", title: "Situation-Based Speaking", description: "Practice translation.", icon: "🌐" },
-        { id: "translate-speak", title: "Translate & Speak", description: "Practice translation.", icon: "📝" },
-        { id: "story-building", title: "Image-Story Building", description: "Create stories.", icon: "📖" }
-    ];
+    useEffect(() => {
+        const storedEmail = localStorage.getItem("email");
+        if (!storedEmail) {
+            setLoading(false);
+            return;
+        }  
+        fetch('https://ntjkr8rnd6.execute-api.ap-south-1.amazonaws.com/dev/student_profilecreate/student_profile_senddata', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ college_email: storedEmail }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data?.body) {
+                const parsedData = typeof data.body === "string" ? JSON.parse(data.body) : data.body;
+                setTests(parsedData.tests || {});
+            }
+            setLoading(false);
+        })
+        .catch(() => setLoading(false));
+    }, []);
+    const getScoreFromStorage = (testType) => {
+        const scores = JSON.parse(localStorage.getItem('testScores') || '{}');
+        return scores[testType] || 0;
+    };
 
-    const jamInstructions = [
+    const isInterviewLevelUnlocked = (level) => {
+        if (level === 1) return true;
+        const prevLevel = level - 1;
+        const prevScore = getScoreFromStorage(`interview_level_${prevLevel}`);
+        return prevScore >= 70;
+    };
+
+    const interviewLevels = [
         {
-            title: "Instructions",
-            content: "You've been given a random topic! You will have 1 minute to speak. Focus on fluency, clarity, and confidence. Don’t worry about perfection."
+            level: 1,
+            title: 'Basic Interview Practice',
+            steps: [
+                { id: 1, title: 'JD-Based Self Introduction', activities: '' },
+                { id: 2, title: 'Programming Knowledge', activities: '' },
+                { id: 3, title: 'Worked Domain', activities: '' },
+                { id: 4, title: 'Project Discussion', activities: '' },
+                { id: 5, title: 'Future Career Planning', activities: '' },
+                { id: 6, title: 'Hobbies & Interests', activities: '' },
+                { id: 7, title: 'Certifications & Internships', activities: '' }
+            ]
         },
         {
-            title: "Fluency",
-            content: "Maintain a smooth and uninterrupted flow of speech."
+            level: 2,
+            title: 'Advanced Interview Practice',
+            steps: [
+                { id: 8, title: 'Role-Based Interview', activities: '' },
+                { id: 9, title: 'Resume-Based Interview', activities: '' },
+                { id: 10, title: 'Technical Interview', activities: '' },
+                { id: 11, title: 'Follow-Up Questioning', activities: '' },
+                { id: 12, title: 'Stress/Pressure Questions', activities: '' },
+                { id: 13, title: 'Logical Puzzles', activities: '' }
+            ]
+        }
+    ];
+    const activities = [
+        {
+            id: 'jam',
+            title: 'JAM Sessions Practice',
+            description: 'JAM speaking sessions to improve spontaneous communication',
+            route: '/test/jam'
         },
         {
-            title: "Grammar",
-            content: "Use correct sentence structures and grammatical conventions."
+            id: 'pronunciation',
+            title: 'Pronunciation Practice',
+            description: 'Perfect your pronunciation with AI-powered feedback',
+            route: '/test/pronunciation'
         },
         {
-            title: "Coherence & Structure",
-            content: "Organize your thoughts in a clear and logical manner."
+            id: 'listening',
+            title: 'Listening Practice',
+            description: 'Enhance comprehension with interactive listening exercises',
+            route: '/test/listening'
         },
         {
-            title: "Confidence",
-            content: "Speak with assurance and composure."
+            id: 'situational',
+            title: 'Situational Speaking Practice',
+            description: 'Practice real-life scenarios to build confidence',
+            route: '/test/situation-speak'
         },
         {
-            title: "Vocabulary Usage",
-            content: "Use a diverse and appropriate range of vocabulary."
+            id: 'image-speak',
+            title: 'Image-Based Speaking Practice',
+            description: 'Describe images to enhance vocabulary and fluency',
+            route: '/test/image-speak'
         },
         {
-            title: "How to Practice",
-            content: (
-                <iframe
-                    width="100%"
-                    height="250"
-                    src="https://www.youtube.com/embed/ReZgqLI3Hq0"
-                    title="How to Practice JAM Session"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                ></iframe>
-            )
+            id: 'story',
+            title: 'Image-Based Story Telling Practice',
+            description: 'Expand your vocabulary with interactive learning exercises',
+            route: '/test/image-story'
         }
     ];
 
-    const pronunciationInstructions = [
-        {
-            title: "Instructions",
-            content: "Improve your pronunciation by practicing words and sentences. Focus on clarity and accuracy."
-        },
-        {
-            title: "Clarity",
-            content: "Speak clearly, enunciating each sound."
-        },
-        {
-            title: "Accuracy",
-            content: "Pronounce words correctly."
-        },
-        {
-            title: "Intonation",
-            content: "Use appropriate intonation for questions and statements."
-        },
-        {
-            title: "Fluency",
-            content: "Practice speaking smoothly."
-        },
-        {
-            title: "How to Practice",
-            content: (
-                <iframe
-                    width="100%"
-                    height="250"
-                    src="https://www.youtube.com/embed/ReZgqLI3Hq0"
-                    title="How to Practice Pronunciation"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                ></iframe>
-            )
-        }
-    ];
-
-    const imageSpeakingInstructions = [
-        {
-            title: "Instructions",
-            content: "Describe the given image in detail. Speak for the allotted time."
-        },
-        {
-            title: "Observation",
-            content: "Note the key elements in the image."
-        },
-        {
-            title: "Description",
-            content: "Describe what you see."
-        },
-        {
-            title: "Fluency",
-            content: "Speak continuously."
-        },
-        {
-            title: "Vocabulary",
-            content: "Use descriptive words."
-        },
-        {
-            title: "How to Practice",
-            content: (
-                <iframe
-                    width="100%"
-                    height="250"
-                    src="https://www.youtube.com/embed/ReZgqLI3Hq0"
-                    title="How to Practice Image Speaking"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                ></iframe>
-            )
-        }
-    ];
-
-    const translateSpeakInstructions = [
-        {
-            title: "Instructions",
-            content: "Translate the given text and speak it aloud."
-        },
-        {
-            title: "Translation",
-            content: "Accurately translate the sentence."
-        },
-        {
-            title: "Pronunciation",
-            content: "Pronounce the translated text correctly."
-        },
-        {
-            title: "Fluency",
-            content: "Speak smoothly."
-        },
-        {
-            title: "Confidence",
-            content: "Speak with confidence."
-        },
-        {
-            title: "How to Practice",
-            content: (
-                <iframe
-                    width="100%"
-                    height="250"
-                    src="https://www.youtube.com/embed/ReZgqLI3Hq0"
-                    title="How to Practice Translate & Speak"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                ></iframe>
-            )
-        }
-    ];
-
-    const situationSpeakInstructions = [
-        {
-            title: "Instructions",
-            content: "Respond to real-life situations with appropriate communication. Practice workplace, social, and academic scenarios."
-        },
-        {
-            title: "Context Understanding",
-            content: "Analyze the given situation and understand the context before responding."
-        },
-        {
-            title: "Appropriate Response",
-            content: "Use suitable tone, vocabulary, and formality level for the situation."
-        },
-        {
-            title: "Problem Solving",
-            content: "Address the situation effectively with clear communication."
-        },
-        {
-            title: "Confidence",
-            content: "Speak with confidence and maintain composure in challenging situations."
-        },
-        {
-            title: "How to Practice",
-            content: (
-                <iframe
-                    width="100%"
-                    height="250"
-                    src="https://www.youtube.com/embed/ReZgqLI3Hq0"
-                    title="How to Practice Situation-Based Speaking"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                ></iframe>
-            )
-        }
-    ];
-
-    const storyBuildingInstructions = [
-        {
-            title: "Instructions",
-            content: "Build a story based on the given prompts."
-        },
-        {
-            title: "Creativity",
-            content: "Be creative in your storytelling."
-        },
-        {
-            title: "Structure",
-            content: "Organize your story with beginning, middle, end."
-        },
-        {
-            title: "Fluency",
-            content: "Speak fluently."
-        },
-        {
-            title: "Vocabulary",
-            content: "Use varied vocabulary."
-        },
-        {
-            title: "How to Practice",
-            content: (
-                <iframe
-                    width="100%"
-                    height="250"
-                    src="https://www.youtube.com/embed/ReZgqLI3Hq0"
-                    title="How to Practice Story Building"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                ></iframe>
-            )
-        }
-    ];
+    const instructions = {
+        jam: [
+            { title: "Instructions", content: "You've been given a random topic! You will have 1 minute to speak. Focus on fluency, clarity, and confidence." },
+            { title: "Fluency", content: "Maintain a smooth and uninterrupted flow of speech." },
+            { title: "Grammar", content: "Use correct sentence structures and grammatical conventions." },
+            { title: "Confidence", content: "Speak with assurance and composure." },
+            { title: "How to Practice", content: <iframe width="100%" height="250" src="https://www.youtube.com/embed/ReZgqLI3Hq0" title="JAM Practice" frameBorder="0" allowFullScreen></iframe> }
+        ],
+        pronunciation: [
+            { title: "Instructions", content: "Improve your pronunciation by practicing words and sentences. Focus on clarity and accuracy." },
+            { title: "Clarity", content: "Speak clearly, enunciating each sound." },
+            { title: "Accuracy", content: "Pronounce words correctly." },
+            { title: "How to Practice", content: <iframe width="100%" height="250" src="https://www.youtube.com/embed/ReZgqLI3Hq0" title="Pronunciation Practice" frameBorder="0" allowFullScreen></iframe> }
+        ],
+        listening: [
+            { title: "Instructions", content: "Enhance your listening comprehension with interactive exercises." },
+            { title: "Focus", content: "Listen carefully to audio clips and answer questions." },
+            { title: "How to Practice", content: <iframe width="100%" height="250" src="https://www.youtube.com/embed/ReZgqLI3Hq0" title="Listening Practice" frameBorder="0" allowFullScreen></iframe> }
+        ],
+        situational: [
+            { title: "Instructions", content: "Respond to real-life situations with appropriate communication." },
+            { title: "Context", content: "Analyze the situation and respond appropriately." },
+            { title: "How to Practice", content: <iframe width="100%" height="250" src="https://www.youtube.com/embed/ReZgqLI3Hq0" title="Situational Practice" frameBorder="0" allowFullScreen></iframe> }
+        ],
+        "image-speak": [
+            { title: "Instructions", content: "Describe the given image in detail." },
+            { title: "Observation", content: "Note key elements in the image." },
+            { title: "How to Practice", content: <iframe width="100%" height="250" src="https://www.youtube.com/embed/ReZgqLI3Hq0" title="Image Speaking Practice" frameBorder="0" allowFullScreen></iframe> }
+        ],
+        story: [
+            { title: "Instructions", content: "Build a story based on given prompts." },
+            { title: "Creativity", content: "Be creative in your storytelling." },
+            { title: "How to Practice", content: <iframe width="100%" height="250" src="https://www.youtube.com/embed/ReZgqLI3Hq0" title="Story Building Practice" frameBorder="0" allowFullScreen></iframe> }
+        ]
+    };
 
     const handleStartChallenge = (id) => {
         setActiveChallenge(id);
@@ -250,7 +151,8 @@ function Practice() {
     };
 
     const handleNext = () => {
-        if (instructionIndex < jamInstructions.length - 1) {
+        const currentInstructions = instructions[activeChallenge];
+        if (instructionIndex < currentInstructions.length - 1) {
             setInstructionIndex(instructionIndex + 1);
         }
     };
@@ -262,200 +164,416 @@ function Practice() {
     };
 
     const handleLaunchChallenge = () => {
-        const routes = {
-            jam: "/jam",
-            pronunciation: "/pronunciation",
-            "image-speaking": "/image-speak",
-            "situation-speak": "/situation-speak",
-            "translate-speak": "/translate-speak",
-            "story-building": "/story-building"
-        };
-        navigate(routes[activeChallenge]);
+        const activity = activities.find(a => a.id === activeChallenge);
+        if (activity?.route) {
+            navigate(activity.route, {
+                state: {
+                    remainingTests: activity.count || 0,
+                    testKey: activeChallenge
+                }
+            });
+        }
     };
 
+    if (loading) {
+        return (
+            <div style={{ padding: '20px', textAlign: 'center' }}>
+                <p>Loading tests...</p>
+            </div>
+        );
+    }
+
     return (
-        <>
-            <Login_Navbar />
-            <div className="practice-container page-with-navbar">
-                <div className="page-header">
-                    <h1>Communication Practice Activities</h1>
-                    <p>Improve your communication skills with interactive practice sessions</p>
-                </div>
-                <div className={`practice-grid ${activeChallenge ? "blurred" : ""}`}>
-                    {practices.map((practice) => (
-                        <div
-                            key={practice.id}
-                            className="practice-card"
-                            onClick={() => handleStartChallenge(practice.id)}
+        <div>
+            <div>
+                <header className="header">
+                <div className="header-content">
+                    <div className="logo">
+                        <span className="logo-icon"></span>
+                        <span className="logo-text">Skill Route</span>
+                        <div className="nav-links">
+                            <a href="#" onClick={() => navigate('/profiledata')}>Home</a>
+                            <a href="#" onClick={() => navigate('/test')}>Tests</a>
+                            <a href="#" onClick={() => navigate('/practice')}
+                                style={{
+                                color:"#3B9797",
+                                fontWeight: "600",
+                                textDecoration: "none",
+                                paddingBottom: "6px",
+                                borderBottom: "2.5px solid #3B9797",
+                                cursor: "pointer",
+                            }}>Practice</a>
+                            <a href="#" onClick={() => navigate('/student-dashboard')}>Dashboard</a>
+                            <a href="#" onClick={() => navigate('/student-leaderboard')}>Leaderboard</a>
+                        </div>
+                    </div>
+                    <div className="auth-buttons">
+                        <span style={{ 
+                            marginRight: '15px', 
+                            fontWeight: '600',
+                            background: 'linear-gradient(135deg, #3B9797, #2c7a7a)',
+                            color: 'white',
+                            padding: '8px 16px',
+                            borderRadius: '20px',
+                            fontSize: '0.9rem'
+                        }}>
+                            🔥0
+                        </span>
+                        <span style={{ 
+                            marginRight: '15px', 
+                            color: '#2c3e50', 
+                            fontWeight: '600',
+                            background: '#f8f9fa',
+                            padding: '8px 16px',
+                            borderRadius: '20px',
+                            border: '2px solid #3B9797',
+                            fontSize: '0.9rem'
+                        }}>
+                            {localStorage.getItem('email')?.slice(0, 10) || 'User'}
+                        </span>
+                        <span style={{ marginRight: '15px', color: '#2c3e50', fontWeight: '600' }}>
+                            {userName}
+                        </span>
+                        <button 
+                            className="btn-signup"
+                            onClick={() => {
+                                localStorage.removeItem('email');
+                                navigate('/signup');
+                            }}
                         >
-                            <div className="card-icon"><span>{practice.icon}</span></div>
-                            <h3>{practice.title}</h3>
-                            <p>{practice.description}</p>
-                            <div className="card-footer">
-                                <button className="start-btn">Start Challenge</button>
-                                <span className="duration">01:00</span>
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </header>
+            </div>
+            <div style={{ padding: '20px', marginTop: '80px' }}>
+                <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+                    <h1 style={{ fontSize: '2.5rem', color: '#2c3e50', marginBottom: '10px' }}>
+                        Communication & Interview Practice
+                    </h1>
+                    <p style={{ fontSize: '1.1rem', color: '#666' }}>
+                        Enhance your communication skills and prepare for interviews with our tailored practice sessions.
+                    </p>
+                </div>
+                <center>
+                <h1 style={{ fontSize: '2rem', color: '#0d8888ff', marginBottom: '10px' }}>
+                    Communication Practice Activities
+                </h1>
+                </center>
+                <div style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+                    gap: '20px',
+                    maxWidth: '1200px',
+                    margin: '0 auto 60px auto',
+                    filter: activeChallenge ? 'blur(3px)' : 'none'
+                }}>
+                    {activities.map((activity) => (
+                        <div 
+                            key={activity.id}
+                            style={{
+                                background: 'white',
+                                borderRadius: '12px',
+                                padding: '24px',
+                                boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                                border: '1px solid #e1e5e9',
+                                cursor: 'pointer',
+                                transition: 'transform 0.2s, box-shadow 0.2s'
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.transform = 'translateY(-2px)';
+                                e.currentTarget.style.boxShadow = '0 8px 15px rgba(0,0,0,0.15)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.transform = 'translateY(0)';
+                                e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+                            }}
+                        >
+                            <h3 style={{ 
+                                fontSize: '1.3rem', 
+                                color: '#2c3e50', 
+                                marginBottom: '12px',
+                                fontWeight: '600'
+                            }}>
+                                {activity.title}
+                            </h3>
+                            <p style={{ 
+                                color: '#666', 
+                                marginBottom: '20px',
+                                lineHeight: '1.5'
+                            }}>
+                                {activity.description}
+                            </p>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <button
+                                    style={{
+                                        background: '#6f7070ff',
+                                        color: 'white',
+                                        border: 'none',
+                                        padding: '10px 20px',
+                                        borderRadius: '6px',
+                                        fontWeight: '500',
+                                        cursor: 'not-allowed'
+                                    }}
+                                >
+                                    Up Comming in future
+                                </button>
                             </div>
                         </div>
                     ))}
                 </div>
-                {activeChallenge === "pronunciation" && (
-                <div className="overlay-card">
-                    <div className="challenge-card">
-                        <button className="close-btn" onClick={() => setActiveChallenge(null)}>✖</button>
-                        <h2>{pronunciationInstructions[instructionIndex].title}</h2>
-                        <div className="instruction-content">
-                            {typeof pronunciationInstructions[instructionIndex].content === "string"
-                                ? <p>{pronunciationInstructions[instructionIndex].content}</p>
-                                : pronunciationInstructions[instructionIndex].content}
+
+                {/* Interview Preparation Roadmap */}
+                <div style={{ maxWidth: '1200px', margin: '0 auto', filter: activeChallenge ? 'blur(3px)' : 'none' }}>
+                    {interviewLevels.map((level, levelIndex) => {
+                        const unlocked = isInterviewLevelUnlocked(level.level);
+                        const score = getScoreFromStorage(`interview_level_${level.level}`);
+                        
+                        return (
+                            <div key={level.level} style={{ marginBottom: '60px' }}>
+                                <h1 style={{ fontSize: '2rem', color: '#0d8888ff', marginBottom: '30px', textAlign: 'center' }}>
+                                    {level.title}
+                                </h1>
+                                
+                                {/* Steps Grid */}
+                                <div className="roadmap-row">
+                                    {level.steps.map((step, stepIndex) => {
+                                        const stepUnlocked = unlocked && (stepIndex === 0 || getScoreFromStorage(`interview_step_${step.id - 1}`) >= 70);
+                                        
+                                        return (
+                                            <React.Fragment key={step.id}>
+                                                <div 
+                                                    className="roadmap-step"
+                                                    style={{
+                                                        background: 'white',
+                                                        borderRadius: '15px',
+                                                        padding: '25px',
+                                                        boxShadow: '0 8px 25px rgba(0,0,0,0.1)',
+                                                        border: stepUnlocked ? '3px solid #0d8888ff' : '3px solid #ccc',
+                                                        textAlign: 'center',
+                                                        transition: 'all 0.3s ease',
+                                                        cursor: stepUnlocked ? 'pointer' : 'not-allowed',
+                                                        opacity: stepUnlocked ? 1 : 0.6,
+                                                        minWidth: '250px'
+                                                    }}
+                                                    onMouseEnter={(e) => {
+                                                        if (stepUnlocked) {
+                                                            e.currentTarget.style.transform = 'translateY(-5px)';
+                                                            e.currentTarget.style.boxShadow = '0 15px 35px rgba(0,0,0,0.15)';
+                                                        }
+                                                    }}
+                                                    onMouseLeave={(e) => {
+                                                        if (stepUnlocked) {
+                                                            e.currentTarget.style.transform = 'translateY(0)';
+                                                            e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.1)';
+                                                        }
+                                                    }}
+                                                >
+                                                    <div className="step-number" style={{
+                                                        width: '50px',
+                                                        height: '50px',
+                                                        borderRadius: '50%',
+                                                        background: stepUnlocked ? 'linear-gradient(135deg, #0d8888ff, #0d8888dd)' : '#ccc',
+                                                        color: 'white',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        fontWeight: 'bold',
+                                                        fontSize: '1.2rem',
+                                                        margin: '0 auto 15px',
+                                                        boxShadow: stepUnlocked ? '0 4px 15px #0d888830' : 'none'
+                                                    }}>
+                                                        {stepUnlocked ? step.id : '🔒'}
+                                                    </div>
+                                                    <div className="step-content">
+                                                        <h4 style={{
+                                                            color: stepUnlocked ? '#2c3e50' : '#999',
+                                                            fontSize: '1.2rem',
+                                                            marginBottom: '10px',
+                                                            fontWeight: '600'
+                                                        }}>
+                                                            {step.title}
+                                                        </h4>
+                                                        <p style={{
+                                                            color: stepUnlocked ? '#666' : '#999',
+                                                            fontSize: '0.9rem',
+                                                            lineHeight: '1.4',
+                                                            margin: 0
+                                                        }}>
+                                                            {step.activities}
+                                                        </p>
+                                                    </div>
+                                                    {stepUnlocked && (
+                                                        <button 
+                                                            style={{
+                                                                marginTop: '15px',
+                                                                background: '#0d8888ff',
+                                                                color: 'white',
+                                                                border: 'none',
+                                                                padding: '8px 16px',
+                                                                borderRadius: '20px',
+                                                                fontSize: '0.9rem',
+                                                                fontWeight: '500',
+                                                                cursor: 'pointer'
+                                                            }}
+                                                        >
+                                                            START STEP
+                                                        </button>
+                                                    )}
+                                                </div>
+                                                {stepIndex < level.steps.length - 1 && (
+                                                    <div className="roadmap-connector horizontal"></div>
+                                                )}
+                                            </React.Fragment>
+                                        );
+                                    })}
+                                </div>
+                                
+                                {/* Level Connector */}
+                                {levelIndex < interviewLevels.length - 1 && (
+                                    <div className="roadmap-connector vertical-center"></div>
+                                )}
+                            </div>
+                        );
+                    })}
+                    
+                    <div style={{ textAlign: 'center', marginTop: '40px' }}>
+                        <div style={{ display: 'inline-block', padding: '20px 40px', background: 'white', borderRadius: '25px', boxShadow: '0 8px 25px rgba(0,0,0,0.1)', border: '3px solid #3B9797' }}>
+                            <div style={{ width: '200px', height: '8px', background: '#e0e0e0', borderRadius: '4px', margin: '0 auto 10px', position: 'relative', overflow: 'hidden' }}>
+                                <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: '30%', background: 'linear-gradient(90deg, #3B9797, #2c7a7a)', borderRadius: '4px' }}></div>
+                            </div>
+                            <div style={{ color: '#2c3e50', fontWeight: '600', fontSize: '1.1rem' }}>Complete Your Interview Journey</div>
                         </div>
-                        <div className="navigation-buttons">
-                            {instructionIndex > 0 && <button onClick={handlePrev}>← Previous</button>}
+                    </div>
+                </div>
+
+                {/* Modal */}
+                {activeChallenge && (
+                    <div style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'rgba(0,0,0,0.5)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 1000
+                    }}>
+                        <div style={{
+                            background: 'white',
+                            borderRadius: '12px',
+                            padding: '30px',
+                            maxWidth: '600px',
+                            width: '90%',
+                            maxHeight: '80vh',
+                            overflow: 'auto',
+                            position: 'relative'
+                        }}>
+                            <button 
+                                onClick={() => setActiveChallenge(null)}
+                                style={{
+                                    position: 'absolute',
+                                    top: '15px',
+                                    right: '15px',
+                                    background: 'none',
+                                    border: 'none',
+                                    fontSize: '24px',
+                                    cursor: 'pointer',
+                                    color: '#666'
+                                }}
+                            >
+                                ×
+                            </button>
                             
-                            {instructionIndex < pronunciationInstructions.length - 1 ? (
-                                <>
-                                    <button onClick={handleNext}>Next →</button>
-                                    <button onClick={() => setInstructionIndex(pronunciationInstructions.length - 1)}>Skip</button>
-                                </>
-                            ) : (
-                                <button onClick={handleLaunchChallenge}>Start Challenge</button>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {activeChallenge === "image-speaking" && (
-                <div className="overlay-card">
-                    <div className="challenge-card">
-                        <button className="close-btn" onClick={() => setActiveChallenge(null)}>✖</button>
-                        <h2>{imageSpeakingInstructions[instructionIndex].title}</h2>
-                        <div className="instruction-content">
-                            {typeof imageSpeakingInstructions[instructionIndex].content === "string"
-                                ? <p>{imageSpeakingInstructions[instructionIndex].content}</p>
-                                : imageSpeakingInstructions[instructionIndex].content}
-                        </div>
-                        <div className="navigation-buttons">
-                            {instructionIndex > 0 && <button onClick={handlePrev}>← Previous</button>}
+                            <h2 style={{ marginBottom: '20px', color: '#2c3e50' }}>
+                                {instructions[activeChallenge]?.[instructionIndex]?.title}
+                            </h2>
                             
-                            {instructionIndex < imageSpeakingInstructions.length - 1 ? (
-                                <>
-                                    <button onClick={handleNext}>Next →</button>
-                                    <button onClick={() => setInstructionIndex(imageSpeakingInstructions.length - 1)}>Skip</button>
-                                </>
-                            ) : (
-                                <button onClick={handleLaunchChallenge}>Start Challenge</button>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {activeChallenge === "translate-speak" && (
-                <div className="overlay-card">
-                    <div className="challenge-card">
-                        <button className="close-btn" onClick={() => setActiveChallenge(null)}>✖</button>
-                        <h2>{translateSpeakInstructions[instructionIndex].title}</h2>
-                        <div className="instruction-content">
-                            {typeof translateSpeakInstructions[instructionIndex].content === "string"
-                                ? <p>{translateSpeakInstructions[instructionIndex].content}</p>
-                                : translateSpeakInstructions[instructionIndex].content}
-                        </div>
-                        <div className="navigation-buttons">
-                            {instructionIndex > 0 && <button onClick={handlePrev}>← Previous</button>}
+                            <div style={{ marginBottom: '30px', minHeight: '200px' }}>
+                                {typeof instructions[activeChallenge]?.[instructionIndex]?.content === 'string' ? (
+                                    <p style={{ lineHeight: '1.6', color: '#555' }}>
+                                        {instructions[activeChallenge][instructionIndex].content}
+                                    </p>
+                                ) : (
+                                    instructions[activeChallenge]?.[instructionIndex]?.content
+                                )}
+                            </div>
                             
-                            {instructionIndex < translateSpeakInstructions.length - 1 ? (
-                                <>
-                                    <button onClick={handleNext}>Next →</button>
-                                    <button onClick={() => setInstructionIndex(translateSpeakInstructions.length - 1)}>Skip</button>
-                                </>
-                            ) : (
-                                <button onClick={handleLaunchChallenge}>Start Challenge</button>
-                            )}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                {instructionIndex > 0 && (
+                                    <button 
+                                        onClick={handlePrev}
+                                        style={{
+                                            background: '#6c757d',
+                                            color: 'white',
+                                            border: 'none',
+                                            padding: '10px 20px',
+                                            borderRadius: '6px',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        ← Previous
+                                    </button>
+                                )}
+                                
+                                <div style={{ marginLeft: 'auto' }}>
+                                    {instructionIndex < instructions[activeChallenge]?.length - 1 ? (
+                                        <>
+                                            <button 
+                                                onClick={handleNext}
+                                                style={{
+                                                    background: '#3B9797',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    padding: '10px 20px',
+                                                    borderRadius: '6px',
+                                                    cursor: 'pointer',
+                                                    marginRight: '10px'
+                                                }}
+                                            >
+                                                Next →
+                                            </button>
+                                            <button 
+                                                onClick={() => setInstructionIndex(instructions[activeChallenge].length - 1)}
+                                                style={{
+                                                    background: '#28a745',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    padding: '10px 20px',
+                                                    borderRadius: '6px',
+                                                    cursor: 'pointer'
+                                                }}
+                                            >
+                                                Skip
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <button 
+                                            onClick={handleLaunchChallenge}
+                                            style={{
+                                                background: '#dc3545',
+                                                color: 'white',
+                                                border: 'none',
+                                                padding: '12px 24px',
+                                                borderRadius: '6px',
+                                                cursor: 'pointer',
+                                                fontSize: '16px',
+                                                fontWeight: '600'
+                                            }}
+                                        >
+                                            START TEST
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
-
-            {activeChallenge === "situation-speak" && (
-                <div className="overlay-card">
-                    <div className="challenge-card">
-                        <button className="close-btn" onClick={() => setActiveChallenge(null)}>✖</button>
-                        <h2>{situationSpeakInstructions[instructionIndex].title}</h2>
-                        <div className="instruction-content">
-                            {typeof situationSpeakInstructions[instructionIndex].content === "string"
-                                ? <p>{situationSpeakInstructions[instructionIndex].content}</p>
-                                : situationSpeakInstructions[instructionIndex].content}
-                        </div>
-                        <div className="navigation-buttons">
-                            {instructionIndex > 0 && <button onClick={handlePrev}>← Previous</button>}
-                            
-                            {instructionIndex < situationSpeakInstructions.length - 1 ? (
-                                <>
-                                    <button onClick={handleNext}>Next →</button>
-                                    <button onClick={() => setInstructionIndex(situationSpeakInstructions.length - 1)}>Skip</button>
-                                </>
-                            ) : (
-                                <button onClick={handleLaunchChallenge}>Start Challenge</button>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {activeChallenge === "story-building" && (
-                <div className="overlay-card">
-                    <div className="challenge-card">
-                        <button className="close-btn" onClick={() => setActiveChallenge(null)}>✖</button>
-                        <h2>{storyBuildingInstructions[instructionIndex].title}</h2>
-                        <div className="instruction-content">
-                            {typeof storyBuildingInstructions[instructionIndex].content === "string"
-                                ? <p>{storyBuildingInstructions[instructionIndex].content}</p>
-                                : storyBuildingInstructions[instructionIndex].content}
-                        </div>
-                        <div className="navigation-buttons">
-                            {instructionIndex > 0 && <button onClick={handlePrev}>← Previous</button>}
-                            
-                            {instructionIndex < storyBuildingInstructions.length - 1 ? (
-                                <>
-                                    <button onClick={handleNext}>Next →</button>
-                                    <button onClick={() => setInstructionIndex(storyBuildingInstructions.length - 1)}>Skip</button>
-                                </>
-                            ) : (
-                                <button onClick={handleLaunchChallenge}>Start Challenge</button>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {activeChallenge === "jam" && (
-                <div className="overlay-card">
-                    <div className="challenge-card">
-                        <button className="close-btn" onClick={() => setActiveChallenge(null)}>✖</button>
-                        <h2>{jamInstructions[instructionIndex].title}</h2>
-                        <div className="instruction-content">
-                            {typeof jamInstructions[instructionIndex].content === "string"
-                                ? <p>{jamInstructions[instructionIndex].content}</p>
-                                : jamInstructions[instructionIndex].content}
-                        </div>
-                        <div className="navigation-buttons">
-                            {instructionIndex > 0 && <button onClick={handlePrev}>← Previous</button>}
-
-                            {instructionIndex < jamInstructions.length - 1 ? (
-                                <>
-                                    <button onClick={handleNext}>Next →</button>
-                                    <button onClick={() => setInstructionIndex(jamInstructions.length - 1)}>Skip</button>
-                                </>
-                            ) : (
-                                <button onClick={handleLaunchChallenge}>Start Challenge</button>
-                            )}
-                        </div>
-
-                    </div>
-                </div>
-            )}
+                )}
             </div>
-        </>
+        </div>
     );
 }
 
