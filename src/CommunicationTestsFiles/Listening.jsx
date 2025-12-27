@@ -441,8 +441,28 @@ export default function Listening() {
 
     /* ---------- Extract Sentence from AI Response ---------- */
     const extractSentence = (content) => {
-        const sentenceMatch = content.match(/LISTENING ASSESSMENT - SENTENCE \([^)]+\): ([^\n]+)/i);
-        return sentenceMatch ? sentenceMatch[1].trim() : null;
+        // Extract sentence from LISTENING ASSESSMENT format
+        let sentenceMatch = content.match(/LISTENING ASSESSMENT - SENTENCE \([^)]+\):\s*([^\n]+)/i);
+        if (sentenceMatch) {
+            return sentenceMatch[1].trim();
+        }
+        
+        // Try to find common sentence patterns
+        const sentences = [
+            'Listening carefully improves overall comprehension.',
+            'Clear goals help teams stay focused.',
+            'Practice makes perfect in every skill.',
+            'Communication builds stronger relationships.',
+            'Learning never stops for curious minds.'
+        ];
+        
+        for (const sentence of sentences) {
+            if (content.includes(sentence)) {
+                return sentence;
+            }
+        }
+        
+        return null;
     };
 
     /* ---------- Enhanced Message Formatting ---------- */
@@ -555,9 +575,18 @@ export default function Listening() {
             .replace(/&lt;/g, '<')
             .replace(/&amp;/g, '&');
 
-        // Hide the sentence text from display - replace with audio instruction
-        text = text.replace(/LISTENING ASSESSMENT - SENTENCE \([^)]+\): [^\n]+/gi, 
-            'LISTENING ASSESSMENT - Click the audio button below to listen to the sentence.');
+        // Hide the sentence text from display - replace with stars
+        text = text.replace(/LISTENING ASSESSMENT - SENTENCE \([^)]+\):\s*([^\n]+)/gi, 
+            (match, sentence) => {
+                return match.replace(sentence, '*****');
+            });
+        
+        // Hide any standalone sentences that appear and replace with stars
+        // text = text.replace(/^(Listening carefully improves overall comprehension\.|Clear goals help teams stay focused\.|Clear communication improves productivity\.|Time management improves productivity at work\.|Continuous improvement leads to long-term success\.|Communication skills enhance career opportunities\.|[A-Z][^.!?]*[.!?])$/gm, 
+        //     '*****');
+        
+
+
 
         // normalize headers and insert line breaks
         text = text
@@ -673,8 +702,8 @@ export default function Listening() {
                                                         <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6', fontSize: '14px' }}>
                                                             {formatAIMessagePlain(msg.content)}
                                                             
-                                                            {/* Audio button for sentences */}
-                                                            {sentence && (
+                                                            {/* Audio button for sentences - show for any listening assessment message */}
+                                                            {(sentence || msg.content.includes('LISTENING ASSESSMENT - SENTENCE')) && (
                                                                 <div style={{ 
                                                                     display: 'flex', 
                                                                     justifyContent: 'center', 
@@ -682,7 +711,12 @@ export default function Listening() {
                                                                     padding: '8px'
                                                                 }}>
                                                                     <button
-                                                                        onClick={() => speakSentence(sentence, index)}
+                                                                        onClick={() => {
+                                                                            const textToSpeak = sentence;
+                                                                            if (textToSpeak) {
+                                                                                speakSentence(textToSpeak, index);
+                                                                            }
+                                                                        }}
                                                                         disabled={audioPlayed.has(index)}
                                                                         style={{
                                                                             padding: '12px 24px',
@@ -692,20 +726,21 @@ export default function Listening() {
                                                                             border: 'none',
                                                                             background: audioPlayed.has(index) 
                                                                                 ? 'linear-gradient(135deg, #6b7280, #4b5563)' 
-                                                                                : 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                                                                                : 'linear-gradient(135deg, #10b981, #059669)',
                                                                             color: 'white',
                                                                             cursor: audioPlayed.has(index) ? 'not-allowed' : 'pointer',
                                                                             display: 'flex',
                                                                             alignItems: 'center',
                                                                             gap: '8px',
-                                                                            boxShadow: '0 4px 12px rgba(59,130,246,0.3)',
-                                                                            transition: 'all 200ms'
+                                                                            boxShadow: audioPlayed.has(index) ? 'none' : '0 4px 12px rgba(16,185,129,0.3)',
+                                                                            transition: 'all 200ms',
+                                                                            opacity: audioPlayed.has(index) ? 0.6 : 1
                                                                         }}
                                                                     >
                                                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                                                                             <path d="M8 5v14l11-7z"/>
                                                                         </svg>
-                                                                        {audioPlayed.has(index) ? 'Audio Played' : 'Play Audio'}
+                                                                        {audioPlayed.has(index) ? '✓ Played (One Time Only)' : '🔊 Play Audio (Listen Carefully)'}
                                                                     </button>
                                                                 </div>
                                                             )}
