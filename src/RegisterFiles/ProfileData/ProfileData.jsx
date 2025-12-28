@@ -3,8 +3,6 @@ import { useNavigate } from "react-router-dom";
 import '../../LandingPageFiles/landing.css';
 import '../../CommunicationTestsFiles/test.css';
 import './dashboard-minimal.css';
-import '../../LandingPageFiles/mobile-responsive.css';
-import './profile-mobile.css';
 function ProfileData() {
     const navigate = useNavigate();
     const [apiData, setApi] = useState(null);
@@ -228,15 +226,6 @@ function ProfileData() {
                         >
                             Logout
                         </button>
-                        
-                        {/* Mobile Navigation Links */}
-                        <div className="mobile-nav-scroll">
-                            <a href="#" onClick={() => navigate('/profiledata')}>Home</a>
-                            <a href="#" onClick={() => navigate('/test')}>Tests</a>
-                            <a href="#" onClick={() => navigate('/practice')}>Practice</a>
-                            <a href="#" onClick={() => navigate('/student-dashboard')}>Dashboard</a>
-                            <a href="#" onClick={() => navigate('/student-leaderboard')}>Leaderboard</a>
-                        </div>
                     </div>
                 </div>
             </header>

@@ -8,6 +8,7 @@ function Test() {
     const [activeChallenge, setActiveChallenge] = useState(null);
     const [instructionIndex, setInstructionIndex] = useState(0);
     const [userName, setUserName] = useState("");
+    const [apiData, setApiData] = useState({});
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -16,6 +17,8 @@ function Test() {
             setLoading(false);
             return;
         }  
+        
+        // Fetch test counts
         fetch('https://ntjkr8rnd6.execute-api.ap-south-1.amazonaws.com/dev/student_profilecreate/student_profile_senddata', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -27,10 +30,44 @@ function Test() {
                 const parsedData = typeof data.body === "string" ? JSON.parse(data.body) : data.body;
                 setTests(parsedData.tests || {});
             }
+        })
+        .catch(() => {});
+        
+        // Fetch dashboard stats
+        fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/comm-test-send-results', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ college_email: storedEmail })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const dashboardData = JSON.parse(data.body).dashboard;
+            setApiData(dashboardData);
             setLoading(false);
         })
         .catch(() => setLoading(false));
     }, []);
+    const getTestStats = (activityId) => {
+        const testMap = {
+            'jam': 'jam',
+            'pronunciation': 'pronunciation', 
+            'listening': 'listening',
+            'situational': 'situation',
+            'image-speak': 'image_speak',
+            'story': 'image_story'
+        };
+        
+        const testData = apiData[testMap[activityId]];
+        if (!testData) {
+            return { avgScore: '0', testCount: 0 };
+        }
+
+        return {
+            avgScore: testData.avgScore?.toFixed(1) || '0',
+            testCount: testData.tests || 0
+        };
+    };
+
     const getScoreFromStorage = (testType) => {
         const scores = JSON.parse(localStorage.getItem('testScores') || '{}');
         return scores[testType] || 0;
@@ -76,7 +113,7 @@ function Test() {
         {
             id: 'jam',
             title: 'JAM Sessions',
-            description: 'JAM',
+            description: 'JAM speaking sessions to improve spontaneous communication',
             count: tests.jam_test || 0,
             route: '/test/jam'
         },
@@ -268,7 +305,60 @@ function Test() {
                 <h1 style={{ fontSize: '2rem', color: '#0d8888ff', marginBottom: '10px' }}>
                     Communication Tests
                 </h1>
+                <div style={{ 
+                    display: 'inline-block', 
+                    background: 'linear-gradient(135deg, #318383ff, #1d5555ff)',
+                    color: 'white',
+                    padding: '12px 24px',
+                    borderRadius: '25px',
+                    border: '3.5px solid black',
+                    marginBottom: '15px',
+                    boxShadow: '0 4px 15px rgba(59, 151, 151, 0.3)',
+                    animation: 'pulse 2s infinite'
+                }}>
+                    <span style={{ fontSize: '1rem', fontWeight: '600' }}>
+                        Intermediate and Advanced levels will be unlocked based on your average score from the latest 10 tests
+                    </span>
+                    <span style={{ 
+                        marginLeft: '8px', 
+                        background: 'rgba(255,255,255,0.2)', 
+                        padding: '4px 8px', 
+                        borderRadius: '12px', 
+                        fontSize: '0.8rem',
+                        fontWeight: 'bold'
+                    }}>
+                        Coming Soon
+                    </span>
+                </div>
+                <br/>
+                {/* make border red color */}
+                <div style={{ 
+                    display: 'inline-block', 
+                    background: 'linear-gradient(135deg, #318383ff, #1d5555ff)',
+                    color: 'white',
+                    padding: '12px 24px',
+                    borderRadius: '25px',
+                    border: '3.5px solid black',
+                    marginBottom: '30px',
+                    boxShadow: '0 4px 15px rgba(59, 151, 151, 0.3)',
+                    animation: 'pulse 2s infinite 0.5s'
+                }}>
+                    <span style={{ fontSize: '1rem', fontWeight: '600' }}>
+                        Image-Based Speaking and Image-Based Story Telling
+                    </span>
+                    <span style={{ 
+                        marginLeft: '8px', 
+                        background: 'rgba(255,255,255,0.2)', 
+                        padding: '4px 8px', 
+                        borderRadius: '12px', 
+                        fontSize: '0.8rem',
+                        fontWeight: 'bold'
+                    }}>
+                        Coming Soon
+                    </span>
+                </div>
                 </center>
+
                 <div style={{ 
                     display: 'grid', 
                     gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
@@ -277,7 +367,9 @@ function Test() {
                     margin: '0 auto 60px auto',
                     filter: activeChallenge ? 'blur(3px)' : 'none'
                 }}>
-                    {activities.map((activity) => (
+                    {activities.map((activity) => {
+                    const stats = getTestStats(activity.id);
+                    return (
                         <div 
                             key={activity.id}
                             style={{
@@ -313,30 +405,117 @@ function Test() {
                             }}>
                                 {activity.description}
                             </p>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <button 
-                                    onClick={() => activity.count > 0 ? handleStartChallenge(activity.id) : null}
-                                    style={{
-                                        background: activity.count > 0 ? '#3B9797' : '#ccc',
-                                        color: 'white',
-                                        border: 'none',
-                                        padding: '10px 20px',
-                                        borderRadius: '6px',
-                                        cursor: activity.count > 0 ? 'pointer' : 'not-allowed',
-                                        fontWeight: '500'
-                                    }}
-                                    disabled={activity.count === 0}
-                                >
-                                    {activity.count > 0 ? 'START TEST →' : 'NO TESTS LEFT'}
-                                </button>
-                                {activity.count !== undefined && (
-                                    <span style={{ color: activity.count > 0 ? '#666' : '#999', fontSize: '0.9rem' }}>
-                                        Remaining: {activity.count}
-                                    </span>
-                                )}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                <div style={{ display: 'flex', gap: '8px', flexDirection: 'column', flex: 1 }}>
+                                    <button 
+                                        onClick={() => activity.count > 0 ? handleStartChallenge(activity.id) : null}
+                                        style={{
+                                            background: activity.count > 0 ? '#3B9797' : '#ccc',
+                                            color: 'white',
+                                            border: 'none',
+                                            padding: '8px 16px',
+                                            borderRadius: '6px',
+                                            cursor: activity.count > 0 ? 'pointer' : 'not-allowed',
+                                            fontWeight: '500',
+                                            fontSize: '0.9rem',
+                                            width: '100%'
+                                        }}
+                                        disabled={activity.count === 0}
+                                    >
+                                        Basic Level
+                                    </button>
+                                    <button 
+                                        style={{
+                                            background: 'linear-gradient(135deg, #3B9797, #2c7a7a)',
+                                            color: 'white',
+                                            border: 'none',
+                                            padding: '8px 16px',
+                                            borderRadius: '6px',
+                                            cursor: 'not-allowed',
+                                            fontWeight: '500',
+                                            fontSize: '0.9rem',
+                                            opacity: '0.7',
+                                            width: '100%',
+                                            position: 'relative',
+                                            overflow: 'hidden'
+                                        }}
+                                        disabled
+                                    >
+                                        <span style={{ position: 'relative', zIndex: 2 }}>Intermediate Level</span>
+                                        <div style={{
+                                            position: 'absolute',
+                                            top: 0,
+                                            left: '-100%',
+                                            width: '100%',
+                                            height: '100%',
+                                            background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
+                                            animation: 'shimmer 2s infinite'
+                                        }}></div>
+                                        <span style={{
+                                            position: 'absolute',
+                                            top: '2px',
+                                            right: '4px',
+                                            background: '#fc0a0aff',
+                                            color: 'white',
+                                            border: '1px solid black',
+                                            fontSize: '0.6rem',
+                                            padding: '2px 6px',
+                                            borderRadius: '8px',
+                                            fontWeight: 'bold'
+                                        }}>SOON</span>
+                                    </button>
+                                    <button 
+                                        style={{
+                                            background: 'linear-gradient(135deg, #3B9797, #2c7a7a)',
+                                            color: 'white',
+                                            border: 'none',
+                                            padding: '8px 16px',
+                                            borderRadius: '6px',
+                                            cursor: 'not-allowed',
+                                            fontWeight: '500',
+                                            fontSize: '0.9rem',
+                                            opacity: '0.7',
+                                            width: '100%',
+                                            position: 'relative',
+                                            overflow: 'hidden'
+                                        }}
+                                        disabled
+                                    >
+                                        <span style={{ position: 'relative', zIndex: 2 }}>Advanced Level</span>
+                                        <div style={{
+                                            position: 'absolute',
+                                            top: 0,
+                                            left: '-100%',
+                                            width: '100%',
+                                            height: '100%',
+                                            background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
+                                            animation: 'shimmer 2s infinite 0.5s'
+                                        }}></div>
+                                        <span style={{
+                                            position: 'absolute',
+                                            top: '2px',
+                                            right: '4px',
+                                            background: '#f60909ff',
+                                            border: '1px solid black',
+                                            color: 'white',
+                                            fontSize: '0.6rem',
+                                            padding: '2px 6px',
+                                            borderRadius: '8px',
+                                            fontWeight: 'bold'
+                                        }}>SOON</span>
+                                    </button>
+                                </div>
+                                <div style={{ marginLeft: '12px', textAlign: 'right', minWidth: '140px' }}>
+                                    <div style={{ fontSize: '0.85rem', color: '#666', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                        <div>Remaining: {activity.count}</div>
+                                        <div>Avg Score: {loading ? '...' : stats.avgScore}</div>
+                                        <div>Test Count: {loading ? '...' : stats.testCount}</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    ))}
+                    );
+                })}
                 </div>
 
                 {/* Interview Preparation Roadmap */}

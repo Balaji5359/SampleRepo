@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import './landing.css';
-import './mobile-responsive.css';
-
 
 function LandingPage() {
   const [activeModal, setActiveModal] = useState(null);
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const observerOptions = {
@@ -34,18 +31,13 @@ function LandingPage() {
     e.preventDefault();
     const element = document.getElementById(targetId);
     if (element) {
-      const headerHeight = 120;
+      const headerHeight = 80;
       const elementPosition = element.offsetTop - headerHeight;
       window.scrollTo({
         top: elementPosition,
         behavior: 'smooth'
       });
     }
-    setIsMobileMenuOpen(false); // Close mobile menu after navigation
-  };
-
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
   const handleSubmit = async (e) => {
@@ -152,67 +144,31 @@ function LandingPage() {
 
           <div className="auth-buttons">
             <button className="btn-signup" onClick={() => { window.location.href = '/signup'; }}>Get started now !</button>
-            
-            {/* Mobile Navigation Links */}
-            <div className="mobile-nav-scroll">
-              <a href="#home" onClick={(e) => handleNavClick(e, 'home')}>Home</a>
-              <a href="#features" onClick={(e) => handleNavClick(e, 'features')}>Features</a>
-              <a href="#activities" onClick={(e) => handleNavClick(e, 'activities')}>Activities</a>
-              <a href="#pricing" onClick={(e) => handleNavClick(e, 'pricing')}>Pricing</a>
-              <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')}>Contact</a>
-            </div>
           </div>
-
-          {/* Hamburger Menu Button */}
-          <button className="hamburger-menu" onClick={toggleMobileMenu}>
-            <span className="hamburger-line"></span>
-            <span className="hamburger-line"></span>
-            <span className="hamburger-line"></span>
-          </button>
         </div>
       </header>
-
-      {/* Mobile Menu Overlay */}
-      {isMobileMenuOpen && (
-        <div className="mobile-menu-overlay" onClick={toggleMobileMenu}>
-          <div className="mobile-menu" onClick={(e) => e.stopPropagation()}>
-            <button className="mobile-menu-close" onClick={toggleMobileMenu}>×</button>
-            <nav className="mobile-nav">
-              <a href="#home" onClick={(e) => handleNavClick(e, 'home')}>Home</a>
-              <a href="#features" onClick={(e) => handleNavClick(e, 'features')}>Features</a>
-              <a href="#activities" onClick={(e) => handleNavClick(e, 'activities')}>Activities</a>
-              <a href="#pricing" onClick={(e) => handleNavClick(e, 'pricing')}>Pricing</a>
-              <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')}>Contact</a>
-              <button className="mobile-btn-signup" onClick={() => { window.location.href = '/signup'; toggleMobileMenu(); }}>Get started now !</button>
-            </nav>
-          </div>
-        </div>
-      )}
 
       {/* Hero Section */}
       <section id="home" className="hero">
         <div className="hero-content">
           <div className="hero-text">
-            <h1>Speak with TaraAI,<br></br>Speak with Confidence</h1>
+            <h1>Speak with TaraAI, Speak with Confidence</h1>
             <p>Enhance your communication skills with AI-driven practice, personalized feedback, and engaging learning experiences for students and professionals.</p>
             <div className="hero-buttons">
               <button className="btn-start"
                       onClick={() => { window.location.href = '/signup'; }}
                       >Get Started
               </button>
-              
-              <h2 style={{color:"#392103ff", fontWeight: "bold", textShadow: "2px 2px 4px rgba(0,0,0,0.3)"}}> - Speak your first word now!...</h2>
+              <h2 style={{color:"#392103ff", fontWeight: "bold", textShadow: "2px 2px 4px rgba(0,0,0,0.3)"}}>- Speak your first word now!</h2>
             </div>
           </div>
           <div className="hero-visual">
-            
             <div className="floating-card">
               <div className="card-icon"><img src="https://cdn0.iconfinder.com/data/icons/business-management-3-4/256/m-21-128.png" alt="progress" style={{ width: 40, height: 40 }} /></div>
               <div className="card-text">
                 <h4>Progress Tracking</h4>
                 <p>Visual insights</p>
               </div>
-
             </div>
             <div className="floating-card">
               <div className="card-icon"><img src="https://cdn0.iconfinder.com/data/icons/business-startup-10/50/33-128.png" alt="achievements" style={{ width: 40, height: 40 }} /></div>
@@ -238,30 +194,6 @@ function LandingPage() {
           </div>
         </div>
       </section>
-
-      {/* Stats Section }
-      <section className="stats">
-        <div className="stats-grid">
-          <div className="stat-item">
-            <div className="stat-number">25%+</div>
-            <div className="stat-label">Improvement in 6 weeks</div>
-          </div>
-          <div className="stat-item">
-            <div className="stat-number">10K+</div>
-            <div className="stat-label">Active learners</div>
-          </div>
-          <div className="stat-item">
-            <div className="stat-number">4.8/5</div>
-            <div className="stat-label">Student rating</div>
-          </div>
-          <div className="stat-item">
-            <div className="stat-number">50+</div>
-            <div className="stat-label">Practice activities</div>
-          </div>
-        </div>
-      </section>
-      */}
-
 
       {/* Features Section */}
       <section id="features" className="features">
@@ -475,6 +407,7 @@ function LandingPage() {
           </div>
         </div>
       </section>
+
       {/* Pricing Section */}
       <section id="pricing" className="pricing">
         <div className="section-header">

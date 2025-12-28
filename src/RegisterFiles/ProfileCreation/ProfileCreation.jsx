@@ -73,13 +73,18 @@ const ProfileCreation = () => {
   const [profilePreview, setProfilePreview] = useState(null);
   const [isCompleted, setIsCompleted] = useState(false);
 
+  const [usernameCheckTimeout, setUsernameCheckTimeout] = useState(null);
+
   const checkUsernameAvailability = async (username) => {
-    if (!username.trim()) {
+    if (!username.trim() || username.length < 3) {
       setUsernameAvailable(null);
+      setUsernameChecking(false);
       return;
     }
 
     setUsernameChecking(true);
+    setUsernameAvailable(null);
+    
     try {
       const response = await fetch('https://ntjkr8rnd6.execute-api.ap-south-1.amazonaws.com/dev/checkusername-availability', {
         method: 'POST',
@@ -87,14 +92,23 @@ const ProfileCreation = () => {
         body: JSON.stringify({ username: username.trim() })
       });
       
-      const data = await response.json();
-      const result = JSON.parse(data.body);
-      setUsernameAvailable(result.available);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.statusCode === 200) {
+          const result = JSON.parse(data.body);
+          setUsernameAvailable(result.available === true);
+        } else {
+          setUsernameAvailable(null);
+        }
+      } else {
+        setUsernameAvailable(null);
+      }
     } catch (error) {
       console.error('Username check error:', error);
       setUsernameAvailable(null);
+    } finally {
+      setUsernameChecking(false);
     }
-    setUsernameChecking(false);
   };
 
   const handleInputChange = (e) => {
@@ -115,23 +129,22 @@ const ProfileCreation = () => {
       // Check username availability when username changes
       if (name === 'username') {
         setUsernameAvailable(null);
-        if (value.trim()) {
-          setTimeout(() => checkUsernameAvailability(value), 500);
+        setUsernameChecking(false);
+        
+        // Clear existing timeout
+        if (usernameCheckTimeout) {
+          clearTimeout(usernameCheckTimeout);
+        }
+        
+        // Set new timeout for username check
+        if (value.trim() && value.length >= 3) {
+          const timeout = setTimeout(() => {
+            checkUsernameAvailability(value);
+          }, 800);
+          setUsernameCheckTimeout(timeout);
         }
       }
     }
-
-    // Remove auto-advance for survey cards
-    // if (currentSection === 2) {
-    //   const surveyFields = ['englishLevel', 'communicationGoals', 'speakingLevel', 'timeAvailable', 'speakingFrequency'];
-    //   const currentField = surveyFields[currentSurveyCard];
-
-    //   if (name === currentField && (value || (type === 'checkbox' && checked))) {
-    //     if (currentSurveyCard < surveyFields.length - 1) {
-    //       setTimeout(() => setCurrentSurveyCard(prev => prev + 1), 800);
-    //     }
-    //   }
-    // }
   };
 
   const handleFileChange = (e) => {
@@ -174,7 +187,7 @@ const ProfileCreation = () => {
       if (formData.speakingFrequency === 'no' && (!formData.notSpeakingReasons || formData.notSpeakingReasons.length === 0)) {
         errors.push('Please select a reason for not speaking English regularly');
       }
-      if (formData.notSpeakingReasons.includes('others') && !formData.otherReasons.trim()) {
+      if (formData.notSpeakingReasons.includes('Other reasons (please specify)') && !formData.otherReasons.trim()) {
         errors.push('Please specify the other reason');
       }
     }
@@ -328,31 +341,58 @@ const ProfileCreation = () => {
     setError(''); // Clear any previous errors
     await submitProfile();
   };
-
   const surveyQuestions = [
     {
       id: 'englishLevel',
-      title: 'What\'s your English proficiency level?',
-      options: ['Beginner', 'Intermediate', 'Advanced']
+      title: "What is your current English proficiency level?",
+      options: [
+        {
+          value: 'Beginner',
+          label: (<><strong>Beginner</strong> — I am just starting and need support with basic speaking.</>)
+        },
+        {
+          value: 'Intermediate',
+          label: (<><strong>Intermediate</strong> — I can communicate, but I want to improve accuracy and confidence.</>)
+        },
+        {
+          value: 'Advanced',
+          label: (<><strong>Advanced</strong> — I can speak fluently and confidently in most situations.</>)
+        }
+      ]
     },
     {
       id: 'communicationGoals',
       title: 'What are your communication goals?',
-      options: ['To improve communication skills in English', 'Public Speaking', 'Interview Preparation', 'Confidence Building']
+      options: [
+        { value: 'Improve overall English communication skills', label: 'Improve overall English communication skills' },
+        { value: 'public speaking', label: 'Public speaking and presentation skills' }, // value kept lowercase to match existing check
+        { value: 'Interview preparation', label: 'Interview preparation' },
+        { value: 'Confidence building in speaking English', label: 'Confidence building in speaking English' },
+        { value: 'Improve grammar and sentence formation', label: 'Improve grammar and sentence formation' },
+        { value: 'Enhance pronunciation and clarity', label: 'Enhance pronunciation and clarity' }
+      ]
     },
     {
       id: 'speakingLevel',
-      title: 'What is your present level of English speaking?',
-      options: ['I am not able to speak, because of grammar mistakes','I am not able to speak, due to lack of confidence','I cannot manage, feel shy and low','I can manage basic conversations, but grammar mistakes', 'I can manage, but low confidence', 'I can manage, but feel shy and low',  'I can speak fluently']
+      title: 'What is your current level of English speaking ability?',
+      options: [
+        { value: 'Beginner - I am not able to speak in English due to grammar difficulties.', label: (<><strong>Beginner</strong> - I am not able to speak in English due to grammar difficulties.</>) },
+        { value: 'Low Confidence - I understand English but hesitate to speak because of low confidence.', label: (<><strong>Low Confidence</strong> - I understand English but hesitate to speak because of low confidence.</>) },
+        { value: 'Very Limited - I find it difficult to speak and often feel shy or nervous.', label: (<><strong>Very Limited</strong> - I find it difficult to speak and often feel shy or nervous.</>) },
+        { value: 'Basic Speaker - I can manage basic conversations, but I make frequent grammar mistakes.', label: (<><strong>Basic Speaker</strong> - I can manage basic conversations, but I make frequent grammar mistakes.</>) },
+        { value: 'Moderate Speaker - I can communicate reasonably well, but my confidence is low.', label: (<><strong>Moderate Speaker</strong> - I can communicate reasonably well, but my confidence is low.</>) },
+        { value: 'Comfortable but Hesitant - I can speak English, but I still feel shy or uncomfortable in some situations.', label: (<><strong>Comfortable but Hesitant</strong> - I can speak English, but I still feel shy or uncomfortable in some situations.</>) },
+        { value: 'Fluent Speaker - I can speak English fluently and confidently.', label: (<><strong>Fluent Speaker</strong> - I can speak English fluently and confidently.</>) }
+      ]
     },
     {
       id: 'timeAvailable',
-      title: 'How much time you are spending a daily to improve your English, present?',
-      options: ['Not spending','less than 30 mins', '30 mins', 'more than 30 mins', '1-2 hours', 'more than 2 hours']
+      title: 'How much time do you currently spend each day improving your English?',
+      options: ['Not spending any time','Less than 30 minutes per Day', 'About 30 minutes per Day', 'More than 30 minutes per Day (up to 1 hour)', '1-2 hours per Day', 'More than 2 hours per Day']
     },
     {
       id: 'speakingFrequency',
-      title: 'How often do you practice English speaking?',
+      title: 'Do you practice English speaking every day?',
       options: ['yes', 'no']
     }
   ];
@@ -360,14 +400,6 @@ const ProfileCreation = () => {
 return (
   <>
   <div className="profile-creation-container">
-      {/* <div className="skill-route-header">
-        <div className="logo-container">
-          <div className="logo">
-            <span className="logo-text">Skill Route</span>
-            <div className="logo-icon">🚀</div>
-          </div>
-        </div>
-      </div> */}
       
       <div className="profile-layout">
         <div className="form-main">
@@ -405,9 +437,9 @@ return (
                           placeholder="Choose a unique username" 
                           required 
                         />
-                        {usernameChecking && <span className="username-status checking">Checking...</span>}
-                        {usernameAvailable === true && <span className="username-status available">✓ Available</span>}
-                        {usernameAvailable === false && <span className="username-status taken">✗ Taken</span>}
+                        {usernameChecking && <span className="username-status checking">🔄 Checking...</span>}
+                        {!usernameChecking && usernameAvailable === true && <span className="username-status available">✅ Available</span>}
+                        {!usernameChecking && usernameAvailable === false && <span className="username-status taken">❌ Already taken</span>}
                       </div>
                     </div>
                     <div className="input-group">
@@ -427,28 +459,6 @@ return (
                       <label>College Email ID *</label>
                       <input type="email" name="collegeEmail" value={formData.collegeEmail} readOnly className="readonly-field" required />
                     </div>
-                    {/* <div className="input-group">
-                      <label>Personal Email ID</label>
-                      <input type="email" name="personalEmail" value={formData.personalEmail} onChange={handleInputChange} placeholder="your.personal@email.com" />
-                    </div> */}
-                    {/* <div className="input-group">
-                      <label>Mobile Number *</label>
-                      <input type="tel" name="mobileNumber" value={formData.mobileNumber} onChange={handleInputChange} placeholder="+91 9876543210" required />
-                    </div> */}
-                    {/* <div className="input-group profile-upload">
-                      <label>Profile Picture</label>
-                      <div className="upload-area">
-                        {profilePreview ? (
-                          <img src={profilePreview} alt="Profile Preview" className="profile-preview" />
-                        ) : (
-                          <div className="upload-placeholder">
-                            <span>📷</span>
-                            <p>Upload Photo</p>
-                          </div>
-                        )}
-                        <input type="file" accept="image/*" onChange={handleFileChange} className="file-input" />
-                      </div>
-                    </div> */}
                   </div>
                 </div>
               </div>
@@ -580,20 +590,20 @@ return (
 
                       {surveyQuestions[currentSurveyCard]?.id === 'speakingFrequency' && formData.speakingFrequency === 'no' && (
                         <div className="reason-section">
-                          <h4 className="reason-title">Why don't you speak English regularly?</h4>
-                          <div className="reason-options">
+                          <h4 className="reason-title">Why don't you practice English speaking every day?</h4>
+                          <div className="options-container">
                             {[
-                              'Due to lack of Confidence',
-                              'Friends and other Making fun',
-                              'Feeling Shy or Embarrassed to speak infront of others',
-                              'Due to Lack of knowledge on English grammar & vocabulary',
-                              'Lack of Awareness on English platform',
-                              'No platform for English practice in College',
-                              'others'
+                              'Lack of confidence',
+                              'Fear of friends or others making fun',
+                              'Feeling shy or embarrassed to speak in front of others',
+                              'Limited knowledge of English grammar and vocabulary',
+                              'Lack of awareness of English learning platforms',
+                              'No English-speaking practice platform available in college',
+                              'Other reasons (please specify)'
                             ].map((reason) => {
                               const isSelected = (formData.notSpeakingReasons || []).includes(reason);
                               return (
-                                <label key={reason} className={`reason-option ${isSelected ? 'selected' : ''}`}>
+                                <label key={reason} className={`modern-option ${isSelected ? 'selected' : ''}`}>
                                   <input
                                     type="checkbox"
                                     name="notSpeakingReasons"
@@ -603,13 +613,13 @@ return (
                                   />
                                   <div className="option-content">
                                     <div className="radio-indicator"></div>
-                                    <span className={reason === 'others' ? 'others-text' : ''}>{reason === 'others' ? 'Others' : reason}</span>
+                                    <span>{reason}</span>
                                   </div>
                                 </label>
                               );
                             })}
                           </div>
-                          {formData.notSpeakingReasons.includes('others') && (
+                          {formData.notSpeakingReasons.includes('Other reasons (please specify)') && (
                             <input
                               type="text"
                               name="otherReasons"
@@ -643,7 +653,7 @@ return (
 
             {error && (
               <div className="error-message">
-                <span>⚠️</span> {error}
+                <span>!</span> {error}
               </div>
             )}
             
@@ -654,7 +664,12 @@ return (
                 </button>
               )}
               {currentSection < sections.length - 1 ? (
-                <button type="button" onClick={nextSection} className="btn-primary">
+                <button
+                  type="button"
+                  onClick={nextSection}
+                  className="btn-primary"
+                  style={{ backgroundColor: '#034d4d' }}
+                >
                   Next <span>→</span>
                 </button>
               ) : (

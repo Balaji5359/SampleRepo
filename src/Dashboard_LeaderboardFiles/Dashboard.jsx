@@ -8,6 +8,7 @@ function Dashboard() {
   const [apiData, setApiData] = useState({});
   const [loading, setLoading] = useState(false);
   const [userEmail] = useState(localStorage.getItem('email'));
+  const [dashboardStats, setDashboardStats] = useState({ testCount: 0, avgScore: 0 });
 
   const interviewActivities = [
     {
