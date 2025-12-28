@@ -12,6 +12,7 @@ function JAMDashboard() {
   const [theme, setTheme] = useState('light');
   const [searchTerm, setSearchTerm] = useState('');
   const [dateFilter, setDateFilter] = useState('');
+  const [sessionDetails, setSessionDetails] = useState({});
   const [filteredSessions, setFilteredSessions] = useState([]);
 
   const formatDateTime = (dateTimeString) => {
@@ -90,7 +91,7 @@ function JAMDashboard() {
       
       setLoading(true);
       try {
-        const response = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/studentcommunicationtests_retrivalapi', {
+        const response = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/studentcommunicationtests_idretrivalapi', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -112,13 +113,74 @@ function JAMDashboard() {
     fetchJAMData();
   }, [userEmail]);
 
+  const fetchSessionDetails = async (sessionId) => {
+    if (sessionDetails[sessionId]) {
+      setSelectedSession({ ...apiData.sessions.find(s => s.sessionId === sessionId), ...sessionDetails[sessionId] });
+      return;
+    }
+
+    try {
+      const response = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/studentcommunicationtests_dataretrivalapi', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          college_email: userEmail,
+          test_type: 'JAM',
+          sessionId: sessionId
+        })
+      });
+      
+      const data = await response.json();
+      const parsedData = JSON.parse(data.body);
+      
+      setSessionDetails(prev => ({ ...prev, [sessionId]: parsedData }));
+      setSelectedSession({ ...apiData.sessions.find(s => s.sessionId === sessionId), ...parsedData });
+    } catch (error) {
+      console.error('Error fetching session details:', error);
+    }
+  };
+
+  const fetchConfidenceData = async (sessionId) => {
+    try {
+      console.log('Fetching confidence data for:', sessionId);
+      const transcriptUrl = `https://students-recording-communication-activities-transcribe-startup.s3.ap-south-1.amazonaws.com/transcribe-${sessionId}.json`;
+      console.log('Transcript URL:', transcriptUrl);
+      
+      const response = await fetch(transcriptUrl);
+      console.log('Response status:', response.status);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const confidenceData = await response.json();
+      console.log('Confidence data loaded:', confidenceData);
+      
+      // Filter only pronunciation items
+      const pronunciationItems = confidenceData.results.items.filter(item => item.type === 'pronunciation');
+      console.log('Pronunciation items:', pronunciationItems.length);
+      
+      const processedData = {
+        results: {
+          transcripts: confidenceData.results.transcripts,
+          items: pronunciationItems
+        }
+      };
+      
+      setSelectedSession(prev => ({ ...prev, confidenceData: processedData }));
+    } catch (error) {
+      console.error('Error fetching confidence data:', error);
+      console.error('Error details:', error.message);
+    }
+  };
+
   useEffect(() => {
     if (!apiData.sessions) {
       setFilteredSessions([]);
       return;
     }
 
-    let filtered = apiData.sessions.filter(session => {
+    const filtered = apiData.sessions.filter(session => {
       const matchesSearch = searchTerm === '' || 
         session.sessionId.toLowerCase().includes(searchTerm.toLowerCase()) ||
         formatDateTime(session.start_time).toLowerCase().includes(searchTerm.toLowerCase());
@@ -170,367 +232,69 @@ function JAMDashboard() {
     </div>
   );
 
-  const loadTranscriptData = (transcriptUrl) => {
-    console.log('🔄 Loading JAM transcript from:', transcriptUrl);
-    
-    // Create iframe to load JSON (similar to how audio/images bypass CORS)
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    iframe.src = transcriptUrl;
-    
-    iframe.onload = () => {
-      try {
-        const transcriptJson = JSON.parse(iframe.contentDocument.body.textContent);
-        
-        const items = transcriptJson.results?.items || [];
-        const words = items.filter(item => item.type === 'pronunciation');
-        
-        let totalConfidence = 0;
-        const wordAnalysis = words.map(word => {
-          const confidence = parseFloat(word.alternatives?.[0]?.confidence || 0);
-          totalConfidence += confidence;
-          return {
-            content: word.alternatives?.[0]?.content || '',
-            confidence: confidence,
-            startTime: parseFloat(word.start_time || 0),
-            endTime: parseFloat(word.end_time || 0)
-          };
-        });
-        
-        const analytics = {
-          avgConfidence: Math.round((totalConfidence / words.length) * 100),
-          wordCount: words.length,
-          duration: Math.round(Math.max(...words.map(w => parseFloat(w.end_time || 0)))),
-          words: wordAnalysis
-        };
-        
-        setSelectedSession(prev => ({ ...prev, transcriptAnalytics: analytics }));
-        console.log('✅ JAM transcript analytics loaded:', analytics);
-        document.body.removeChild(iframe);
-      } catch (error) {
-        console.error('❌ Failed to parse transcript:', error);
-        document.body.removeChild(iframe);
-        alert('Transcript file format error or CORS restrictions.');
-      }
-    };
-    
-    iframe.onerror = () => {
-      console.error('❌ Failed to load transcript via iframe');
-      document.body.removeChild(iframe);
-      alert('Transcript file is not accessible due to CORS restrictions.');
-    };
-    
-    document.body.appendChild(iframe);
-  };
-
-  const renderSessionAnalytics = () => {
-    const session = selectedSession;
-
-    return (
-      <div className="session-analytics-view">
-        <div className="analytics-header">
-          <button className="back-btn" onClick={() => setSelectedSession(null)}>← Back to Sessions</button>
-          <h2>JAM Session Analytics — {session.sessionId}</h2>
-          <p className="analytics-subtitle">Just A Minute speech analysis and feedback</p>
-        </div>
-
-
-        <div className="session-summary">
-          <div className="summary-card">
-            <div className="summary-stats">
-              <div className="summary-stat">
-                <span className="stat-label">Start Date:</span>
-                <span className="stat-value">{formatDate(session.start_time)}</span>
-              </div>
-              <div className="summary-stat">
-                <span className="stat-label">Start Time:</span>
-                <span className="stat-value">{formatTime(session.start_time)}</span>
-              </div>
-              <div className="summary-stat">
-                <span className="stat-label">Test Type:</span>
-                <span className="stat-value">JAM Session</span>
-              </div>
-              <div className="summary-stat">
-                <span className="stat-label">Session ID:</span>
-                <span className="stat-value">{session.sessionId}</span>
-              </div>
-              {session.transcriptAnalytics && (
-                <div className="summary-stat">
-                  <span className="stat-label">Speech Quality:</span>
-                  <span className="stat-value">{session.transcriptAnalytics.avgConfidence}% confidence</span>
-                </div>
-              )}
-            </div>
-          </div>
-        </div><br></br>
-
-
-        {/* Audio Section */}
-        <div className="analytics-grid-layout">
-          <div className="analytics-left">
-            <div className="analytics-card audio-card">
-              <h3>Audio Recording</h3>
-              {session.audioFiles && session.audioFiles.length > 0 ? (
-                <div className="media-container">
-                  <audio 
-                    controls 
-                    style={{width: '100%'}}
-                    onLoadedData={() => console.log('✅ JAM Audio loaded successfully:', session.audioFiles[0].url)}
-                    onError={(e) => {
-                      console.error('❌ JAM Audio failed to load:', session.audioFiles[0].url);
-                      const errorDiv = e.target.parentNode.querySelector('.media-error');
-                      if (errorDiv) {
-                        e.target.style.display = 'none';
-                        errorDiv.style.display = 'block';
-                      }
-                    }}
-                    onCanPlay={() => console.log('🎵 Audio ready to play')}
-                    preload="none"
-                  >
-                    <source src={session.audioFiles[0].url} type="audio/webm" />
-                    <source src={session.audioFiles[0].url} type="audio/mp4" />
-                    <source src={session.audioFiles[0].url} type="audio/wav" />
-                    <source src={session.audioFiles[0].url} type="audio/mpeg" />
-                    Your browser does not support audio playback.
-                  </audio>
-                  <div className="media-error" style={{display: 'none'}}>
-                    <div className="error-icon">🎵</div>
-                    <div className="error-text">Audio file not accessible</div>
-                    <div className="error-suggestion">S3 bucket CORS policy blocks audio access. Audio files are available but cannot be played in browser due to security restrictions.</div>
-                    <a href={session.audioFiles[0].url} download className="download-link">Download Audio File</a>
-                  </div>
-                  <div className="audio-tip">
-                    Listen to your JAM session recording
-                  </div>
-                </div>
-              ) : (
-                <div className="no-media">
-                  <div className="error-icon">🎤</div>
-                  <div className="error-text">No audio available</div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="analytics-right">
-            {/* JAM Topic */}
-            {session.conversationHistory && session.conversationHistory.some(conv => conv.user) && (
-              <div className="analytics-card user-description-card">
-                <h3>Your JAM Speech</h3>
-                <div className="description-content">
-                  {session.conversationHistory.map((conv, idx) => (
-                    conv.user && (
-                      <p key={idx} className="user-text">{conv.user}</p>
-                    )
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* AI Feedback Section */}
-        {session.conversationHistory && session.conversationHistory.some(conv => conv.agent) && (
-          <div className="feedback-section-bottom">
-            <div className="analytics-card feedback-card">
-              <h3>AI Feedback & JAM Score</h3>
-              <div className="feedback-content">
-                {session.conversationHistory.map((conv, idx) => (
-                  conv.agent && (
-                    <div key={idx} className="feedback-item">
-                      {conv.agent.split('\n').map((line, lineIdx) => (
-                        line.trim() && <p key={lineIdx} className="feedback-line">{line}</p>
-                      ))}
-                    </div>
-                  )
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        
-        {session.transcriptAnalytics && (
-          <div className="analytics-card">
-            <div className="transcript-results">
-                  <div className="analytics-overview">
-                    <div className="metric">
-                      <span className="metric-label">Confidence:</span>
-                      <span className="metric-value">{session.transcriptAnalytics.avgConfidence}%</span>
-                    </div>
-                    <div className="metric">
-                      <span className="metric-label">Words:</span>
-                      <span className="metric-value">{session.transcriptAnalytics.wordCount}</span>
-                    </div>
-                    <div className="metric">
-                      <span className="metric-label">Duration:</span>
-                      <span className="metric-value">{session.transcriptAnalytics.duration}s</span>
-                    </div>
-                  </div>
-                  <div style={{display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '400px', overflowY: 'auto'}}>
-                    {session.transcriptAnalytics.words?.map((word, idx) => (
-                      <div key={idx} style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px',
-                        padding: '10px',
-                        borderRadius: '10px',
-                        background: 'linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005))',
-                        transition: 'transform 0.12s ease',
-                        cursor: 'pointer'
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-                      onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0px)'}
-                      >
-                        <div style={{minWidth: '110px', fontWeight: '700', color: 'var(--text-primary)'}}>
-                          {word.content}
-                        </div>
-                        <div style={{flex: 1, display: 'flex', flexDirection: 'column'}}>
-                          <div style={{
-                            height: '10px',
-                            borderRadius: '999px',
-                            background: 'rgba(255,255,255,0.03)',
-                            overflow: 'hidden'
-                          }}>
-                            <div style={{
-                              height: '100%',
-                              width: `${word.confidence * 100}%`,
-                              background: word.confidence >= 0.85 ? 
-                                'linear-gradient(90deg, #10b981, #34d399)' :
-                                word.confidence >= 0.6 ?
-                                'linear-gradient(90deg, #f59e0b, #ffd28a)' :
-                                'linear-gradient(90deg, #ef4444, #ff7b7b)'
-                            }}></div>
-                          </div>
-                        </div>
-                        <div style={{
-                          width: '140px',
-                          textAlign: 'right',
-                          fontSize: '13px',
-                          color: 'var(--text-muted)'
-                        }}>
-                          {Math.round(word.confidence * 100)}%<br/>
-                          <small style={{color: 'var(--text-muted)'}}>
-                            {word.startTime.toFixed(2)}s - {word.endTime.toFixed(2)}s
-                          </small>
-                        </div>
-                        {(word.confidence < 0.75) && (
-                          <div style={{
-                            marginLeft: '12px',
-                            fontSize: '13px',
-                            color: 'var(--text-muted)',
-                            fontStyle: 'italic',
-                            minWidth: '200px'
-                          }}>
-                            {word.confidence < 0.6 ? 'Tip: slow down & stress vowel sounds' :
-                            'Tip: focus on consonant ending'}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                  <div style={{marginTop: '20px'}}>
-                    <h4>Confidence Over Time</h4>
-                    <svg width="100%" height="200" viewBox="0 0 800 200" style={{background: 'rgba(255,255,255,0.02)', borderRadius: '8px'}}>
-                      <defs>
-                        <linearGradient id="confidenceGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                          <stop offset="0%" stopColor="#60a5fa" stopOpacity="0.3"/>
-                          <stop offset="100%" stopColor="#60a5fa" stopOpacity="0.1"/>
-                        </linearGradient>
-                      </defs>
-                      {session.transcriptAnalytics.words?.length > 1 && (
-                        <>
-                          <polyline
-                            fill="none"
-                            stroke="#60a5fa"
-                            strokeWidth="2"
-                            points={session.transcriptAnalytics.words.map((word, i) => 
-                              `${(i / (session.transcriptAnalytics.words.length - 1)) * 780 + 10},${190 - (word.confidence * 170)}`
-                            ).join(' ')}
-                          />
-                          <polygon
-                            fill="url(#confidenceGradient)"
-                            points={`10,190 ${session.transcriptAnalytics.words.map((word, i) => 
-                              `${(i / (session.transcriptAnalytics.words.length - 1)) * 780 + 10},${190 - (word.confidence * 170)}`
-                            ).join(' ')} 790,190`}
-                          />
-                          {session.transcriptAnalytics.words.map((word, i) => (
-                            <circle
-                              key={i}
-                              cx={(i / (session.transcriptAnalytics.words.length - 1)) * 780 + 10}
-                              cy={190 - (word.confidence * 170)}
-                              r="3"
-                              fill={word.confidence > 0.85 ? '#10b981' : word.confidence > 0.6 ? '#f59e0b' : '#ef4444'}
-                            />
-                          ))}
-                        </>
-                      )}
-                      <line x1="10" y1="190" x2="790" y2="190" stroke="rgba(255,255,255,0.1)" strokeWidth="1"/>
-                      <line x1="10" y1="20" x2="790" y2="20" stroke="rgba(255,255,255,0.1)" strokeWidth="1"/>
-                      <text x="15" y="15" fill="#94a3b8" fontSize="12">100%</text>
-                      <text x="15" y="200" fill="#94a3b8" fontSize="12">0%</text>
-                    </svg>
-                  </div>
-                </div>
-            </div>
-        )}
-
-        
-      </div>
-    );
-  };
-
   const renderHistoryContent = () => {
     if (selectedSession) {
       return (
-        <div className="session-analytics-view">
-          <div className="analytics-header">
-            <button className="back-btn" onClick={() => setSelectedSession(null)}>← Back to History</button>
-            <h2>JAM Session Conversation — {selectedSession.sessionId}</h2>
-            <p className="analytics-subtitle">View complete conversation history</p>
-          </div>
-
-          <div className="analytics-card">
-            <h3>Session Information</h3>
-            <div className="session-info-header">
-              <p><strong>Session ID:</strong> {selectedSession.sessionId}</p>
-              <p><strong>Start Date:</strong> {formatDate(selectedSession.start_time)}</p>
-              <p><strong>Start Time:</strong> {formatTime(selectedSession.start_time)}</p>
-              <p><strong>Messages:</strong> {selectedSession.conversationHistory?.length || 0}</p>
+        <div className="modal-overlay" onClick={() => setSelectedSession(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>JAM Session Details: {selectedSession.sessionId}</h3>
+              <button className="close-btn" onClick={() => setSelectedSession(null)}>×</button>
             </div>
-          </div>
-
-          {selectedSession.conversationHistory && selectedSession.conversationHistory.length > 0 ? (
-            <div className="analytics-card">
-              <h3>Conversation History</h3>
-              <div className="conversation-messages">
-                {selectedSession.conversationHistory.map((conv, idx) => (
-                  <div key={idx}>
-                    {conv.user && (
-                      <div className="message user">
-                        <div className="message-sender">You</div>
-                        <div className="message-text">{conv.user}</div>
-                      </div>
-                    )}
-                    {conv.agent && (
-                      <div className="message ai">
-                        <div className="message-sender">AI Assistant</div>
-                        <div className="message-text">
-                          {conv.agent.split('\n').map((line, lineIdx) => (
-                            line.trim() && <p key={lineIdx}>{line}</p>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
+            
+            <div className="modal-body">
+              <div className="session-overview">
+                <div className="overview-item">
+                  <span className="label">Session ID:</span>
+                  <span className="value">{selectedSession.sessionId}</span>
+                </div>
+                <div className="overview-item">
+                  <span className="label">Start Date:</span>
+                  <span className="value">{formatDate(selectedSession.start_time)}</span>
+                </div>
+                <div className="overview-item">
+                  <span className="label">Start Time:</span>
+                  <span className="value">{formatTime(selectedSession.start_time)}</span>
+                </div>
+                <div className="overview-item">
+                  <span className="label">End Time:</span>
+                  <span className="value">{formatTime(selectedSession.end_time)}</span>
+                </div>
+                <div className="overview-item">
+                  <span className="label">Score:</span>
+                  <span className="value">{selectedSession.score || 'N/A'}</span>
+                </div>
+                <div className="overview-item">
+                  <span className="label">Total Messages:</span>
+                  <span className="value">{selectedSession.conversationHistory?.length || 0}</span>
+                </div>
               </div>
+
+              <div className="conversation-history">
+                <h4>Conversation History</h4>
+                <div className="messages-container">
+                  {selectedSession.conversationHistory?.map((msg, index) => (
+                    <div key={index} className="message-group">
+                      {msg.user && (
+                        <div className="message user-message">
+                          <div className="message-label">User:</div>
+                          <div className="message-content">{msg.user}</div>
+                        </div>
+                      )}
+                      {msg.agent && (
+                        <div className="message agent-message">
+                          <div className="message-label">Agent:</div>
+                          <div className="message-content">{msg.agent}</div>
+                        </div>
+                      )}
+                    </div>
+                  )) || <div className="no-messages">No conversation history available</div>}
+                </div>
+              </div>
+
+
             </div>
-          ) : (
-            <div className="analytics-card">
-              <div className="no-data">No conversation history available for this session</div>
-            </div>
-          )}
+          </div>
         </div>
       );
     }
@@ -547,7 +311,7 @@ function JAMDashboard() {
               <div 
                 key={session.sessionId} 
                 className="session-card"
-                onClick={() => setSelectedSession(session)}
+                onClick={() => fetchSessionDetails(session.sessionId)}
                 style={{ cursor: 'pointer' }}
               >
                 <div className="session-info">
@@ -557,14 +321,13 @@ function JAMDashboard() {
                     <div className="session-datetime">
                       <div className="session-date">{formatDate(session.start_time)}</div>
                       <div className="session-time">
-                        Start: {formatTime(session.start_time)}
+                        {formatTime(session.start_time)} - {formatTime(session.end_time)}
                       </div>
                     </div>
                   </div>
                 </div>
                 <div className="session-metrics">
-                  <div className="session-conversations">{session.conversationHistory?.length || 0} messages</div>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px' }}>Click to view conversation</div>
+                  <div className="session-conversations">Score: {session.score || 'N/A'}</div>
                 </div>
               </div>
             )) || <div className="no-data">No sessions found</div>}
@@ -576,7 +339,214 @@ function JAMDashboard() {
 
   const renderAnalyticsContent = () => {
     if (selectedSession) {
-      return renderSessionAnalytics();
+      return (
+        <div className="modal-overlay" onClick={() => setSelectedSession(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>JAM Analytics: {selectedSession.sessionId}</h3>
+              <button className="close-btn" onClick={() => setSelectedSession(null)}>×</button>
+            </div>
+            
+            <div className="modal-body">
+              <div className="session-overview">
+                <div className="overview-item">
+                  <span className="label">Start Date:</span>
+                  <span className="stat-value">{formatDate(selectedSession.start_time)}</span>
+                </div>
+                <div className="overview-item">
+                  <span className="label">Start Time:</span>
+                  <span className="stat-value">{formatTime(selectedSession.start_time)}</span>
+                </div>
+                <div className="overview-item">
+                  <span className="label">End Time:</span>
+                  <span className="stat-value">{formatTime(selectedSession.end_time)}</span>
+                </div>
+                <div className="overview-item">
+                  <span className="label">Score:</span>
+                  <span className="stat-value">{selectedSession.score || 'N/A'}</span>
+                </div>
+                <div className="overview-item">
+                  <span className="label">Test Type:</span>
+                  <span className="stat-value">JAM Session</span>
+                </div>
+              </div>
+
+              {selectedSession.audioFiles && selectedSession.audioFiles.length > 0 && (
+                <div className="audio-files">
+                  <h4>Audio Recording</h4>
+                  <audio 
+                    controls 
+                    style={{width: '100%'}}
+                    preload="none"
+                  >
+                    <source src={selectedSession.audioFiles[0].url} type="audio/webm" />
+                    <source src={selectedSession.audioFiles[0].url} type="audio/mp4" />
+                    <source src={selectedSession.audioFiles[0].url} type="audio/wav" />
+                    <source src={selectedSession.audioFiles[0].url} type="audio/mpeg" />
+                    Your browser does not support audio playback.
+                  </audio>
+                </div>
+              )}
+
+              <div className="confidence-analysis">
+                <button 
+                  className="confidence-btn"
+                  onClick={() => fetchConfidenceData(selectedSession.sessionId)}
+                >
+                  Click here to See Confidence Graph of Your Speech
+                </button>
+                {selectedSession.confidenceData && (
+                  <div className="confidence-modal-overlay" onClick={() => setSelectedSession(prev => ({ ...prev, confidenceData: null }))}>
+                    <div className="confidence-modal" onClick={(e) => e.stopPropagation()}>
+                      <div className="confidence-modal-header">
+                        <h3>Speech Confidence Analysis</h3>
+                        <button className="close-btn" onClick={() => setSelectedSession(prev => ({ ...prev, confidenceData: null }))}>×</button>
+                      </div>
+                      <div className="confidence-modal-body">
+                        <div className="graphs-side-by-side">
+                          <div className="graph-section left-graph">
+                            <h4>Word Confidence Analysis</h4>
+                            <div className="modern-bar-chart">
+                              {selectedSession.confidenceData.results?.items?.map((item, idx) => {
+                                const confidence = parseFloat(item.alternatives[0].confidence) * 100;
+                                const getColor = (conf) => {
+                                  if (conf >= 85) return '#10b981';
+                                  if (conf >= 70) return '#f59e0b';
+                                  return '#ef4444';
+                                };
+                                return (
+                                  <div key={idx} className="modern-bar-item" style={{'--delay': `${idx * 0.02}s`}}>
+                                    <span className="modern-word-label">{item.alternatives[0].content}</span>
+                                    <div className="modern-bar-container">
+                                      <div 
+                                        className="modern-progress-bar" 
+                                        style={{
+                                          width: `${confidence}%`,
+                                          backgroundColor: getColor(confidence)
+                                        }}
+                                      ></div>
+                                      <span className="modern-confidence-score">{confidence.toFixed(1)}%</span>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                          <div className="graph-section right-graph">
+                            <h4>Confidence Trend Analysis</h4>
+                            <div className="modern-line-chart-container">
+                              <svg className="modern-line-chart" viewBox="0 0 600 300">
+                                <defs>
+                                  <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" stopColor="#0ea5e9" stopOpacity="0.3" />
+                                    <stop offset="100%" stopColor="#0ea5e9" stopOpacity="0.05" />
+                                  </linearGradient>
+                                  <filter id="dropShadow">
+                                    <feDropShadow dx="0" dy="2" stdDeviation="3" floodOpacity="0.1"/>
+                                  </filter>
+                                </defs>
+                                
+                                {/* Grid lines */}
+                                {[0, 25, 50, 75, 100].map(y => (
+                                  <line key={y} x1="55" y1={250 - (y * 2)} x2="555" y2={250 - (y * 2)} stroke="#e5e7eb" strokeWidth="1" opacity="0.5" />
+                                ))}
+                                
+                                {/* Area under curve */}
+                                <path
+                                  d={`M 55,250 ${selectedSession.confidenceData.results?.items?.map((item, idx) => {
+                                    const x = 55 + (idx / (selectedSession.confidenceData.results.items.length - 1)) * 500;
+                                    const y = 250 - (parseFloat(item.alternatives[0].confidence) * 200);
+                                    return `L ${x},${y}`;
+                                  }).join(' ')} L 555,250 Z`}
+                                  fill="url(#areaGradient)"
+                                />
+                                
+                                {/* Main line */}
+                                <path
+                                  d={`M ${selectedSession.confidenceData.results?.items?.map((item, idx) => {
+                                    const x = 55 + (idx / (selectedSession.confidenceData.results.items.length - 1)) * 500;
+                                    const y = 250 - (parseFloat(item.alternatives[0].confidence) * 200);
+                                    return `${x},${y}`;
+                                  }).join(' L ')}`}
+                                  fill="none"
+                                  stroke="#0ea5e9"
+                                  strokeWidth="3"
+                                  filter="url(#dropShadow)"
+                                />
+                                
+                                {/* Data points with confidence drops highlighted */}
+                                {selectedSession.confidenceData.results?.items?.map((item, idx) => {
+                                  const confidence = parseFloat(item.alternatives[0].confidence);
+                                  const x = 55 + (idx / (selectedSession.confidenceData.results.items.length - 1)) * 500;
+                                  const y = 250 - (confidence * 200);
+                                  const isLowConfidence = confidence < 0.7;
+                                  return (
+                                    <circle
+                                      key={idx}
+                                      cx={x}
+                                      cy={y}
+                                      r={isLowConfidence ? "6" : "4"}
+                                      fill={isLowConfidence ? "#ef4444" : "#0ea5e9"}
+                                      stroke="white"
+                                      strokeWidth="2"
+                                      className="confidence-point"
+                                    >
+                                      <title>{item.alternatives[0].content}: {(confidence * 100).toFixed(1)}%</title>
+                                    </circle>
+                                  );
+                                })}
+                                
+                                {/* Y-axis labels */}
+                                {[0, 25, 50, 75, 100].map(y => (
+                                  <text key={y} x="50" y={255 - (y * 2)} fontSize="12" fill="#6b7280" textAnchor="end">{y}%</text>
+                                ))}
+                                
+                                {/* Axis labels */}
+                                <text x="300" y="285" fontSize="14" fill="#374151" textAnchor="middle">Word Index (Speech Timeline)</text>
+                                <text x="20" y="150" fontSize="14" fill="#374151" textAnchor="middle" transform="rotate(-90 20 150)">Confidence Score</text>
+                              </svg>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {selectedSession.conversationHistory && selectedSession.conversationHistory.some(conv => conv.user) && (
+                <div className="user-speech">
+                  <h4>Your JAM Speech</h4>
+                  <div className="speech-content">
+                    {selectedSession.conversationHistory.map((conv, idx) => (
+                      conv.user && (
+                        <p key={idx} className="user-text">{conv.user}</p>
+                      )
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {selectedSession.conversationHistory && selectedSession.conversationHistory.some(conv => conv.agent) && (
+                <div className="ai-feedback">
+                  <h4>AI Feedback & JAM Score</h4>
+                  <div className="feedback-content">
+                    {selectedSession.conversationHistory.map((conv, idx) => (
+                      conv.agent && (
+                        <div key={idx} className="feedback-item">
+                          {conv.agent.split('\n').map((line, lineIdx) => (
+                            line.trim() && <p key={lineIdx} className="feedback-line">{line}</p>
+                          ))}
+                        </div>
+                      )
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
     }
 
     return (
@@ -591,7 +561,7 @@ function JAMDashboard() {
               <div
                 key={session.sessionId}
                 className="session-card analytics-session-card"
-                onClick={() => setSelectedSession(session)}
+                onClick={() => fetchSessionDetails(session.sessionId)}
               >
                 <div className="session-info">
                   <div className="session-id">{session.sessionId}</div>
@@ -600,13 +570,13 @@ function JAMDashboard() {
                     <div className="session-datetime">
                       <div className="session-date">{formatDate(session.start_time)}</div>
                       <div className="session-time">
-                        Start: {formatTime(session.start_time)}
+                        {formatTime(session.start_time)} - {formatTime(session.end_time)}
                       </div>
                     </div>
                   </div>
                 </div>
                 <div className="session-metrics">
-                  <div className="analytics-indicator">View Analytics</div>
+                  <div className="analytics-indicator">📊 Score: {session.score || 'N/A'}</div>
                 </div>
               </div>
             )) || <div className="no-data">No sessions found</div>}
@@ -624,20 +594,7 @@ function JAMDashboard() {
             <span className="logo-text">Skill Route</span>
             <div className="nav-links">
               <a href="#" onClick={() => navigate('/student-dashboard')}>Back to Main Dashboard</a>
-              {/* <a href="#" onClick={() => navigate('/practice')}>Practice</a>
-              <a href="#" onClick={() => navigate('/student-leaderboard')}>Leaderboard</a> */}
             </div>
-          </div>
-          <div className="auth-buttons">
-            {/* <button 
-              className="btn-signup"
-              onClick={() => {
-                localStorage.removeItem('email');
-                navigate('/signup');
-              }}
-            >
-              Logout
-            </button> */}
           </div>
         </div>
       </header>
@@ -645,9 +602,7 @@ function JAMDashboard() {
       <div style={{ padding: '20px', marginTop: '80px' }}>
         <div className="dashboard-main">
           <div className="dashboard-header">
-            <h1>
-              JAM Sessions Dashboard
-            </h1>
+            <h1>JAM Sessions Dashboard</h1>
             <p className="dashboard-subtitle">Self-analyze your Just A Minute sessions</p>
           </div>
           

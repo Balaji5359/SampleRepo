@@ -13,6 +13,7 @@ function ImageSpeakDashboard() {
   const [searchTerm, setSearchTerm] = useState('');
   const [dateFilter, setDateFilter] = useState('');
   const [filteredSessions, setFilteredSessions] = useState([]);
+  const [sessionDetails, setSessionDetails] = useState({});
 
   useEffect(() => {
     const root = document.documentElement;
@@ -55,7 +56,7 @@ function ImageSpeakDashboard() {
       
       setLoading(true);
       try {
-        const response = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/studentcommunicationtests_retrivalapi', {
+        const response = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/studentcommunicationtests_idretrivalapi', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -77,6 +78,33 @@ function ImageSpeakDashboard() {
     fetchImageSpeakData();
   }, [userEmail]);
 
+  const fetchSessionDetails = async (sessionId) => {
+    if (sessionDetails[sessionId]) {
+      setSelectedSession({ ...apiData.sessions.find(s => s.sessionId === sessionId), ...sessionDetails[sessionId] });
+      return;
+    }
+
+    try {
+      const response = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/studentcommunicationtests_dataretrivalapi', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          college_email: userEmail,
+          test_type: 'IMAGETOSPEAK',
+          sessionId: sessionId
+        })
+      });
+      
+      const data = await response.json();
+      const parsedData = JSON.parse(data.body);
+      
+      setSessionDetails(prev => ({ ...prev, [sessionId]: parsedData }));
+      setSelectedSession({ ...apiData.sessions.find(s => s.sessionId === sessionId), ...parsedData });
+    } catch (error) {
+      console.error('Error fetching session details:', error);
+    }
+  };
+
   useEffect(() => {
     if (!apiData.sessions) {
       setFilteredSessions([]);
@@ -86,10 +114,10 @@ function ImageSpeakDashboard() {
     let filtered = apiData.sessions.filter(session => {
       const matchesSearch = searchTerm === '' || 
         session.sessionId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        new Date(session.timestamp).toLocaleString().toLowerCase().includes(searchTerm.toLowerCase());
+        new Date(session.start_time).toLocaleString().toLowerCase().includes(searchTerm.toLowerCase());
       
       const matchesDate = dateFilter === '' || 
-        new Date(session.timestamp).toDateString() === new Date(dateFilter).toDateString();
+        new Date(session.start_time).toDateString() === new Date(dateFilter).toDateString();
       
       return matchesSearch && matchesDate;
     });
@@ -135,122 +163,76 @@ function ImageSpeakDashboard() {
     </div>
   );
 
-  const renderSessionAnalytics = () => {
-    const session = selectedSession;
+  const renderSessionModal = () => {
+    if (!selectedSession) return null;
 
     return (
-      <div className="session-analytics-view">
-        <div className="analytics-header">
-          <button className="back-btn" onClick={() => setSelectedSession(null)}>← Back to Sessions</button>
-          <h2>Image to Speak Analytics — {session.sessionId}</h2>
-          <p className="analytics-subtitle">Image description analysis and feedback</p>
-        </div>
-
-        <div className="session-summary">
-          <div className="summary-card">
-            <div className="summary-stats">
-              <div className="summary-stat">
-                <span className="stat-label">Session Date:</span>
-                <span className="stat-value">{new Date(session.timestamp).toLocaleString()}</span>
+      <div className="modal-overlay" onClick={() => setSelectedSession(null)}>
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <h3>Image to Speak Details: {selectedSession.sessionId}</h3>
+            <button className="close-btn" onClick={() => setSelectedSession(null)}>×</button>
+          </div>
+          
+          <div className="modal-body">
+            <div className="session-overview">
+              <div className="overview-item">
+                <span className="label">Session ID:</span>
+                <span className="value">{selectedSession.sessionId}</span>
               </div>
-              <div className="summary-stat">
-                <span className="stat-label">Test Type:</span>
-                <span className="stat-value">Image to Speak</span>
+              <div className="overview-item">
+                <span className="label">Start Time:</span>
+                <span className="value">{new Date(selectedSession.start_time).toLocaleString()}</span>
               </div>
-              <div className="summary-stat">
-                <span className="stat-label">Session ID:</span>
-                <span className="stat-value">{session.sessionId}</span>
+              <div className="overview-item">
+                <span className="label">End Time:</span>
+                <span className="value">{new Date(selectedSession.end_time).toLocaleString()}</span>
+              </div>
+              <div className="overview-item">
+                <span className="label">Score:</span>
+                <span className="value">{selectedSession.score || 'N/A'}</span>
+              </div>
+              <div className="overview-item">
+                <span className="label">Test Type:</span>
+                <span className="value">Image to Speak</span>
+              </div>
+              <div className="overview-item">
+                <span className="label">Total Messages:</span>
+                <span className="value">{selectedSession.conversationHistory?.length || 0}</span>
               </div>
             </div>
-          </div>
-        </div><br></br>
 
-        {/* Image and Audio Section */}
-        <div className="analytics-grid-layout">
-          <div className="analytics-left">
-            <div className="analytics-card image-card">
-              <h3>Image Prompt</h3>
-              {session.images && session.images.length > 0 ? (
-                <div className="media-container">
+            {selectedSession.images && selectedSession.images.length > 0 && (
+              <div className="image-section">
+                <h4>Image Prompt</h4>
+                <div className="image-container">
                   <img
-                    src={session.images[0].url}
+                    src={selectedSession.images[0].url}
                     alt="Image prompt"
-                    onLoad={() => console.log('✅ Image loaded successfully:', session.images[0].url)}
-                    onError={(e) => {
-                      console.error('❌ Image failed to load:', session.images[0].url);
-                      e.target.style.display = 'none';
-                      e.target.nextSibling.style.display = 'block';
-                    }}
                     style={{
                       maxWidth: '100%',
                       maxHeight: '300px',
                       borderRadius: '8px',
                       boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                     }}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'block';
+                    }}
                   />
-                  <div className="media-error" style={{display: 'none'}}>
+                  <div className="image-error" style={{display: 'none'}}>
                     <div className="error-icon">🖼️</div>
                     <div className="error-text">Image not accessible</div>
-                    <div className="error-suggestion">S3 bucket CORS policy blocks image access.</div>
                   </div>
                 </div>
-              ) : (
-                <div className="no-media">
-                  <div className="error-icon">📷</div>
-                  <div className="error-text">No image available</div>
-                </div>
-              )}
-            </div>
+              </div>
+            )}
 
-            <div className="analytics-card audio-card">
-              <h3>Audio Recording</h3>
-              {session.audioFiles && session.audioFiles.length > 0 ? (
-                <div className="media-container">
-                  <audio 
-                    controls 
-                    style={{width: '100%'}}
-                    onLoadedData={() => console.log('✅ Audio loaded successfully:', session.audioFiles[0].url)}
-                    onError={(e) => {
-                      console.error('❌ Audio failed to load:', session.audioFiles[0].url);
-                      const errorDiv = e.target.parentNode.querySelector('.media-error');
-                      if (errorDiv) {
-                        e.target.style.display = 'none';
-                        errorDiv.style.display = 'block';
-                      }
-                    }}
-                    onCanPlay={() => console.log('🎵 Audio ready to play')}
-                    preload="none"
-                  >
-                    <source src={session.audioFiles[0].url} type="audio/webm" />
-                    <source src={session.audioFiles[0].url} type="audio/mp4" />
-                    <source src={session.audioFiles[0].url} type="audio/wav" />
-                    <source src={session.audioFiles[0].url} type="audio/mpeg" />
-                    Your browser does not support audio playback.
-                  </audio>
-                  <div className="media-error" style={{display: 'none'}}>
-                    <div className="error-icon">🎵</div>
-                    <div className="error-text">Audio file not accessible</div>
-                    <div className="error-suggestion">S3 bucket CORS policy blocks audio access.</div>
-                  </div>
-                  <div className="audio-tip">
-                    Listen to your image description recording
-                  </div>
-                </div>
-              ) : (
-                <div className="no-media">
-                  <div className="error-icon">🎤</div>
-                  <div className="error-text">No audio available</div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="analytics-right">
-            {session.conversationHistory && session.conversationHistory.some(conv => conv.user) && (
-              <div className="analytics-card user-description-card">
-                <h3>Your Description</h3>
+            {selectedSession.conversationHistory && selectedSession.conversationHistory.some(conv => conv.user) && (
+              <div className="user-description">
+                <h4>Your Description</h4>
                 <div className="description-content">
-                  {session.conversationHistory.map((conv, idx) => (
+                  {selectedSession.conversationHistory.map((conv, idx) => (
                     conv.user && (
                       <p key={idx} className="user-text">{conv.user}</p>
                     )
@@ -258,156 +240,91 @@ function ImageSpeakDashboard() {
                 </div>
               </div>
             )}
+
+            {selectedSession.conversationHistory && selectedSession.conversationHistory.some(conv => conv.agent) && (
+              <div className="ai-feedback">
+                <h4>AI Feedback & Analysis</h4>
+                <div className="feedback-content">
+                  {selectedSession.conversationHistory.map((conv, idx) => (
+                    conv.agent && (
+                      <div key={idx} className="feedback-item">
+                        {conv.agent.split('\n').map((line, lineIdx) => (
+                          line.trim() && <p key={lineIdx} className="feedback-line">{line}</p>
+                        ))}
+                      </div>
+                    )
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
-
-        {/* AI Feedback Section */}
-        {session.conversationHistory && session.conversationHistory.some(conv => conv.agent) && (
-          <div className="feedback-section-bottom">
-            <div className="analytics-card feedback-card">
-              <h3>AI Feedback & Analysis</h3>
-              <div className="feedback-content">
-                {session.conversationHistory.map((conv, idx) => (
-                  conv.agent && (
-                    <div key={idx} className="feedback-item">
-                      {conv.agent.split('\n').map((line, lineIdx) => (
-                        line.trim() && <p key={lineIdx} className="feedback-line">{line}</p>
-                      ))}
-                    </div>
-                  )
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     );
   };
 
-  const renderHistoryContent = () => {
-    if (selectedSession) {
-      return (
-        <div className="session-analytics-view">
-          <div className="analytics-header">
-            <button className="back-btn" onClick={() => setSelectedSession(null)}>← Back to History</button>
-            <h2>Image to Speak Conversation — {selectedSession.sessionId}</h2>
-            <p className="analytics-subtitle">View complete conversation history</p>
-          </div>
-
-          <div className="analytics-card">
-            <h3>Session Information</h3>
-            <div className="session-info-header">
-              <p><strong>Session ID:</strong> {selectedSession.sessionId}</p>
-              <p><strong>Date:</strong> {new Date(selectedSession.timestamp).toLocaleString()}</p>
-              <p><strong>Messages:</strong> {selectedSession.conversationHistory?.length || 0}</p>
-            </div>
-          </div>
-
-          {selectedSession.conversationHistory && selectedSession.conversationHistory.length > 0 ? (
-            <div className="analytics-card">
-              <h3>Conversation History</h3>
-              <div className="conversation-messages">
-                {selectedSession.conversationHistory.map((conv, idx) => (
-                  <div key={idx}>
-                    {conv.user && (
-                      <div className="message user">
-                        <div className="message-sender">You</div>
-                        <div className="message-text">{conv.user}</div>
-                      </div>
-                    )}
-                    {conv.agent && (
-                      <div className="message ai">
-                        <div className="message-sender">AI Assistant</div>
-                        <div className="message-text">
-                          {conv.agent.split('\n').map((line, lineIdx) => (
-                            line.trim() && <p key={lineIdx}>{line}</p>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
+  const renderHistoryContent = () => (
+    <div>
+      <h2>Image to Speak History</h2>
+      {renderFilterHeader()}
+      {loading ? (
+        <div className="loading">Loading sessions...</div>
+      ) : (
+        <div className="sessions-list">
+          {filteredSessions.map(session => (
+            <div 
+              key={session.sessionId} 
+              className="session-card"
+              onClick={() => fetchSessionDetails(session.sessionId)}
+              style={{ cursor: 'pointer' }}
+            >
+              <div className="session-info">
+                <div className="session-id">{session.sessionId}</div>
+                <div className="session-details">
+                  <span className="session-type">Image to Speak</span>
+                  <span className="session-date">{new Date(session.start_time).toLocaleString()} - {new Date(session.end_time).toLocaleString()}</span>
+                </div>
+              </div>
+              <div className="session-metrics">
+                <div className="session-conversations">Score: {session.score || 'N/A'}</div>
               </div>
             </div>
-          ) : (
-            <div className="analytics-card">
-              <div className="no-data">No conversation history available for this session</div>
-            </div>
-          )}
+          )) || <div className="no-data">No sessions found</div>}
         </div>
-      );
-    }
+      )}
+    </div>
+  );
 
-    return (
-      <div>
-        <h2>Image to Speak History</h2>
-        {renderFilterHeader()}
-        {loading ? (
-          <div className="loading">Loading sessions...</div>
-        ) : (
-          <div className="sessions-list">
-            {filteredSessions.map(session => (
-              <div 
-                key={session.sessionId} 
-                className="session-card"
-                onClick={() => setSelectedSession(session)}
-                style={{ cursor: 'pointer' }}
-              >
-                <div className="session-info">
-                  <div className="session-id">{session.sessionId}</div>
-                  <div className="session-details">
-                    <span className="session-type">Image to Speak</span>
-                    <span className="session-date">{new Date(session.timestamp).toLocaleString()}</span>
-                  </div>
-                </div>
-                <div className="session-metrics">
-                  <div className="session-conversations">{session.conversationHistory?.length || 0} messages</div>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px' }}>Click to view conversation</div>
+  const renderAnalyticsContent = () => (
+    <div>
+      <h2>Image to Speak Analytics</h2>
+      {renderFilterHeader()}
+      {loading ? (
+        <div className="loading">Loading sessions...</div>
+      ) : (
+        <div className="sessions-list">
+          {filteredSessions.map(session => (
+            <div
+              key={session.sessionId}
+              className="session-card analytics-session-card"
+              onClick={() => fetchSessionDetails(session.sessionId)}
+            >
+              <div className="session-info">
+                <div className="session-id">{session.sessionId}</div>
+                <div className="session-details">
+                  <span className="session-type">Image to Speak</span>
+                  <span className="session-date">{new Date(session.start_time).toLocaleString()} - {new Date(session.end_time).toLocaleString()}</span>
                 </div>
               </div>
-            )) || <div className="no-data">No sessions found</div>}
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const renderAnalyticsContent = () => {
-    if (selectedSession) {
-      return renderSessionAnalytics();
-    }
-
-    return (
-      <div>
-        <h2>Image to Speak Analytics</h2>
-        {renderFilterHeader()}
-        {loading ? (
-          <div className="loading">Loading sessions...</div>
-        ) : (
-          <div className="sessions-list">
-            {filteredSessions.map(session => (
-              <div
-                key={session.sessionId}
-                className="session-card analytics-session-card"
-                onClick={() => setSelectedSession(session)}
-              >
-                <div className="session-info">
-                  <div className="session-id">{session.sessionId}</div>
-                  <div className="session-details">
-                    <span className="session-type">Image to Speak</span>
-                    <span className="session-date">{new Date(session.timestamp).toLocaleString()}</span>
-                  </div>
-                </div>
-                <div className="session-metrics">
-                  <div className="analytics-indicator">📊 View Analytics</div>
-                </div>
+              <div className="session-metrics">
+                <div className="analytics-indicator">📊 Score: {session.score || 'N/A'}</div>
               </div>
-            )) || <div className="no-data">No sessions found</div>}
-          </div>
-        )}
-      </div>
-    );
-  };
+            </div>
+          )) || <div className="no-data">No sessions found</div>}
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div>
@@ -417,20 +334,7 @@ function ImageSpeakDashboard() {
             <span className="logo-text">Skill Route</span>
             <div className="nav-links">
               <a href="#" onClick={() => navigate('/student-dashboard')}>Back to Main Dashboard</a>
-              {/* <a href="#" onClick={() => navigate('/practice')}>Practice</a>
-              <a href="#" onClick={() => navigate('/student-leaderboard')}>Leaderboard</a> */}
             </div>
-          </div>
-          <div className="auth-buttons">
-            {/* <button 
-              className="btn-signup"
-              onClick={() => {
-                localStorage.removeItem('email');
-                navigate('/signup');
-              }}
-            >
-              Logout
-            </button> */}
           </div>
         </div>
       </header>
@@ -472,6 +376,8 @@ function ImageSpeakDashboard() {
           )}
         </div>
       </div>
+      
+      {renderSessionModal()}
     </div>
   );
 }

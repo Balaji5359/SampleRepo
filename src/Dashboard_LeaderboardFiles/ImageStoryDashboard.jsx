@@ -13,6 +13,7 @@ function ImageStoryDashboard() {
   const [searchTerm, setSearchTerm] = useState('');
   const [dateFilter, setDateFilter] = useState('');
   const [filteredSessions, setFilteredSessions] = useState([]);
+  const [sessionDetails, setSessionDetails] = useState({});
 
   useEffect(() => {
     const root = document.documentElement;
@@ -55,12 +56,12 @@ function ImageStoryDashboard() {
       
       setLoading(true);
       try {
-        const response = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/studentcommunicationtests_retrivalapi', {
+        const response = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/studentcommunicationtests_idretrivalapi', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             college_email: userEmail,
-            test_type: 'IMAGESTORY'
+            test_type: 'IMAGETOSTORY'
           })
         });
         
@@ -68,7 +69,7 @@ function ImageStoryDashboard() {
         const parsedData = JSON.parse(data.body);
         setApiData(parsedData);
       } catch (error) {
-        console.error('Error fetching IMAGESTORY data:', error);
+        console.error('Error fetching IMAGETOSTORY data:', error);
       } finally {
         setLoading(false);
       }
@@ -76,6 +77,33 @@ function ImageStoryDashboard() {
     
     fetchImageStoryData();
   }, [userEmail]);
+
+  const fetchSessionDetails = async (sessionId) => {
+    if (sessionDetails[sessionId]) {
+      setSelectedSession({ ...apiData.sessions.find(s => s.sessionId === sessionId), ...sessionDetails[sessionId] });
+      return;
+    }
+
+    try {
+      const response = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/studentcommunicationtests_dataretrivalapi', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          college_email: userEmail,
+          test_type: 'IMAGETOSTORY',
+          sessionId: sessionId
+        })
+      });
+      
+      const data = await response.json();
+      const parsedData = JSON.parse(data.body);
+      
+      setSessionDetails(prev => ({ ...prev, [sessionId]: parsedData }));
+      setSelectedSession({ ...apiData.sessions.find(s => s.sessionId === sessionId), ...parsedData });
+    } catch (error) {
+      console.error('Error fetching session details:', error);
+    }
+  };
 
   useEffect(() => {
     if (!apiData.sessions) {
@@ -86,10 +114,10 @@ function ImageStoryDashboard() {
     let filtered = apiData.sessions.filter(session => {
       const matchesSearch = searchTerm === '' || 
         session.sessionId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        new Date(session.timestamp).toLocaleString().toLowerCase().includes(searchTerm.toLowerCase());
+        new Date(session.start_time).toLocaleString().toLowerCase().includes(searchTerm.toLowerCase());
       
       const matchesDate = dateFilter === '' || 
-        new Date(session.timestamp).toDateString() === new Date(dateFilter).toDateString();
+        new Date(session.start_time).toDateString() === new Date(dateFilter).toDateString();
       
       return matchesSearch && matchesDate;
     });
@@ -135,6 +163,86 @@ function ImageStoryDashboard() {
     </div>
   );
 
+  const renderSessionModal = () => {
+    if (!selectedSession) return null;
+
+    return (
+      <div className="modal-overlay" onClick={() => setSelectedSession(null)}>
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <h3>Image Story Details: {selectedSession.sessionId}</h3>
+            <button className="close-btn" onClick={() => setSelectedSession(null)}>×</button>
+          </div>
+          
+          <div className="modal-body">
+            <div className="session-overview">
+              <div className="overview-item">
+                <span className="label">Session ID:</span>
+                <span className="value">{selectedSession.sessionId}</span>
+              </div>
+              <div className="overview-item">
+                <span className="label">Start Time:</span>
+                <span className="value">{new Date(selectedSession.start_time).toLocaleString()}</span>
+              </div>
+              <div className="overview-item">
+                <span className="label">End Time:</span>
+                <span className="value">{new Date(selectedSession.end_time).toLocaleString()}</span>
+              </div>
+              <div className="overview-item">
+                <span className="label">Score:</span>
+                <span className="value">{selectedSession.score || 'N/A'}</span>
+              </div>
+              <div className="overview-item">
+                <span className="label">Test Type:</span>
+                <span className="value">Image Story</span>
+              </div>
+              <div className="overview-item">
+                <span className="label">Total Messages:</span>
+                <span className="value">{selectedSession.conversationHistory?.length || 0}</span>
+              </div>
+            </div>
+
+            <div className="conversation-history">
+              <h4>Conversation History</h4>
+              <div className="messages-container">
+                {selectedSession.conversationHistory?.map((msg, index) => (
+                  <div key={index} className="message-group">
+                    {msg.user && (
+                      <div className="message user-message">
+                        <div className="message-label">User:</div>
+                        <div className="message-content">{msg.user}</div>
+                      </div>
+                    )}
+                    {msg.agent && (
+                      <div className="message agent-message">
+                        <div className="message-label">Agent:</div>
+                        <div className="message-content">{msg.agent}</div>
+                      </div>
+                    )}
+                  </div>
+                )) || <div className="no-messages">No conversation history available</div>}
+              </div>
+            </div>
+
+            {selectedSession.images && selectedSession.images.length > 0 && (
+              <div className="image-files">
+                <h4>Images</h4>
+                <div className="files-list">
+                  {selectedSession.images.map((image, index) => (
+                    <div key={index} className="file-item">
+                      <span className="file-icon">🖼️</span>
+                      <span className="file-name">{image.url || image}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const renderHistoryContent = () => (
     <div>
       <h2>Image Story History</h2>
@@ -147,18 +255,18 @@ function ImageStoryDashboard() {
             <div 
               key={session.sessionId} 
               className="session-card"
-              onClick={() => setSelectedSession(session)}
+              onClick={() => fetchSessionDetails(session.sessionId)}
               style={{ cursor: 'pointer' }}
             >
               <div className="session-info">
                 <div className="session-id">{session.sessionId}</div>
                 <div className="session-details">
                   <span className="session-type">Image Story</span>
-                  <span className="session-date">{new Date(session.timestamp).toLocaleString()}</span>
+                  <span className="session-date">{new Date(session.start_time).toLocaleString()} - {new Date(session.end_time).toLocaleString()}</span>
                 </div>
               </div>
               <div className="session-metrics">
-                <div className="session-conversations">{session.conversationHistory?.length || 0} messages</div>
+                <div className="session-conversations">Score: {session.score || 'N/A'}</div>
               </div>
             </div>
           )) || <div className="no-data">No sessions found</div>}
@@ -179,17 +287,17 @@ function ImageStoryDashboard() {
             <div
               key={session.sessionId}
               className="session-card analytics-session-card"
-              onClick={() => setSelectedSession(session)}
+              onClick={() => fetchSessionDetails(session.sessionId)}
             >
               <div className="session-info">
                 <div className="session-id">{session.sessionId}</div>
                 <div className="session-details">
                   <span className="session-type">Image Story</span>
-                  <span className="session-date">{new Date(session.timestamp).toLocaleString()}</span>
+                  <span className="session-date">{new Date(session.start_time).toLocaleString()} - {new Date(session.end_time).toLocaleString()}</span>
                 </div>
               </div>
               <div className="session-metrics">
-                <div className="analytics-indicator">📊 View Analytics</div>
+                <div className="analytics-indicator">📊 Score: {session.score || 'N/A'}</div>
               </div>
             </div>
           )) || <div className="no-data">No sessions found</div>}
@@ -206,20 +314,7 @@ function ImageStoryDashboard() {
             <span className="logo-text">Skill Route</span>
             <div className="nav-links">
               <a href="#" onClick={() => navigate('/student-dashboard')}>Back to Main Dashboard</a>
-              {/* <a href="#" onClick={() => navigate('/practice')}>Practice</a>
-              <a href="#" onClick={() => navigate('/student-leaderboard')}>Leaderboard</a> */}
             </div>
-          </div>
-          <div className="auth-buttons">
-            {/* <button 
-              className="btn-signup"
-              onClick={() => {
-                localStorage.removeItem('email');
-                navigate('/signup');
-              }}
-            >
-              Logout
-            </button> */}
           </div>
         </div>
       </header>
@@ -261,6 +356,8 @@ function ImageStoryDashboard() {
           )}
         </div>
       </div>
+      
+      {renderSessionModal()}
     </div>
   );
 }

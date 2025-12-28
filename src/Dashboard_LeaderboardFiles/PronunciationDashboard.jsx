@@ -13,6 +13,7 @@ function PronunciationDashboard() {
   const [searchTerm, setSearchTerm] = useState('');
   const [dateFilter, setDateFilter] = useState('');
   const [filteredSessions, setFilteredSessions] = useState([]);
+  const [sessionDetails, setSessionDetails] = useState({});
 
   const formatDateTime = (dateTimeString) => {
     if (!dateTimeString) return 'Not available';
@@ -90,7 +91,7 @@ function PronunciationDashboard() {
       
       setLoading(true);
       try {
-        const response = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/studentcommunicationtests_retrivalapi', {
+        const response = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/studentcommunicationtests_idretrivalapi', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -111,6 +112,33 @@ function PronunciationDashboard() {
     
     fetchPronunciationData();
   }, [userEmail]);
+
+  const fetchSessionDetails = async (sessionId) => {
+    if (sessionDetails[sessionId]) {
+      setSelectedSession({ ...apiData.sessions.find(s => s.sessionId === sessionId), ...sessionDetails[sessionId] });
+      return;
+    }
+
+    try {
+      const response = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/studentcommunicationtests_dataretrivalapi', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          college_email: userEmail,
+          test_type: 'PRONUNCIATION',
+          sessionId: sessionId
+        })
+      });
+      
+      const data = await response.json();
+      const parsedData = JSON.parse(data.body);
+      
+      setSessionDetails(prev => ({ ...prev, [sessionId]: parsedData }));
+      setSelectedSession({ ...apiData.sessions.find(s => s.sessionId === sessionId), ...parsedData });
+    } catch (error) {
+      console.error('Error fetching session details:', error);
+    }
+  };
 
   useEffect(() => {
     if (!apiData.sessions) {
@@ -182,7 +210,7 @@ function PronunciationDashboard() {
             <div 
               key={session.sessionId} 
               className="session-card"
-              onClick={() => setSelectedSession(session)}
+              onClick={() => fetchSessionDetails(session.sessionId)}
               style={{ cursor: 'pointer' }}
             >
               <div className="session-info">
@@ -198,7 +226,7 @@ function PronunciationDashboard() {
                 </div>
               </div>
               <div className="session-metrics">
-                <div className="session-conversations">{session.conversationHistory?.length || 0} messages</div>
+                <div className="session-conversations">Click to view details</div>
               </div>
             </div>
           )) || <div className="no-data">No sessions found</div>}
@@ -219,7 +247,7 @@ function PronunciationDashboard() {
             <div
               key={session.sessionId}
               className="session-card analytics-session-card"
-              onClick={() => setSelectedSession(session)}
+              onClick={() => fetchSessionDetails(session.sessionId)}
             >
               <div className="session-info">
                 <div className="session-id">{session.sessionId}</div>
@@ -336,20 +364,7 @@ function PronunciationDashboard() {
             <span className="logo-text">Skill Route</span>
             <div className="nav-links">
               <a href="#" onClick={() => navigate('/student-dashboard')}>Back to Main Dashboard</a>
-              {/* <a href="#" onClick={() => navigate('/practice')}>Practice</a>
-              <a href="#" onClick={() => navigate('/student-leaderboard')}>Leaderboard</a> */}
             </div>
-          </div>
-          <div className="auth-buttons">
-            {/* <button 
-              className="btn-signup"
-              onClick={() => {
-                localStorage.removeItem('email');
-                navigate('/signup');
-              }}
-            >
-              Logout
-            </button> */}
           </div>
         </div>
       </header>
