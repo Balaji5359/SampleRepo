@@ -554,7 +554,7 @@ return (
                         {surveyQuestions[currentSurveyCard]?.options.map((option) => {
                           const value = typeof option === 'string' ? option : option.value;
                           const label = typeof option === 'string' ? option : option.label;
-                          const isMultiSelect = ['communicationGoals', 'speakingFrequency'].includes(surveyQuestions[currentSurveyCard].id) && surveyQuestions[currentSurveyCard].id === 'communicationGoals';
+                          const isMultiSelect = surveyQuestions[currentSurveyCard].id === 'communicationGoals';
                           const isChecked = isMultiSelect
                             ? (formData[surveyQuestions[currentSurveyCard].id] || []).includes(value)
                             : formData[surveyQuestions[currentSurveyCard].id] === value;
