@@ -446,7 +446,7 @@ export default function JAM1({
                 });
 
                 // Send to Lambda1 (recording API)
-                const response1 = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/studentcommunicationtests_retrivalapi/studentcommunicationtests_recordingapi', {
+                const response1 = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/studentcommunicationtests_recordingapi', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -466,7 +466,7 @@ export default function JAM1({
 
                 const pollTranscript = async () => {
                     try {
-                        const response2 = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/studentcommunicationtests_retrivalapi/studentcommunicationtests_transcribeapi', {
+                        const response2 = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/studentcommunicationtests_transcribeapi', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ body: { sessionId: sessionId } })

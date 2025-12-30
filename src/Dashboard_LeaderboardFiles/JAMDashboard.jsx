@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import './dashboard.css';
 import './modern-graphs.css';
 
-
 function JAMDashboard() {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('main');
