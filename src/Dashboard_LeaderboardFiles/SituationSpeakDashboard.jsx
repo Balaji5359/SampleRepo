@@ -310,7 +310,7 @@ function SituationSpeakDashboard() {
               <div 
                 key={session.sessionId} 
                 className="session-card"
-                onClick={() => setSelectedSession(session)}
+                onClick={() => fetchSessionDetails(session.sessionId)}
                 style={{ cursor: 'pointer' }}
               >
                 <div className="session-info">
@@ -350,23 +350,23 @@ function SituationSpeakDashboard() {
               <div className="session-overview">
                 <div className="overview-item">
                   <span className="label">Start Date:</span>
-                  <span className="value">{formatDate(selectedSession.start_time)}</span>
+                  <span className="stat-value">{formatDate(selectedSession.start_time)}</span>
                 </div>
                 <div className="overview-item">
                   <span className="label">Start Time:</span>
-                  <span className="value">{formatTime(selectedSession.start_time)}</span>
+                  <span className="stat-value">{formatTime(selectedSession.start_time)}</span>
                 </div>
                 <div className="overview-item">
                   <span className="label">End Time:</span>
-                  <span className="value">{formatTime(selectedSession.end_time)}</span>
+                  <span className="stat-value">{formatTime(selectedSession.end_time)}</span>
                 </div>
                 <div className="overview-item">
                   <span className="label">Score:</span>
-                  <span className="value">{selectedSession.score || 'N/A'}</span>
+                  <span className="stat-value">{selectedSession.score || 'N/A'}</span>
                 </div>
                 <div className="overview-item">
                   <span className="label">Test Type:</span>
-                  <span className="value">Situation Speak</span>
+                  <span className="stat-value">Situation Speak</span>
                 </div>
               </div>
 
@@ -513,6 +513,7 @@ function SituationSpeakDashboard() {
                 )}
               </div>
 
+
               {selectedSession.conversationHistory && selectedSession.conversationHistory.some(conv => conv.user) && (
                 <div className="user-response">
                   <h4>Your Response</h4>
@@ -560,7 +561,7 @@ function SituationSpeakDashboard() {
               <div
                 key={session.sessionId}
                 className="session-card analytics-session-card"
-                onClick={() => setSelectedSession(session)}
+                onClick={() => fetchSessionDetails(session.sessionId)}
               >
                 <div className="session-info">
                   <div className="session-id">{session.sessionId}</div>

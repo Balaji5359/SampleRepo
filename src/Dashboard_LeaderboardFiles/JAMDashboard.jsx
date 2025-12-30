@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './dashboard.css';
+import './modern-graphs.css';
+
 
 function JAMDashboard() {
   const navigate = useNavigate();
@@ -13,7 +15,9 @@ function JAMDashboard() {
   const [searchTerm, setSearchTerm] = useState('');
   const [dateFilter, setDateFilter] = useState('');
   const [sessionDetails, setSessionDetails] = useState({});
+  const [showConfidenceModal, setShowConfidenceModal] = useState(false);
   const [filteredSessions, setFilteredSessions] = useState([]);
+  const [confidenceData, setConfidenceData] = useState(null);
 
   const formatDateTime = (dateTimeString) => {
     if (!dateTimeString) return 'Not available';
@@ -153,21 +157,22 @@ function JAMDashboard() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
-      const confidenceData = await response.json();
-      console.log('Confidence data loaded:', confidenceData);
+      const confidenceDataResult = await response.json();
+      console.log('Confidence data loaded:', confidenceDataResult);
       
       // Filter only pronunciation items
-      const pronunciationItems = confidenceData.results.items.filter(item => item.type === 'pronunciation');
+      const pronunciationItems = confidenceDataResult.results.items.filter(item => item.type === 'pronunciation');
       console.log('Pronunciation items:', pronunciationItems.length);
       
       const processedData = {
         results: {
-          transcripts: confidenceData.results.transcripts,
+          transcripts: confidenceDataResult.results.transcripts,
           items: pronunciationItems
         }
       };
       
-      setSelectedSession(prev => ({ ...prev, confidenceData: processedData }));
+      setConfidenceData(processedData);
+      setShowConfidenceModal(true);
     } catch (error) {
       console.error('Error fetching confidence data:', error);
       console.error('Error details:', error.message);
@@ -235,14 +240,14 @@ function JAMDashboard() {
   const renderHistoryContent = () => {
     if (selectedSession) {
       return (
-        <div className="modal-overlay" onClick={() => setSelectedSession(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-overlay" style={{zIndex: 1000}} onClick={() => setSelectedSession(null)}>
+          <div className="modal-content" style={{maxHeight: '85vh', overflow: 'hidden'}} onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3>JAM Session Details: {selectedSession.sessionId}</h3>
               <button className="close-btn" onClick={() => setSelectedSession(null)}>×</button>
             </div>
             
-            <div className="modal-body">
+            <div className="modal-body" style={{maxHeight: 'calc(85vh - 120px)', overflowY: 'auto', padding: '20px'}}>
               <div className="session-overview">
                 <div className="overview-item">
                   <span className="label">Session ID:</span>
@@ -284,7 +289,11 @@ function JAMDashboard() {
                       {msg.agent && (
                         <div className="message agent-message">
                           <div className="message-label">Agent:</div>
-                          <div className="message-content">{msg.agent}</div>
+                          <div className="message-content" style={{wordBreak: 'break-word', whiteSpace: 'pre-wrap', lineHeight: '1.5'}}>
+                            {msg.agent.split('\n').map((line, lineIdx) => (
+                              line.trim() && <p key={lineIdx} style={{margin: '8px 0'}}>{line}</p>
+                            ))}
+                          </div>
                         </div>
                       )}
                     </div>
@@ -340,14 +349,14 @@ function JAMDashboard() {
   const renderAnalyticsContent = () => {
     if (selectedSession) {
       return (
-        <div className="modal-overlay" onClick={() => setSelectedSession(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-overlay" style={{zIndex: 1000}} onClick={() => setSelectedSession(null)}>
+          <div className="modal-content" style={{maxHeight: '85vh', overflow: 'hidden'}} onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3>JAM Analytics: {selectedSession.sessionId}</h3>
               <button className="close-btn" onClick={() => setSelectedSession(null)}>×</button>
             </div>
             
-            <div className="modal-body">
+            <div className="modal-body" style={{maxHeight: 'calc(85vh - 120px)', overflowY: 'auto', padding: '20px'}}>
               <div className="session-overview">
                 <div className="overview-item">
                   <span className="label">Start Date:</span>
@@ -395,123 +404,6 @@ function JAMDashboard() {
                 >
                   Click here to See Confidence Graph of Your Speech
                 </button>
-                {selectedSession.confidenceData && (
-                  <div className="confidence-modal-overlay" onClick={() => setSelectedSession(prev => ({ ...prev, confidenceData: null }))}>
-                    <div className="confidence-modal" onClick={(e) => e.stopPropagation()}>
-                      <div className="confidence-modal-header">
-                        <h3>Speech Confidence Analysis</h3>
-                        <button className="close-btn" onClick={() => setSelectedSession(prev => ({ ...prev, confidenceData: null }))}>×</button>
-                      </div>
-                      <div className="confidence-modal-body">
-                        <div className="graphs-side-by-side">
-                          <div className="graph-section left-graph">
-                            <h4>Word Confidence Analysis</h4>
-                            <div className="modern-bar-chart">
-                              {selectedSession.confidenceData.results?.items?.map((item, idx) => {
-                                const confidence = parseFloat(item.alternatives[0].confidence) * 100;
-                                const getColor = (conf) => {
-                                  if (conf >= 85) return '#10b981';
-                                  if (conf >= 70) return '#f59e0b';
-                                  return '#ef4444';
-                                };
-                                return (
-                                  <div key={idx} className="modern-bar-item" style={{'--delay': `${idx * 0.02}s`}}>
-                                    <span className="modern-word-label">{item.alternatives[0].content}</span>
-                                    <div className="modern-bar-container">
-                                      <div 
-                                        className="modern-progress-bar" 
-                                        style={{
-                                          width: `${confidence}%`,
-                                          backgroundColor: getColor(confidence)
-                                        }}
-                                      ></div>
-                                      <span className="modern-confidence-score">{confidence.toFixed(1)}%</span>
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                          <div className="graph-section right-graph">
-                            <h4>Confidence Trend Analysis</h4>
-                            <div className="modern-line-chart-container">
-                              <svg className="modern-line-chart" viewBox="0 0 600 300">
-                                <defs>
-                                  <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                                    <stop offset="0%" stopColor="#0ea5e9" stopOpacity="0.3" />
-                                    <stop offset="100%" stopColor="#0ea5e9" stopOpacity="0.05" />
-                                  </linearGradient>
-                                  <filter id="dropShadow">
-                                    <feDropShadow dx="0" dy="2" stdDeviation="3" floodOpacity="0.1"/>
-                                  </filter>
-                                </defs>
-                                
-                                {/* Grid lines */}
-                                {[0, 25, 50, 75, 100].map(y => (
-                                  <line key={y} x1="55" y1={250 - (y * 2)} x2="555" y2={250 - (y * 2)} stroke="#e5e7eb" strokeWidth="1" opacity="0.5" />
-                                ))}
-                                
-                                {/* Area under curve */}
-                                <path
-                                  d={`M 55,250 ${selectedSession.confidenceData.results?.items?.map((item, idx) => {
-                                    const x = 55 + (idx / (selectedSession.confidenceData.results.items.length - 1)) * 500;
-                                    const y = 250 - (parseFloat(item.alternatives[0].confidence) * 200);
-                                    return `L ${x},${y}`;
-                                  }).join(' ')} L 555,250 Z`}
-                                  fill="url(#areaGradient)"
-                                />
-                                
-                                {/* Main line */}
-                                <path
-                                  d={`M ${selectedSession.confidenceData.results?.items?.map((item, idx) => {
-                                    const x = 55 + (idx / (selectedSession.confidenceData.results.items.length - 1)) * 500;
-                                    const y = 250 - (parseFloat(item.alternatives[0].confidence) * 200);
-                                    return `${x},${y}`;
-                                  }).join(' L ')}`}
-                                  fill="none"
-                                  stroke="#0ea5e9"
-                                  strokeWidth="3"
-                                  filter="url(#dropShadow)"
-                                />
-                                
-                                {/* Data points with confidence drops highlighted */}
-                                {selectedSession.confidenceData.results?.items?.map((item, idx) => {
-                                  const confidence = parseFloat(item.alternatives[0].confidence);
-                                  const x = 55 + (idx / (selectedSession.confidenceData.results.items.length - 1)) * 500;
-                                  const y = 250 - (confidence * 200);
-                                  const isLowConfidence = confidence < 0.7;
-                                  return (
-                                    <circle
-                                      key={idx}
-                                      cx={x}
-                                      cy={y}
-                                      r={isLowConfidence ? "6" : "4"}
-                                      fill={isLowConfidence ? "#ef4444" : "#0ea5e9"}
-                                      stroke="white"
-                                      strokeWidth="2"
-                                      className="confidence-point"
-                                    >
-                                      <title>{item.alternatives[0].content}: {(confidence * 100).toFixed(1)}%</title>
-                                    </circle>
-                                  );
-                                })}
-                                
-                                {/* Y-axis labels */}
-                                {[0, 25, 50, 75, 100].map(y => (
-                                  <text key={y} x="50" y={255 - (y * 2)} fontSize="12" fill="#6b7280" textAnchor="end">{y}%</text>
-                                ))}
-                                
-                                {/* Axis labels */}
-                                <text x="300" y="285" fontSize="14" fill="#374151" textAnchor="middle">Word Index (Speech Timeline)</text>
-                                <text x="20" y="150" fontSize="14" fill="#374151" textAnchor="middle" transform="rotate(-90 20 150)">Confidence Score</text>
-                              </svg>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
 
               {selectedSession.conversationHistory && selectedSession.conversationHistory.some(conv => conv.user) && (
@@ -520,7 +412,7 @@ function JAMDashboard() {
                   <div className="speech-content">
                     {selectedSession.conversationHistory.map((conv, idx) => (
                       conv.user && (
-                        <p key={idx} className="user-text">{conv.user}</p>
+                        <p key={idx} className="user-text" style={{wordBreak: 'break-word', whiteSpace: 'pre-wrap', lineHeight: '1.5'}}>{conv.user}</p>
                       )
                     ))}
                   </div>
@@ -535,7 +427,7 @@ function JAMDashboard() {
                       conv.agent && (
                         <div key={idx} className="feedback-item">
                           {conv.agent.split('\n').map((line, lineIdx) => (
-                            line.trim() && <p key={lineIdx} className="feedback-line">{line}</p>
+                            line.trim() && <p key={lineIdx} className="feedback-line" style={{wordBreak: 'break-word', whiteSpace: 'pre-wrap', lineHeight: '1.5', margin: '8px 0'}}>{line}</p>
                           ))}
                         </div>
                       )
@@ -636,6 +528,118 @@ function JAMDashboard() {
           )}
         </div>
       </div>
+      
+      {showConfidenceModal && confidenceData && (
+        <div className="confidence-modal-overlay" style={{zIndex: 2000}} onClick={() => {setShowConfidenceModal(false); setConfidenceData(null);}}>
+          <div className="confidence-modal" style={{maxHeight: '90vh', overflow: 'hidden'}} onClick={(e) => e.stopPropagation()}>
+            <div className="confidence-modal-header">
+              <h3>Speech Confidence Analysis</h3>
+              <button className="close-btn" onClick={() => {setShowConfidenceModal(false); setConfidenceData(null);}}>×</button>
+            </div>
+            <div className="confidence-modal-body" style={{maxHeight: 'calc(90vh - 120px)', overflowY: 'auto', padding: '20px'}}>
+              <div className="graphs-side-by-side">
+                <div className="graph-section left-graph">
+                  <h4>Word Confidence Analysis</h4>
+                  <div className="modern-bar-chart">
+                    {confidenceData.results?.items?.map((item, idx) => {
+                      const confidence = parseFloat(item.alternatives[0].confidence) * 100;
+                      const getColor = (conf) => {
+                        if (conf >= 85) return '#10b981';
+                        if (conf >= 70) return '#f59e0b';
+                        return '#ef4444';
+                      };
+                      return (
+                        <div key={idx} className="modern-bar-item" style={{'--delay': `${idx * 0.02}s`}}>
+                          <span className="modern-word-label">{item.alternatives[0].content}</span>
+                          <div className="modern-bar-container">
+                            <div 
+                              className="modern-progress-bar" 
+                              style={{
+                                width: `${confidence}%`,
+                                backgroundColor: getColor(confidence)
+                              }}
+                            ></div>
+                            <span className="modern-confidence-score">{confidence.toFixed(1)}%</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div className="graph-section right-graph">
+                  <h4>Confidence Trend Analysis</h4>
+                  <div className="modern-line-chart-container">
+                    <svg className="modern-line-chart" viewBox="0 0 600 300">
+                      <defs>
+                        <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                          <stop offset="0%" stopColor="#0ea5e9" stopOpacity="0.3" />
+                          <stop offset="100%" stopColor="#0ea5e9" stopOpacity="0.05" />
+                        </linearGradient>
+                        <filter id="dropShadow">
+                          <feDropShadow dx="0" dy="2" stdDeviation="3" floodOpacity="0.1"/>
+                        </filter>
+                      </defs>
+                      
+                      {[0, 25, 50, 75, 100].map(y => (
+                        <line key={y} x1="55" y1={250 - (y * 2)} x2="555" y2={250 - (y * 2)} stroke="#e5e7eb" strokeWidth="1" opacity="0.5" />
+                      ))}
+                      
+                      <path
+                        d={`M 55,250 ${confidenceData.results?.items?.map((item, idx) => {
+                          const x = 55 + (idx / (confidenceData.results.items.length - 1)) * 500;
+                          const y = 250 - (parseFloat(item.alternatives[0].confidence) * 200);
+                          return `L ${x},${y}`;
+                        }).join(' ')} L 555,250 Z`}
+                        fill="url(#areaGradient)"
+                      />
+                      
+                      <path
+                        d={`M ${confidenceData.results?.items?.map((item, idx) => {
+                          const x = 55 + (idx / (confidenceData.results.items.length - 1)) * 500;
+                          const y = 250 - (parseFloat(item.alternatives[0].confidence) * 200);
+                          return `${x},${y}`;
+                        }).join(' L ')}`}
+                        fill="none"
+                        stroke="#0ea5e9"
+                        strokeWidth="3"
+                        filter="url(#dropShadow)"
+                      />
+                      
+                      {confidenceData.results?.items?.map((item, idx) => {
+                        const confidence = parseFloat(item.alternatives[0].confidence);
+                        const x = 55 + (idx / (confidenceData.results.items.length - 1)) * 500;
+                        const y = 250 - (confidence * 200);
+                        const isLowConfidence = confidence < 0.7;
+                        return (
+                          <circle
+                            key={idx}
+                            cx={x}
+                            cy={y}
+                            r={isLowConfidence ? "6" : "4"}
+                            fill={isLowConfidence ? "#ef4444" : "#0ea5e9"}
+                            stroke="white"
+                            strokeWidth="2"
+                            className="confidence-point"
+                          >
+                            <title>{item.alternatives[0].content}: {(confidence * 100).toFixed(1)}%</title>
+                          </circle>
+                        );
+                      })}
+                      
+                      {[0, 25, 50, 75, 100].map(y => (
+                        <text key={y} x="50" y={255 - (y * 2)} fontSize="12" fill="#6b7280" textAnchor="end">{y}%</text>
+                      ))}
+                      
+                      <text x="300" y="285" fontSize="14" fill="#374151" textAnchor="middle">Word Index (Speech Timeline)</text>
+                      <text x="20" y="150" fontSize="14" fill="#374151" textAnchor="middle" transform="rotate(-90 20 150)">Confidence Score</text>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
