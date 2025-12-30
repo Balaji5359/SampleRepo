@@ -111,6 +111,15 @@ const ProfileCreation = () => {
     }
   };
 
+  const validateUsername = (username) => {
+    const usernameRegex = /^[a-z0-9_]+$/;
+    if (!username) return 'Username is required';
+    if (username.length < 3) return 'Username must be at least 3 characters';
+    if (/^[A-Z]/.test(username)) return 'Username cannot start with capital letter';
+    if (!usernameRegex.test(username)) return 'Username can only contain lowercase letters, numbers, and underscore';
+    return null;
+  };
+
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
 
@@ -128,20 +137,28 @@ const ProfileCreation = () => {
       
       // Check username availability when username changes
       if (name === 'username') {
-        setUsernameAvailable(null);
-        setUsernameChecking(false);
-        
-        // Clear existing timeout
-        if (usernameCheckTimeout) {
-          clearTimeout(usernameCheckTimeout);
-        }
-        
-        // Set new timeout for username check
-        if (value.trim() && value.length >= 3) {
-          const timeout = setTimeout(() => {
-            checkUsernameAvailability(value);
-          }, 800);
-          setUsernameCheckTimeout(timeout);
+        const usernameError = validateUsername(value);
+        if (usernameError) {
+          setError(usernameError);
+          setUsernameAvailable(null);
+          setUsernameChecking(false);
+        } else {
+          setError('');
+          setUsernameAvailable(null);
+          setUsernameChecking(false);
+          
+          // Clear existing timeout
+          if (usernameCheckTimeout) {
+            clearTimeout(usernameCheckTimeout);
+          }
+          
+          // Set new timeout for username check
+          if (value.trim() && value.length >= 3) {
+            const timeout = setTimeout(() => {
+              checkUsernameAvailability(value);
+            }, 800);
+            setUsernameCheckTimeout(timeout);
+          }
         }
       }
     }
@@ -165,6 +182,8 @@ const ProfileCreation = () => {
     if (sectionIndex === 0) {
       // Personal Information validation
       if (!formData.username.trim()) errors.push('Username is required');
+      const usernameError = validateUsername(formData.username);
+      if (usernameError) errors.push(usernameError);
       if (usernameAvailable === false) errors.push('Username is already taken. Please choose a different one.');
       if (!formData.dateOfBirth) errors.push('Date of Birth is required');
       if (!formData.gender) errors.push('Gender is required');
@@ -174,6 +193,7 @@ const ProfileCreation = () => {
       if (!formData.branch) errors.push('Branch is required');
       if (!formData.year) errors.push('Year is required');
       if (!formData.sem) errors.push('Semester is required');
+      if (!formData.section) errors.push('Section is required');
     } else if (sectionIndex === 2) {
       // Survey validation - check all required survey fields
       if (!formData.englishLevel) errors.push('English proficiency level is required');
@@ -196,12 +216,39 @@ const ProfileCreation = () => {
   };
 
   const nextSurveyCard = () => {
+    // Validate current question before moving to next
+    const currentQuestion = surveyQuestions[currentSurveyCard];
+    const currentValue = formData[currentQuestion.id];
+    
+    if (!currentValue || (Array.isArray(currentValue) && currentValue.length === 0)) {
+      setError(`Please answer: ${currentQuestion.title}`);
+      return;
+    }
+    
+    // Check conditional validations
+    if (currentQuestion.id === 'communicationGoals' && currentValue.includes('public speaking') && !formData.otherGoals.trim()) {
+      setError('Please specify your public speaking goals');
+      return;
+    }
+    
+    if (currentQuestion.id === 'speakingFrequency' && currentValue === 'no' && (!formData.notSpeakingReasons || formData.notSpeakingReasons.length === 0)) {
+      setError('Please select a reason for not speaking English regularly');
+      return;
+    }
+    
+    if (formData.notSpeakingReasons?.includes('Other reasons (please specify)') && !formData.otherReasons.trim()) {
+      setError('Please specify the other reason');
+      return;
+    }
+    
+    setError(''); // Clear errors
     if (currentSurveyCard < surveyQuestions.length - 1) {
       setCurrentSurveyCard(prev => prev + 1);
     }
   };
 
   const prevSurveyCard = () => {
+    setError(''); // Clear errors when going back
     if (currentSurveyCard > 0) {
       setCurrentSurveyCard(prev => prev - 1);
     }
@@ -424,10 +471,12 @@ return (
                   <div className="form-grid">
                     <div className="input-group">
                       <label>Full Name *</label>
+                      <p style={{ fontSize: '12px' }}>Auto captured from Signup</p>
                       <input type="text" name="fullName" value={formData.fullName || ''} readOnly className="readonly-field" placeholder="Full name will be loaded from signup" required />
                     </div>
                     <div className="input-group">
-                      <label>Username *</label>
+                      <label>Username</label>
+                      <p style={{ fontSize: '12px' }}>Only lowercase, numbers and underscore allowed</p>
                       <div className="username-input-container">
                         <input 
                           type="text" 
@@ -516,8 +565,8 @@ return (
                     </div>
                     
                     <div className="input-group">
-                      <label>Section</label>
-                      <select name="section" value={formData.section} onChange={handleInputChange}>
+                      <label>Section *</label>
+                      <select name="section" value={formData.section} onChange={handleInputChange} required>
                         <option value="">Select Section</option>
                         <option value="A">A</option>
                         <option value="B">B</option>
