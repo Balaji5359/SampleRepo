@@ -143,7 +143,7 @@ function LandingPage() {
           </div>
 
           <div className="auth-buttons">
-            <button className="btn-signup" onClick={() => { window.location.href = '/signup'; }}>Get started now !.</button>
+            <button className="btn-signup" onClick={() => { window.location.href = '/signup'; }}>Get started now !</button>
           </div>
         </div>
       </header>
