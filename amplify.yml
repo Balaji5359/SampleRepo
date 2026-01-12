@@ -14,3 +14,6 @@ frontend:
   cache:
     paths:
       - node_modules/**/*
+environment:
+  variables:
+    VITE_CONTACT_API_URL: https://nrkg7cmta3.execute-api.ap-south-1.amazonaws.com/dev/skillroute_landingpagecontactsection_api

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './landing.css';
+import logo from '../assets/logo.png';
 
 function LandingPage() {
   const [activeModal, setActiveModal] = useState(null);
@@ -46,8 +47,7 @@ function LandingPage() {
     setSubmitMessage('');
 
     try {
-      const apiUrl = 'https://nrkg7cmta3.execute-api.ap-south-1.amazonaws.com/dev/skillroute_landingpagecontactsection_api';
-      
+      const apiUrl = import.meta.env.VITE_CONTACT_API_URL 
       const response = await fetch(apiUrl, {
         method: 'PUT',
         headers: {
@@ -131,17 +131,16 @@ function LandingPage() {
       {/* Header */}
       <header className="header">
         <div className="header-content">
-          <div className="logo">
+          <div className="logo" style={{ display: 'flex', alignItems: 'center', gap: '20px', marginLeft: '-50px' }}>
+            <img src={logo} alt="Skill Route logo" className="logo-img" style={{ width: 65, height: 60, borderRadius: '50%', border: 'none' }} />
             <span className="logo-text">Skill Route</span>
-            <div className="nav-links">
-              <a href="#home" onClick={(e) => handleNavClick(e, 'home')}>Home</a>
-              <a href="#features" onClick={(e) => handleNavClick(e, 'features')}>Features</a>
-              <a href="#activities" onClick={(e) => handleNavClick(e, 'activities')}>Activities</a>
-              <a href="#pricing" onClick={(e) => handleNavClick(e, 'pricing')}>Pricing</a>
-              <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')}>Contact</a>
-            </div>
           </div>
-
+          <div className="nav-links">
+            <a href="#home" onClick={(e) => handleNavClick(e, 'home')}>Home</a>
+            <a href="#features" onClick={(e) => handleNavClick(e, 'features')}>Features</a>
+            <a href="#activities" onClick={(e) => handleNavClick(e, 'activities')}>Activities</a>
+            <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')}>Contact</a>
+          </div>
           <div className="auth-buttons">
             <button className="btn-signup" onClick={() => { window.location.href = '/signup'; }}>Get started now !</button>
           </div>
@@ -304,9 +303,9 @@ function LandingPage() {
           {/* Row 2: Right to Left */}
           <div className="roadmap-row reverse">
             <div className="roadmap-step">
-              <div className="step-number">6</div>
+              <div className="step-number">4</div>
               <div className="step-content">
-                <h4>Hobbies & Interests</h4>
+                <h4>Project Discussion</h4>
               </div>
             </div>
             <div className="roadmap-connector horizontal reverse"></div>
@@ -318,9 +317,9 @@ function LandingPage() {
             </div>
             <div className="roadmap-connector horizontal reverse"></div>
             <div className="roadmap-step">
-              <div className="step-number">4</div>
+              <div className="step-number">6</div>
               <div className="step-content">
-                <h4>Project Discussion</h4>
+                <h4>Hobbies & Interests</h4>
               </div>
             </div>
           </div>
@@ -378,7 +377,7 @@ function LandingPage() {
           {/* Row 2: Right to Left */}
           <div className="roadmap-row reverse">
             <div className="roadmap-step">
-              <div className="step-number">13</div>
+              <div className="step-number">11</div>
               <div className="step-content">
                 <h4>Logical Puzzles</h4>
               </div>
@@ -392,7 +391,7 @@ function LandingPage() {
             </div>
             <div className="roadmap-connector horizontal reverse"></div>
             <div className="roadmap-step">
-              <div className="step-number">11</div>
+              <div className="step-number">13</div>
               <div className="step-content">
                 <h4>Follow-Up Questioning</h4>
               </div>
@@ -409,7 +408,7 @@ function LandingPage() {
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="pricing">
+      {/* <section id="pricing" className="pricing">
         <div className="section-header">
           <h2>Choose Your Learning Path</h2>
           <p>Flexible plans designed for every learner's needs</p>
@@ -488,7 +487,7 @@ function LandingPage() {
             <button className="plan-btn">Go Premium</button>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Contact Section */}
       <section id="contact" className="contact">
@@ -507,7 +506,7 @@ function LandingPage() {
                 </div>
                 <div className="method-details">
                   <h4>LinkedIn</h4>
-                  <span>linkedin.com/company/skillroute</span>
+                  <span>linkedin.com/rrbalaji</span>
                 </div>
               </div>
               <div className="contact-method">
@@ -519,7 +518,7 @@ function LandingPage() {
                 </div>
                 <div className="method-details">
                   <h4>Email</h4>
-                  <span>support@skillroute.com</span>
+                  <span>skillrouteai@gmail.com</span>
                 </div>
               </div>
               <div className="contact-method">
@@ -530,7 +529,7 @@ function LandingPage() {
                 </div>
                 <div className="method-details">
                   <h4>Phone</h4>
-                  <span>+91 9876543210</span>
+                  <span>+91 9398350211</span>
                 </div>
               </div>
             </div>
@@ -572,10 +571,9 @@ function LandingPage() {
         <div className="footer-content">
           <div className="footer-brand">
             <div className="logo">
-              <span className="logo-icon">🚀</span>
               <span className="logo-text">Skill Route</span>
             </div>
-            <p>📍 MADANAPALLE-517325 </p>
+            <p>📍 India - Andhra Pradesh </p>
           </div>
         </div>
         <div className="footer-bottom">
