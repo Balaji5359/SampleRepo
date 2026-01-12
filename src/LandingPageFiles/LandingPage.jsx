@@ -577,7 +577,7 @@ function LandingPage() {
           </div>
         </div>
         <div className="footer-bottom">
-          <p>&copy; 2025 Skill-Route. All rights reserved.</p>
+          <p>&copy; 2026 Skill-Route. All rights reserved.</p>
         </div>
       </footer>
 
