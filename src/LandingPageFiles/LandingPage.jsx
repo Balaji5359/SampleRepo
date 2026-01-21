@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import './landing.css';
 import logo from '../assets/logo.png';
-import PricingPlans from './PricingPlans';
 
 function LandingPage() {
   const [activeModal, setActiveModal] = useState(null);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
@@ -29,6 +29,17 @@ function LandingPage() {
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    if (showPremiumModal) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showPremiumModal]);
+
   const handleNavClick = (e, targetId) => {
     e.preventDefault();
     const element = document.getElementById(targetId);
@@ -41,6 +52,91 @@ function LandingPage() {
       });
     }
   };
+
+  const handleButtonClick = (planTag) => {
+    if (planTag === "Free") {
+      window.location.href = '/signup';
+    } else {
+      setShowPremiumModal(true);
+    }
+  };
+
+  const plans = [
+    {
+      tag: "Free",
+      price: "₹0",
+      duration: "/Free Trail",
+      button: "Try Free",
+      highlight: false,
+      features: [
+        "2-Free Communication Tests - Basic Level",
+        "1-Free trial for Image-Based Speaking",
+        "1-Free trial for 3 Interview Modules - Basic",
+        "Limited AI feedback and Speech Analytics",
+        "Advanced interview & communication modules locked",
+        "AI Feedback on Every Attempt",
+        "Advanced analytics, Confident scores (Locked)",
+        "Audio replay & AI pronunciation insights (Locked)",
+      ],
+    },
+    {
+      tag: "1 Month",
+      price: "₹99",
+      duration: "/1 month",
+      button: "Start 1-Month Plan",
+      highlight: false,
+      features: [
+        "2 Communication Tests (Daily) - All Level",
+        "1 Image-Based Speaking (Daily) - All Level",
+        "TaraAI-guided 2 practice modules daily",
+        "2-free trials for Image-Based Speaking",
+        "Interview Modules Basic, Advance and communication all Levels - Unlock",
+        "AI Feedback on Every Attempt",
+        "Advanced analytics, Confident scores",
+        "Audio replay & AI pronunciation insights",
+        "Advanced analytics dashboard",
+        "Leaderboards & streak rewards",
+      ],
+    },
+    {
+      tag: "Most Popular",
+      price: "₹249",
+      duration: "/3 months",
+      button: "Upgrade Now",
+      highlight: true,
+      features: [
+        "2 Communication Tests (Daily) - All Level",
+        "1 Image-Based Speaking (Daily) - All Level",
+        "TaraAI-guided 2 practice modules daily",
+        "2-free trials for Image-Based Speaking",
+        "Interview Modules Basic, Advance and communication all Levels - Unlock",
+        "AI Feedback on Every Attempt",
+        "Advanced analytics, Confident scores",
+        "Audio replay & AI pronunciation insights",
+        "Advanced analytics dashboard",
+        "Leaderboards & streak rewards",
+      ],
+    },
+    {
+      tag: "Best Value",
+      price: "₹699",
+      duration: "/Year ✨",
+      button: "Go Premium",
+      highlight: false,
+      features: [
+        "2 Communication Tests (Daily) - All Level",
+        "1 Image-Based Speaking (Daily) - All Level",
+        "TaraAI-guided 2 practice modules daily",
+        "2-free trials for Image-Based Speaking",
+        "Interview Modules Basic, Advance and communication all Levels - Unlock",
+        "AI Feedback on Every Attempt",
+        "Advanced analytics, Confident scores",
+        "Audio replay & AI pronunciation insights",
+        "Advanced analytics dashboard",
+        "Leaderboards & streak rewards",
+      ],
+    },
+  ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -410,7 +506,128 @@ function LandingPage() {
       </section>
 
       {/* Pricing Section */}
-      <PricingPlans />
+      <section id="pricing" className="pricing" style={{ background: 'rgb(247, 247, 247)', padding: '6rem 2rem', top: '-220px' }}>
+        <div className="section-header">
+          <h2>Choose Your Learning Path</h2>
+          <p>Flexible plans designed for every learner's needs</p>
+        </div>
+
+        <div className="pricing-container" style={{ 
+          maxWidth: '1400px', 
+          margin: '0 auto', 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(4, 1fr)',
+        }}>
+          {plans.map((plan, idx) => (
+            <div
+              key={idx}
+              className={`pricing-card ${
+                plan.highlight ? "featured" : ""
+              }`}
+              style={{
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(20px)',
+                borderRadius: '16px',
+                textAlign: 'center',
+                boxShadow: '0 15px 35px rgba(0, 0, 0, 0.1)',
+                border: plan.highlight ? '2px solid #3B9797' : '1px solid rgba(255, 255, 255, 0.2)',
+                flex: 1,
+                transform: 'translateX(0) translateY(0)',
+                opacity: 1,
+                transition: 'all 0.3s ease',
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100%'
+              }}
+            >
+              <div style={{ marginBottom: '-1.2rem' }}>
+                <span className={`plan-badge ${plan.highlight ? 'popular' : ''}`} style={{
+                  background: plan.highlight ? 'linear-gradient(135deg, #3B9797, #5bb5b5)' : '#f1f5f9',
+                  color: plan.highlight ? 'white' : '#000000',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '16px',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  marginBottom: '1rem',
+                  display: 'inline-block'
+                }}>
+                  {plan.tag}
+                </span>
+                
+                <div className="plan-price" style={{ marginBottom: '1.5rem' }}>
+                  <span className="amount" style={{
+                    fontSize: '2rem',
+                    fontWeight: '800',
+                    color: '#000000'
+                  }}>{plan.price}</span>
+                  <span className="period" style={{
+                    fontSize: '1rem',
+                    color: '#666',
+                    marginLeft: '0.25rem'
+                  }}>{plan.duration}</span>
+                </div>
+              </div>
+
+              <ul className="plan-features" style={{
+                listStyle: 'none',
+                marginBottom: '2rem',
+                textAlign: 'left',
+                flex: 1,
+                padding: 0
+              }}>
+                {plan.features.map((feature, i) => (
+                  <li key={i} style={{
+                    color: '#000000',
+                    fontSize: '0.8rem',
+                    lineHeight: '1.4',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '0.75rem'
+                  }}>
+                    <svg style={{
+                      width: '16px',
+                      color: '#3B9797',
+                      marginTop: '0.125rem',
+                      flexShrink: 0
+                    }} fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <button
+                onClick={() => handleButtonClick(plan.tag)}
+                className="plan-btn"
+                style={{
+                  width: '100%',
+                  marginTop: '-20px',
+                  padding: '1rem',
+                  background: 'linear-gradient(135deg, #3B9797, #5bb5b5)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '12px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  fontSize: '1rem'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 8px 25px rgba(59, 151, 151, 0.3)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = 'none';
+                }}
+              >
+                {plan.button}
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* Contact Section */}
       <section id="contact" className="contact">
@@ -513,6 +730,51 @@ function LandingPage() {
               <h3>{activities.find(a => a.id === activeModal)?.title}</h3>
               <p>{activities.find(a => a.id === activeModal)?.description}</p>
               <button className="modal-btn">Start Activity</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Premium Access Modal */}
+      {showPremiumModal && (
+        <div className="modal-overlay" onClick={() => setShowPremiumModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setShowPremiumModal(false)}>×</button>
+            <div className="modal-body">
+              <h3>Premium Access Required</h3>
+              <p>To access premium features and unlock your full learning potential, please follow our simple payment flow:</p>
+              <div className="premium-steps">
+                <div className="step">
+                  <div className="step-number">1</div>
+                  <div className="step-content">
+                    <h4>New User?</h4>
+                    <p>Sign up → Create Profile → Login → Access Profile & Buy Premium</p>
+                  </div>
+                </div>
+                
+                <div className="step">
+                  <div className="step-number">2</div>
+                  <div className="step-content">
+                    <h4>Existing User?</h4>
+                    <p>Login → Access Profile Page → Buy Premium</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="premium-benefits">
+                <h4>Premium Benefits:</h4>
+                <ul>
+                  <li>✓ Unlimited AI-powered practice sessions</li>
+                  <li>✓ Advanced analytics & progress tracking</li>
+                  <li>✓ All interview modules unlocked</li>
+                  <li>✓ Premium feedback & pronunciation insights</li>
+                </ul>
+              </div>
+              <center>
+              <button className="modal-btn" onClick={() => window.location.href = '/signup'}>
+                Proceed to Sign Up
+              </button>
+              </center>
             </div>
           </div>
         </div>

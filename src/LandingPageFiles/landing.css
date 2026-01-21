@@ -126,10 +126,10 @@ body {
 
 .btn-login,
 .btn-signup {
-  padding: 0.75rem 1.5rem;
+  padding: 1.2rem 1.8rem;
   border-radius: 13px;
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.3s ease;
   border: none;
@@ -185,6 +185,7 @@ body {
   gap: 4rem;
   align-items: center;
   top: 1000px;
+  margin-top: -50px;
 }
 
 .hero-text {
@@ -339,58 +340,13 @@ body {
   transform: translateY(0);
 }
 
-/* Stats Section 
-.stats {
-  padding: 4rem 2rem;
-  position: relative;
-  z-index: 5;
-}
-
-.stats-grid {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 2rem;
-}
-
-.stat-item {
-  text-align: center;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border-radius: 16px;
-  padding: 2rem 1rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: all 0.3s ease;
-}
-
-.stat-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 20px 40px rgba(59, 130, 246, 0.15);
-}
-
-.stat-number {
-  font-size: 2.5rem;
-  font-weight: 800;
-  background: linear-gradient(135deg, #3B9797, #5bb5b5);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 0.5rem;
-}
-
-.stat-label {
-  font-size: 0.875rem;
-  color: #000000;
-  font-weight: 500;
-}*/
 
 /* Features Section */
 .features {
   padding: 2rem 2rem;
   position: relative;
   z-index: 5;
+  top: -150px;
 }
 
 @media screen and (max-width: 1200px) {
@@ -487,6 +443,7 @@ body {
   background: rgba(255, 255, 255, 0.05);
   position: relative;
   z-index: 5;
+  top: -150px;
 }
 
 .activities-grid {
@@ -774,6 +731,8 @@ body {
   background: rgb(247, 247, 247);
   position: relative;
   z-index: 5;
+  top: -280px;
+  margin-bottom: -280px;
 }
 
 .contact-content {
@@ -924,6 +883,7 @@ body {
   position: relative;
   z-index: 5;
   border-top: 1px solid rgba(59, 151, 151, 0.1);
+  margin-top: -70px;
 }
 
 .footer-content {
@@ -967,12 +927,13 @@ body {
   animation: fadeIn 0.3s ease;
 }
 
+
 .modal-content {
   background: white;
   border-radius: 20px;
   padding: 2rem;
-  max-width: 600px;
-  max-height: 80vh;
+  max-width: 800px;
+  max-height: 70vh;
   width: 90%;
   position: relative;
   animation: slideIn 0.3s ease;
@@ -985,7 +946,7 @@ body {
   right: 1rem;
   background: none;
   border: none;
-  font-size: 1.5rem;
+  font-size: 2.5rem;
   cursor: pointer;
   color: #000000;
 }
@@ -1001,6 +962,93 @@ body {
   color: #000000;
   margin-bottom: 2rem;
   line-height: 1.6;
+}
+
+.modal-btn {
+  background: linear-gradient(135deg, #3b82f6, #60a5fa);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.modal-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+}
+
+.premium-steps {
+  margin: 2rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: rgba(59, 151, 151, 0.05);
+  border-radius: 12px;
+  border-left: 4px solid #3B9797;
+}
+
+.step-number {
+  background: #3B9797;
+  color: white;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.step-content h4 {
+  color: #3B9797;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.step-content p {
+  color: #666;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.premium-benefits {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: rgba(16, 185, 129, 0.05);
+  border-radius: 12px;
+  border-left: 4px solid #10b981;
+}
+
+.premium-benefits h4 {
+  color: #10b981;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.premium-benefits ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.premium-benefits li {
+  color: #666;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  transition: all 0.3s ease;
 }
 
 .modal-btn {
@@ -1117,6 +1165,7 @@ body {
   background: rgba(255, 255, 255, 0.05);
   position: relative;
   z-index: 5;
+  top: -180px;
 }
 
 .roadmap-section {
