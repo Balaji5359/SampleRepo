@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "../CommunicationTestsFiles/test.css";
+import "../components/shared-styles.css";
+import "./practice-styles.css";
+import Header from '../components/Header';
 
 function Practice() {
-    // const [tests, setTests] = useState({});
     const [loading, setLoading] = useState(true);
     const [activeChallenge, setActiveChallenge] = useState(null);
     const [instructionIndex, setInstructionIndex] = useState(0);
     const [userName, setUserName] = useState("");
+    const [userType, setUserType] = useState('free');
+    const [streakData, setStreakData] = useState({ current_streak: 0 });
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -16,21 +19,43 @@ function Practice() {
             setLoading(false);
             return;
         }  
-        fetch('https://ntjkr8rnd6.execute-api.ap-south-1.amazonaws.com/dev/student_profilecreate/student_profile_senddata', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ college_email: storedEmail }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data?.body) {
-                const parsedData = typeof data.body === "string" ? JSON.parse(data.body) : data.body;
-                setTests(parsedData.tests || {});
+        
+        Promise.all([
+            fetch('https://ntjkr8rnd6.execute-api.ap-south-1.amazonaws.com/dev/student_profilecreate/student_profile_senddata', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ college_email: storedEmail }),
+            }),
+            fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/update-user-streak', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    body: JSON.stringify({
+                        college_email: storedEmail,
+                        get_streak_data: true
+                    })
+                })
+            })
+        ])
+        .then(async ([profileResponse, streakResponse]) => {
+            const profileData = await profileResponse.json();
+            const streakDataResult = await streakResponse.json();
+            
+            if (profileData?.body) {
+                const parsedProfileData = typeof profileData.body === "string" ? JSON.parse(profileData.body) : profileData.body;
+                setUserType(parsedProfileData.user_type === 'premium' && parsedProfileData.premium_status === 'active' ? 'premium' : 'free');
             }
+            
+            if (streakDataResult?.body) {
+                const parsedStreakData = typeof streakDataResult.body === "string" ? JSON.parse(streakDataResult.body) : streakDataResult.body;
+                setStreakData(parsedStreakData);
+            }
+            
             setLoading(false);
         })
         .catch(() => setLoading(false));
     }, []);
+
     const getScoreFromStorage = (testType) => {
         const scores = JSON.parse(localStorage.getItem('testScores') || '{}');
         return scores[testType] || 0;
@@ -70,6 +95,7 @@ function Practice() {
             ]
         }
     ];
+
     const activities = [
         {
             id: 'jam',
@@ -166,247 +192,64 @@ function Practice() {
 
     if (loading) {
         return (
-            <div style={{ padding: '20px', textAlign: 'center' }}>
+            <div className="loading-container free-bg">
+                <div className="loading-spinner"></div>
                 <p>Loading tests...</p>
             </div>
         );
     }
 
     return (
-        <div>
-            <div>
-                <header className="header">
-                <div className="header-content">
-                    <div className="logo">
-                        <span className="logo-icon"></span>
-                        <span className="logo-text">Skill Route</span>
-                        <div className="nav-links">
-                            <a href="#" onClick={() => navigate('/profiledata')}>Home</a>
-                            <a href="#" onClick={() => navigate('/test')}>Tests</a>
-                            <a href="#" onClick={() => navigate('/practice')}
-                                style={{
-                                color:"#3B9797",
-                                fontWeight: "600",
-                                textDecoration: "none",
-                                paddingBottom: "6px",
-                                borderBottom: "2.5px solid #3B9797",
-                                cursor: "pointer",
-                            }}>Practice</a>
-                            <a href="#" onClick={() => navigate('/student-dashboard')}>Dashboard</a>
-                            <a href="#" onClick={() => navigate('/student-leaderboard')}>Leaderboard</a>
-                        </div>
-                    </div>
-                    <div className="auth-buttons">
-                        <span style={{ 
-                            marginRight: '15px', 
-                            fontWeight: '600',
-                            background: 'linear-gradient(135deg, #3B9797, #2c7a7a)',
-                            color: 'white',
-                            padding: '8px 16px',
-                            borderRadius: '20px',
-                            fontSize: '0.9rem'
-                        }}>
-                            🔥0
-                        </span>
-                        <span style={{ 
-                            marginRight: '15px', 
-                            color: '#2c3e50', 
-                            fontWeight: '600',
-                            background: '#f8f9fa',
-                            padding: '8px 16px',
-                            borderRadius: '20px',
-                            border: '2px solid #3B9797',
-                            fontSize: '0.9rem'
-                        }}>
-                            {localStorage.getItem('email')?.slice(0, 10) || 'User'}
-                        </span>
-                        <span style={{ marginRight: '15px', color: '#2c3e50', fontWeight: '600' }}>
-                            {userName}
-                        </span>
-                        <button 
-                            className="btn-signup"
-                            onClick={() => {
-                                localStorage.removeItem('email');
-                                navigate('/signup');
-                            }}
-                        >
-                            Logout
-                        </button>
-                    </div>
-                </div>
-            </header>
-            </div>
-            <div style={{ padding: '20px', marginTop: '80px' }}>
-                <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-                    <h1 style={{ fontSize: '2.5rem', color: '#2c3e50', marginBottom: '10px' }}>
-                        Communication & Interview Practice
-                    </h1>
-                    <p style={{ fontSize: '1.1rem', color: '#666' }}>
-                        Enhance your communication skills and prepare for interviews with our tailored practice sessions.
-                    </p>
-                </div>
+        <div className="practice-container">
+            <Header />
+
+            <div className="practice-content">
                 <center>
-                <h1 style={{ fontSize: '2rem', color: '#0d8888ff', marginBottom: '10px' }}>
-                    Communication Practice Activities
-                </h1>
+                    <h1 className="practice-title">Communication Practice Activities</h1>
                 </center>
-                <div style={{ 
-                    display: 'grid', 
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
-                    gap: '20px',
-                    maxWidth: '1200px',
-                    margin: '0 auto 60px auto',
-                    filter: activeChallenge ? 'blur(3px)' : 'none'
-                }}>
+
+                <div className={`practice-grid ${activeChallenge ? 'blurred' : ''}`}>
                     {activities.map((activity) => (
-                        <div 
-                            key={activity.id}
-                            style={{
-                                background: 'white',
-                                borderRadius: '12px',
-                                padding: '24px',
-                                boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                                border: '1px solid #e1e5e9',
-                                cursor: 'pointer',
-                                transition: 'transform 0.2s, box-shadow 0.2s'
-                            }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.transform = 'translateY(-2px)';
-                                e.currentTarget.style.boxShadow = '0 8px 15px rgba(0,0,0,0.15)';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.transform = 'translateY(0)';
-                                e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
-                            }}
-                        >
-                            <h3 style={{ 
-                                fontSize: '1.3rem', 
-                                color: '#2c3e50', 
-                                marginBottom: '12px',
-                                fontWeight: '600'
-                            }}>
-                                {activity.title}
-                            </h3>
-                            <p style={{ 
-                                color: '#666', 
-                                marginBottom: '20px',
-                                lineHeight: '1.5'
-                            }}>
-                                {activity.description}
-                            </p>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <button
-                                    style={{
-                                        background: '#6f7070ff',
-                                        color: 'white',
-                                        border: 'none',
-                                        padding: '10px 20px',
-                                        borderRadius: '6px',
-                                        fontWeight: '500',
-                                        cursor: 'not-allowed'
-                                    }}
-                                >
-                                    Up Comming in future
+                        <div key={activity.id} className="practice-card">
+                            <h3 className="practice-card-title">{activity.title}</h3>
+                            <p className="practice-card-description">{activity.description}</p>
+                            <div className="practice-card-actions">
+                                <button className="practice-upcoming-button">
+                                    Up Coming in future
                                 </button>
                             </div>
                         </div>
                     ))}
                 </div>
 
-                {/* Interview Preparation Roadmap */}
-                <div style={{ maxWidth: '1200px', margin: '0 auto', filter: activeChallenge ? 'blur(3px)' : 'none' }}>
+                <div className={`practice-interview-section ${activeChallenge ? 'blurred' : ''}`}>
                     {interviewLevels.map((level, levelIndex) => {
                         const unlocked = isInterviewLevelUnlocked(level.level);
-                        const score = getScoreFromStorage(`interview_level_${level.level}`);
                         
                         return (
-                            <div key={level.level} style={{ marginBottom: '60px' }}>
-                                <h1 style={{ fontSize: '2rem', color: '#0d8888ff', marginBottom: '30px', textAlign: 'center' }}>
-                                    {level.title}
-                                </h1>
+                            <div key={level.level} className="practice-interview-level">
+                                <h1 className="practice-interview-title">{level.title}</h1>
                                 
-                                {/* Steps Grid */}
                                 <div className="roadmap-row">
                                     {level.steps.map((step, stepIndex) => {
                                         const stepUnlocked = unlocked && (stepIndex === 0 || getScoreFromStorage(`interview_step_${step.id - 1}`) >= 70);
                                         
                                         return (
                                             <React.Fragment key={step.id}>
-                                                <div 
-                                                    className="roadmap-step"
-                                                    style={{
-                                                        background: 'white',
-                                                        borderRadius: '15px',
-                                                        padding: '25px',
-                                                        boxShadow: '0 8px 25px rgba(0,0,0,0.1)',
-                                                        border: stepUnlocked ? '3px solid #0d8888ff' : '3px solid #ccc',
-                                                        textAlign: 'center',
-                                                        transition: 'all 0.3s ease',
-                                                        cursor: stepUnlocked ? 'pointer' : 'not-allowed',
-                                                        opacity: stepUnlocked ? 1 : 0.6,
-                                                        minWidth: '250px'
-                                                    }}
-                                                    onMouseEnter={(e) => {
-                                                        if (stepUnlocked) {
-                                                            e.currentTarget.style.transform = 'translateY(-5px)';
-                                                            e.currentTarget.style.boxShadow = '0 15px 35px rgba(0,0,0,0.15)';
-                                                        }
-                                                    }}
-                                                    onMouseLeave={(e) => {
-                                                        if (stepUnlocked) {
-                                                            e.currentTarget.style.transform = 'translateY(0)';
-                                                            e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.1)';
-                                                        }
-                                                    }}
-                                                >
-                                                    <div className="step-number" style={{
-                                                        width: '50px',
-                                                        height: '50px',
-                                                        borderRadius: '50%',
-                                                        background: stepUnlocked ? 'linear-gradient(135deg, #0d8888ff, #0d8888dd)' : '#ccc',
-                                                        color: 'white',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        fontWeight: 'bold',
-                                                        fontSize: '1.2rem',
-                                                        margin: '0 auto 15px',
-                                                        boxShadow: stepUnlocked ? '0 4px 15px #0d888830' : 'none'
-                                                    }}>
+                                                <div className={`roadmap-step ${stepUnlocked ? 'unlocked' : 'locked'}`}>
+                                                    <div className={`step-number ${stepUnlocked ? 'unlocked' : 'locked'}`}>
                                                         {stepUnlocked ? step.id : '🔒'}
                                                     </div>
                                                     <div className="step-content">
-                                                        <h4 style={{
-                                                            color: stepUnlocked ? '#2c3e50' : '#999',
-                                                            fontSize: '1.2rem',
-                                                            marginBottom: '10px',
-                                                            fontWeight: '600'
-                                                        }}>
+                                                        <h4 className={stepUnlocked ? 'unlocked' : 'locked'}>
                                                             {step.title}
                                                         </h4>
-                                                        <p style={{
-                                                            color: stepUnlocked ? '#666' : '#999',
-                                                            fontSize: '0.9rem',
-                                                            lineHeight: '1.4',
-                                                            margin: 0
-                                                        }}>
+                                                        <p className={stepUnlocked ? 'unlocked' : 'locked'}>
                                                             {step.activities}
                                                         </p>
                                                     </div>
                                                     {stepUnlocked && (
-                                                        <button 
-                                                            style={{
-                                                                marginTop: '15px',
-                                                                background: '#0d8888ff',
-                                                                color: 'white',
-                                                                border: 'none',
-                                                                padding: '8px 16px',
-                                                                borderRadius: '20px',
-                                                                fontSize: '0.9rem',
-                                                                fontWeight: '500',
-                                                                cursor: 'pointer'
-                                                            }}
-                                                        >
+                                                        <button className="step-start-button">
                                                             START STEP
                                                         </button>
                                                     )}
@@ -419,7 +262,6 @@ function Practice() {
                                     })}
                                 </div>
                                 
-                                {/* Level Connector */}
                                 {levelIndex < interviewLevels.length - 1 && (
                                     <div className="roadmap-connector vertical-center"></div>
                                 )}
@@ -427,63 +269,33 @@ function Practice() {
                         );
                     })}
                     
-                    <div style={{ textAlign: 'center', marginTop: '40px' }}>
-                        <div style={{ display: 'inline-block', padding: '20px 40px', background: 'white', borderRadius: '25px', boxShadow: '0 8px 25px rgba(0,0,0,0.1)', border: '3px solid #3B9797' }}>
-                            <div style={{ width: '200px', height: '8px', background: '#e0e0e0', borderRadius: '4px', margin: '0 auto 10px', position: 'relative', overflow: 'hidden' }}>
-                                <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: '30%', background: 'linear-gradient(90deg, #3B9797, #2c7a7a)', borderRadius: '4px' }}></div>
+                    <div className="progress-section">
+                        <div className="progress-card">
+                            <div className="progress-bar">
+                                <div className="progress-fill"></div>
                             </div>
-                            <div style={{ color: '#2c3e50', fontWeight: '600', fontSize: '1.1rem' }}>Complete Your Interview Journey</div>
+                            <div className="progress-text">Complete Your Interview Journey</div>
                         </div>
                     </div>
                 </div>
 
-                {/* Modal */}
                 {activeChallenge && (
-                    <div style={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        background: 'rgba(0,0,0,0.5)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        zIndex: 1000
-                    }}>
-                        <div style={{
-                            background: 'white',
-                            borderRadius: '12px',
-                            padding: '30px',
-                            maxWidth: '600px',
-                            width: '90%',
-                            maxHeight: '80vh',
-                            overflow: 'auto',
-                            position: 'relative'
-                        }}>
+                    <div className="modal-overlay">
+                        <div className="practice-modal">
                             <button 
                                 onClick={() => setActiveChallenge(null)}
-                                style={{
-                                    position: 'absolute',
-                                    top: '15px',
-                                    right: '15px',
-                                    background: 'none',
-                                    border: 'none',
-                                    fontSize: '24px',
-                                    cursor: 'pointer',
-                                    color: '#666'
-                                }}
+                                className="modal-close"
                             >
                                 ×
                             </button>
                             
-                            <h2 style={{ marginBottom: '20px', color: '#2c3e50' }}>
+                            <h2 className="practice-modal-title">
                                 {instructions[activeChallenge]?.[instructionIndex]?.title}
                             </h2>
                             
-                            <div style={{ marginBottom: '30px', minHeight: '200px' }}>
+                            <div className="practice-modal-content">
                                 {typeof instructions[activeChallenge]?.[instructionIndex]?.content === 'string' ? (
-                                    <p style={{ lineHeight: '1.6', color: '#555' }}>
+                                    <p className="practice-modal-text">
                                         {instructions[activeChallenge][instructionIndex].content}
                                     </p>
                                 ) : (
@@ -491,50 +303,28 @@ function Practice() {
                                 )}
                             </div>
                             
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div className="practice-modal-actions">
                                 {instructionIndex > 0 && (
                                     <button 
                                         onClick={handlePrev}
-                                        style={{
-                                            background: '#6c757d',
-                                            color: 'white',
-                                            border: 'none',
-                                            padding: '10px 20px',
-                                            borderRadius: '6px',
-                                            cursor: 'pointer'
-                                        }}
+                                        className="btn-secondary"
                                     >
                                         ← Previous
                                     </button>
                                 )}
                                 
-                                <div style={{ marginLeft: 'auto' }}>
+                                <div className="practice-modal-nav">
                                     {instructionIndex < instructions[activeChallenge]?.length - 1 ? (
                                         <>
                                             <button 
                                                 onClick={handleNext}
-                                                style={{
-                                                    background: '#3B9797',
-                                                    color: 'white',
-                                                    border: 'none',
-                                                    padding: '10px 20px',
-                                                    borderRadius: '6px',
-                                                    cursor: 'pointer',
-                                                    marginRight: '10px'
-                                                }}
+                                                className="btn-primary"
                                             >
                                                 Next →
                                             </button>
                                             <button 
                                                 onClick={() => setInstructionIndex(instructions[activeChallenge].length - 1)}
-                                                style={{
-                                                    background: '#28a745',
-                                                    color: 'white',
-                                                    border: 'none',
-                                                    padding: '10px 20px',
-                                                    borderRadius: '6px',
-                                                    cursor: 'pointer'
-                                                }}
+                                                className="btn-success"
                                             >
                                                 Skip
                                             </button>
@@ -542,16 +332,7 @@ function Practice() {
                                     ) : (
                                         <button 
                                             onClick={handleLaunchChallenge}
-                                            style={{
-                                                background: '#dc3545',
-                                                color: 'white',
-                                                border: 'none',
-                                                padding: '12px 24px',
-                                                borderRadius: '6px',
-                                                cursor: 'pointer',
-                                                fontSize: '16px',
-                                                fontWeight: '600'
-                                            }}
+                                            className="btn-danger"
                                         >
                                             START TEST
                                         </button>

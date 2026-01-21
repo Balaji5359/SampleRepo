@@ -11,9 +11,7 @@ const LandingPage = lazy(() => import("./LandingPageFiles/LandingPage.jsx"));
 
 // Registration components
 const Signup = lazy(() => import("./RegisterFiles/Signup.jsx"));
-const Login_Navbar = lazy(() => import("./RegisterFiles/Login_Navbar.jsx"));
-const ProfileData = lazy(() => import("./RegisterFiles/ProfileData/ProfileDataNew.jsx"));
-const Progress = lazy(() => import("./RegisterFiles/ProfileData/Progress.jsx"));
+const ProfileData = lazy(() => import("./components/ProfileData.jsx"));
 const ProfileCreation_Survey = lazy(() => import("./RegisterFiles/ProfileCreation/ProfileCreation.jsx"));
 
 // Pratice Components
@@ -31,10 +29,9 @@ const SituationSpeak = lazy(() => import("./CommunicationTestsFiles/SituationSpe
 // Student Dashboard and Leaderboard files
 const Dashboard = lazy(() => import("./Dashboard_LeaderboardFiles/Dashboard.jsx"));
 const JAMDashboard = lazy(() => import("./Dashboard_LeaderboardFiles/JAMDashboard.jsx"));
-const PronunciationDashboard = lazy(() => import("./Dashboard_LeaderboardFiles/PronunciationDashboard.jsx"))
-const ListeningDashboard = lazy(()=> import("./Dashboard_LeaderboardFiles/ListeningDashboard.jsx"))
 const SituationSpeakDashboard = lazy(() => import("./Dashboard_LeaderboardFiles/SituationSpeakDashboard.jsx"));
-const ImageSpeakDashboard = lazy(() => import("./Dashboard_LeaderboardFiles/ImageSpeakDashboard.jsx"));
+const ListeningDashboard = lazy(() => import("./Dashboard_LeaderboardFiles/ListeningDashboard.jsx"));
+const PronunciationDashboard = lazy(() => import("./Dashboard_LeaderboardFiles/PronunciationDashboard.jsx"));
 const Leaderboard = lazy(() => import("./Dashboard_LeaderboardFiles/Leaderboard.jsx"))
 
 
@@ -174,48 +171,44 @@ function App() {
             </ProtectedRoute>
           } />
 
-          <Route path="/progress" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <Progress />
-              </DashboardLayout>
-            </ProtectedRoute>
-          } />
-
+          
           <Route path="/student-dashboard" element={
             <ProtectedRoute>
-              <Dashboard />
+              <DashboardLayout>
+                <Dashboard />
+              </DashboardLayout>
             </ProtectedRoute>
           } />
 
           <Route path="/student-dashboard/jam" element={
             <ProtectedRoute>
-              <JAMDashboard />
-            </ProtectedRoute>
-          } />
-
-          <Route path="/student-dashboard/pronunciation" element={
-            <ProtectedRoute>
-              <PronunciationDashboard />
-            </ProtectedRoute>
-          } />
-
-          <Route path="/student-dashboard/listening" element={
-            <ProtectedRoute>
-              <ListeningDashboard />
+              <DashboardLayout>
+                <JAMDashboard />
+              </DashboardLayout>
             </ProtectedRoute>
           } />
 
           <Route path="/student-dashboard/situationspeak" element={
             <ProtectedRoute>
-              <SituationSpeakDashboard />
+              <DashboardLayout>
+                <SituationSpeakDashboard />
+              </DashboardLayout>
             </ProtectedRoute>
           } />
 
-
-          <Route path="/student-dashboard/imagespeak" element={
+          <Route path="/student-dashboard/listening" element={
             <ProtectedRoute>
-              <ImageSpeakDashboard />
+              <DashboardLayout>
+                <ListeningDashboard />
+              </DashboardLayout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/student-dashboard/pronunciation" element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <PronunciationDashboard />
+              </DashboardLayout>
             </ProtectedRoute>
           } />
 

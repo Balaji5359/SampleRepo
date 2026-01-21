@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../../LandingPageFiles/landing.css';
-import './ProfileDataNew.css';
+import './profile.css';
+import './shared-styles.css';
+import Header from './Header';
 
 function ProfileData() {
     const navigate = useNavigate();
@@ -28,12 +29,12 @@ function ProfileData() {
                 const storedEmail = localStorage.getItem("email") || "22691A2828@mits.ac.in";
                 
                 const [profileResponse, streakResponse] = await Promise.all([
-                    fetch('https://ntjkr8rnd6.execute-api.ap-south-1.amazonaws.com/dev/student_profilecreate/student_profile_senddata', {
+                    fetch(import.meta.env.VITE_PROFILE_API_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ college_email: storedEmail })
                     }),
-                    fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/update-user-streak', {
+                    fetch(import.meta.env.VITE_STREAK_API_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -51,7 +52,6 @@ function ProfileData() {
                 setProfileData(JSON.parse(profile.body));
                 setStreakData(JSON.parse(streak.body));
 
-                // Set greeting and quote
                 const hour = new Date().getHours();
                 if (hour < 12) setGreeting("Good Morning");
                 else if (hour < 17) setGreeting("Good Afternoon");
@@ -72,7 +72,7 @@ function ProfileData() {
 
     if (loading) {
         return (
-            <div className="loading-container">
+            <div className="loading-container free-bg">
                 <div className="loading-spinner"></div>
                 <p>Loading your dashboard...</p>
             </div>
@@ -80,8 +80,8 @@ function ProfileData() {
     }
 
     return (
-        <div className={`dashboard-container ${isPremium ? 'premium-bg' : 'free-bg'}`}>
-            <Navbar navigate={navigate} profileData={profileData} streakData={streakData} />
+        <div className="dashboard-container free-bg">
+            <Header />
             
             <div className="dashboard-content">
                 <GreetingCard 
@@ -143,42 +143,6 @@ function ProfileData() {
     );
 }
 
-const Navbar = ({ navigate, profileData, streakData }) => (
-    <header className="header">
-        <div className="header-content">
-            <div className="logo">
-                <span className="logo-text">Skill Route</span>
-            </div>
-            <div className="nav-links">
-                <a href="#" onClick={() => navigate('/profiledata')} className="active-nav">Home</a>
-                <a href="#" onClick={() => navigate('/test')}>Tests</a>
-                <a href="#" onClick={() => navigate('/practice')}>Practice</a>
-                <a href="#" onClick={() => navigate('/student-dashboard')}>Dashboard</a>
-                <a href="#" onClick={() => navigate('/student-leaderboard')}>Leaderboard</a>
-            </div>
-            <div className="auth-buttons">
-                <span className="streak-badge">
-                    🔥 {streakData?.current_streak || 0}
-                </span>
-                <span className={`user-type-badge ${profileData?.user_type === 'premium' ? 'premium' : 'free'}`}>
-                    {profileData?.user_type === 'premium' ? '👑 Premium User' : '🆓 Free User'}
-                </span>
-                <span className="roll-badge">
-                    {profileData?.roll_no || "Roll No"}
-                </span>
-                <button 
-                    className="btn-signup"
-                    onClick={() => {
-                        localStorage.removeItem('email');
-                        navigate('/signup');
-                    }}
-                >
-                    Logout
-                </button>
-            </div>
-        </div>
-    </header>
-);
 
 
 const GreetingCard = ({ greeting, name, quote }) => (
@@ -256,32 +220,27 @@ const StreakCard = ({ currentStreak, longestStreak }) => (
 
 const ActivityCalendar = ({ activeDates }) => {
     const currentDate = new Date();
-    const currentMonth = currentDate.getMonth(); // 0 = January
+    const currentMonth = currentDate.getMonth();
     const currentYear = currentDate.getFullYear();
     
-    // Get first day of current month and number of days
     const firstDay = new Date(currentYear, currentMonth, 1);
     const lastDay = new Date(currentYear, currentMonth + 1, 0);
     const daysInMonth = lastDay.getDate();
-    const startingDayOfWeek = firstDay.getDay(); // 0 = Sunday
+    const startingDayOfWeek = firstDay.getDay();
     
     const monthName = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
     
-    // Count active days in current month
     const activeDaysCount = activeDates?.filter(dateStr => {
         const date = new Date(dateStr);
         return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
     }).length || 0;
     
-    // Create calendar grid
     const calendarDays = [];
     
-    // Add empty cells for days before month starts
     for (let i = 0; i < startingDayOfWeek; i++) {
         calendarDays.push(<div key={`empty-${i}`} className="calendar-day empty"></div>);
     }
     
-    // Add days of the month
     for (let day = 1; day <= daysInMonth; day++) {
         const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         const isActive = activeDates?.includes(dateStr);
@@ -290,9 +249,7 @@ const ActivityCalendar = ({ activeDates }) => {
         calendarDays.push(
             <div
                 key={day}
-                className={`calendar-day ${
-                    isActive ? 'active' : ''
-                } ${isToday ? 'today' : ''}`}
+                className={`calendar-day ${isActive ? 'active' : ''} ${isToday ? 'today' : ''}`}
                 title={`${monthName} ${day}${isActive ? ' - Active' : ''}`}
             >
                 {day}
@@ -451,7 +408,7 @@ const PaymentModal = ({ plan, onClose, profileData }) => {
         try {
             const email = profileData?.college_email || localStorage.getItem("email");
             
-            const response = await fetch('https://nrkg7cmta3.execute-api.ap-south-1.amazonaws.com/dev/razorpay-webhook', {
+            const response = await fetch(import.meta.env.VITE_PAYMENT_API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -476,9 +433,7 @@ const PaymentModal = ({ plan, onClose, profileData }) => {
                 handler: async (response) => {
                     await verifyPayment(response, email, plan.type);
                 },
-                prefill: {
-                    email: email
-                },
+                prefill: { email: email },
                 theme: { color: "#3B9797" },
                 modal: {
                     ondismiss: () => {
@@ -499,7 +454,7 @@ const PaymentModal = ({ plan, onClose, profileData }) => {
 
     const verifyPayment = async (paymentResponse, email, planType) => {
         try {
-            const response = await fetch('https://nrkg7cmta3.execute-api.ap-south-1.amazonaws.com/dev/razorpay-webhook', {
+            const response = await fetch(import.meta.env.VITE_PAYMENT_API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

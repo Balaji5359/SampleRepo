@@ -2,34 +2,51 @@
 .dashboard-container {
     min-height: 100vh;
     transition: background-color 0.3s ease;
-    
-}
-
-.premium-bg {
-    background: linear-gradient(135deg, #7dd3d3 75%, #9ee8e8 100%);
-}
-
-.free-bg {
     background: #f8fafc;
 }
 
 .dashboard-content {
-    max-width: 1200px;
+    max-width: 2000px;
     margin: 0 auto;
-    padding: 100px 20px 20px;
+    padding: 100px 50px 20px;
+    border-radius: 50%;
 }
 
-/* Navbar Styles */
+/* Header */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(59, 151, 151, 0.1);
+    padding: 1rem 0;
+}
+
 .header-content {
+    max-width: 1400px;
+    margin: 0 auto;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 100%;
+    padding: 0 3rem;
 }
 
 .logo {
     display: flex;
     align-items: center;
+}
+
+.logo-text {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #3b9797, #5bb5b5);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .nav-links {
@@ -57,7 +74,12 @@
     padding-bottom: 6px !important;
     border-bottom: 2.5px solid #3B9797 !important;
     cursor: pointer !important;
-    transition: none !important;
+}
+
+.auth-buttons {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
 }
 
 .streak-badge {
@@ -100,6 +122,25 @@
     border-radius: 20px;
     border: 2px solid #3B9797;
     font-size: 0.9rem;
+}
+
+.btn-signup {
+    background: #3B9797;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.875rem;
+    box-shadow: 0 4px 15px rgba(59, 151, 151, 0.3);
+}
+
+.btn-signup:hover {
+    transform: translateY(-2px);
+    background: #2d6a6a;
+    box-shadow: 0 8px 25px rgba(59, 151, 151, 0.4);
 }
 
 /* Greeting Card */
@@ -517,7 +558,6 @@
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    background: #f8fafc;
 }
 
 .loading-spinner {
@@ -540,54 +580,24 @@
     font-size: 1.1rem;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-    .dashboard-content {
-        padding: 90px 15px 15px;
-    }
-    
-    .dashboard-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .dashboard-bottom {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-    
-    .comparison-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-    
-    .greeting-title {
-        font-size: 2rem;
-    }
-    
-    .calendar-grid {
-        grid-template-columns: repeat(7, 1fr);
-        gap: 4px;
-    }
-    
-    .calendar-day {
-        width: 30px;
-        height: 30px;
-        font-size: 0.8rem;
-    }
-    
-    .actions-grid {
-        gap: 12px;
-    }
-    
-    .action-btn {
-        padding: 12px;
-    }
-    
-    .action-icon {
-        width: 40px;
-        height: 40px;
-        font-size: 1.3rem;
-    }
+/* Modal Overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 /* Pricing Modal */
@@ -786,4 +796,49 @@
 
 .modal-close:hover {
     color: #374151;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .dashboard-content {
+        padding: 90px 15px 15px;
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .dashboard-bottom {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .comparison-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .greeting-title {
+        font-size: 2rem;
+    }
+    
+    .calendar-day {
+        width: 30px;
+        height: 30px;
+        font-size: 0.8rem;
+    }
+    
+    .actions-grid {
+        gap: 12px;
+    }
+    
+    .action-btn {
+        padding: 12px;
+    }
+    
+    .action-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.3rem;
+    }
 }

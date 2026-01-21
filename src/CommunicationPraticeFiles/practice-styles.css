@@ -1,0 +1,140 @@
+/* Practice component specific styles */
+
+.practice-container {
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+.practice-content {
+  margin-top: 80px;
+}
+
+.practice-title {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #0d8888ff;
+  text-align: center;
+}
+
+.practice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto 60px auto;
+}
+
+.practice-grid.blurred {
+  filter: blur(3px);
+}
+
+.practice-card {
+  background: white;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  padding: 24px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e1e5e9;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.practice-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+}
+
+.practice-card-title {
+  font-size: 1.3rem;
+  color: #2c3e50;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.practice-card-description {
+  color: #666;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.practice-card-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.practice-upcoming-button {
+  background: #6f7070ff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: not-allowed;
+}
+
+/* Practice interview roadmap styles */
+.practice-interview-section {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.practice-interview-section.blurred {
+  filter: blur(3px);
+}
+
+.practice-interview-level {
+  margin-bottom: 60px;
+}
+
+.practice-interview-title {
+  font-size: 2rem;
+  color: #0d8888ff;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+/* Practice modal styles */
+.practice-modal {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow: auto;
+  position: relative;
+}
+
+.practice-modal-title {
+  margin-bottom: 20px;
+  color: #2c3e50;
+}
+
+.practice-modal-content {
+  margin-bottom: 30px;
+  min-height: 200px;
+}
+
+.practice-modal-text {
+  line-height: 1.6;
+  color: #555;
+}
+
+.practice-modal-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.practice-modal-nav {
+  margin-left: auto;
+}
+
+.practice-modal-nav button {
+  margin-right: 10px;
+}
+
+.practice-modal-nav button:last-child {
+  margin-right: 0;
+}

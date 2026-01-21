@@ -1,0 +1,243 @@
+/* Dashboard component specific styles */
+
+.dashboard-main {
+  min-height: 100vh;
+}
+
+.dashboard-content {
+  padding: 20px;
+  margin-top: 80px;
+}
+
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.dashboard-main-title {
+  font-size: 2.5rem;
+  color: #2c3e50;
+  margin-bottom: 10px;
+}
+
+.dashboard-activities-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto 40px auto;
+}
+
+.dashboard-activity-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 3px solid #0d8888ff;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.dashboard-activity-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+}
+
+.dashboard-activity-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.dashboard-activity-icon {
+  margin-right: 12px;
+}
+
+.dashboard-activity-title {
+  font-size: 1.3rem;
+  color: #2c3e50;
+  margin: 0;
+  font-weight: 600;
+}
+
+.dashboard-activity-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.dashboard-stats-container {
+  display: flex;
+  gap: 20px;
+}
+
+.dashboard-stat-item {
+  text-align: center;
+}
+
+.dashboard-stat-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #0d8888ff;
+}
+
+.dashboard-stat-label {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.dashboard-mini-chart {
+  width: 60px;
+  height: 30px;
+}
+
+.mini-chart {
+  width: 100%;
+  height: 100%;
+}
+
+.dashboard-view-button {
+  background: #0d8888ff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  width: 100%;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.dashboard-view-button.premium-locked {
+  opacity: 0.7;
+}
+
+.dashboard-premium-lock {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #ef4444;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+}
+
+.dashboard-interview-title {
+  font-size: 2rem;
+  color: #0d8888ff;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.dashboard-interview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.dashboard-interview-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 3px solid #0d8888ff;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.dashboard-interview-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+}
+
+.dashboard-interview-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.dashboard-interview-icon {
+  margin-right: 12px;
+}
+
+.dashboard-interview-card-title {
+  font-size: 1.3rem;
+  color: #2c3e50;
+  margin: 0;
+  font-weight: 600;
+}
+
+.dashboard-interview-description {
+  color: #666;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.dashboard-interview-button {
+  background: #0d8888ff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  width: 100%;
+}
+
+/* Premium modal styles */
+.premium-modal-content {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 500px;
+  width: 90%;
+  position: relative;
+}
+
+.premium-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.premium-modal-body {
+  text-align: center;
+  padding: 30px;
+}
+
+.premium-modal-icon {
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+
+.premium-modal-title {
+  color: #f59e0b;
+  margin-bottom: 15px;
+}
+
+.premium-modal-text {
+  margin-bottom: 25px;
+  color: #666;
+}
+
+.premium-modal-button {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+}

@@ -1,0 +1,22 @@
+/* Leaderboard component specific styles */
+
+.leaderboard-container {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+}
+
+.leaderboard-content {
+  padding: 20px;
+  margin-top: 80px;
+}
+
+.leaderboard-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.leaderboard-title {
+  font-size: 2.5rem;
+  color: #2c3e50;
+  margin-bottom: 10px;
+}
