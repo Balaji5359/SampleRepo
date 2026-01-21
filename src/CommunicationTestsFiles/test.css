@@ -1114,3 +1114,11 @@
   font-size: 0.8rem;
   font-weight: bold;
 }
+
+.premium-bg {
+    background: linear-gradient(135deg, #7dd3d3 75%, #9ee8e8 100%);
+}
+
+.free-bg {
+    background: #f8fafc;
+}

@@ -1,20 +1,134 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import BaseDashboard from './BaseDashboard';
 import './dashboard.css';
-import './modern-graphs.css';
 
-function SituationSpeakDashboard() {
-  const navigate = useNavigate();
-  const [activeSection, setActiveSection] = useState('main');
+function SituationSpeakDashboardContent({ activeSection, userType, testType, userEmail }) {
   const [selectedSession, setSelectedSession] = useState(null);
   const [apiData, setApiData] = useState({});
   const [loading, setLoading] = useState(false);
-  const [userEmail] = useState(localStorage.getItem('email'));
-  const [theme, setTheme] = useState('light');
   const [searchTerm, setSearchTerm] = useState('');
   const [dateFilter, setDateFilter] = useState('');
   const [sessionDetails, setSessionDetails] = useState({});
   const [filteredSessions, setFilteredSessions] = useState([]);
+  const [showConfidenceModal, setShowConfidenceModal] = useState(false);
+  const [transcriptData, setTranscriptData] = useState(null);
+  const [loadingTranscript, setLoadingTranscript] = useState(false);
+
+  const loadTranscriptData = async (transcriptUrl) => {
+    if (!transcriptUrl) return;
+    
+    setLoadingTranscript(true);
+    try {
+      const response = await fetch(transcriptUrl);
+      const data = await response.json();
+      setTranscriptData(data);
+    } catch (error) {
+      console.error('Error loading transcript:', error);
+    } finally {
+      setLoadingTranscript(false);
+    }
+  };
+
+  const renderConfidenceGraphs = () => {
+    if (!transcriptData?.results?.items) return null;
+
+    const words = transcriptData.results.items
+      .filter(item => item.type === 'pronunciation')
+      .slice(0, 20);
+
+    return (
+      <div className="confidence-modal-overlay" onClick={() => setShowConfidenceModal(false)}>
+        <div className="confidence-modal" onClick={(e) => e.stopPropagation()}>
+          <div className="confidence-modal-header">
+            <h3>🎤 Audio & Speech Analysis</h3>
+            <button className="close-btn" onClick={() => setShowConfidenceModal(false)}>×</button>
+          </div>
+          <div className="confidence-modal-body">
+            <div className="graphs-side-by-side">
+              <div className="left-graph">
+                <div className="graph-section">
+                  <h4>📊 Word Confidence Levels</h4>
+                  <div className="modern-bar-chart">
+                    {words.map((word, index) => {
+                      const confidence = parseFloat(word.alternatives?.[0]?.confidence || 0);
+                      const width = confidence * 100;
+                      let colorClass = 'low';
+                      if (confidence > 0.8) colorClass = 'high';
+                      else if (confidence > 0.6) colorClass = 'mid';
+                      
+                      return (
+                        <div key={index} className="modern-bar-item" style={{'--delay': `${index * 0.1}s`}}>
+                          <div className="modern-word-label">{word.alternatives?.[0]?.content || 'Unknown'}</div>
+                          <div className="modern-bar-container">
+                            <div 
+                              className={`modern-progress-bar ${colorClass}`}
+                              style={{
+                                width: `${width}%`,
+                                background: colorClass === 'high' ? 'linear-gradient(90deg, #10b981, #34d399)' :
+                                          colorClass === 'mid' ? 'linear-gradient(90deg, #f59e0b, #fbbf24)' :
+                                          'linear-gradient(90deg, #ef4444, #f87171)'
+                              }}
+                            />
+                          </div>
+                          <div className="modern-confidence-score">{(confidence * 100).toFixed(1)}%</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+              <div className="right-graph">
+                <div className="graph-section">
+                  <h4>📈 Speech Confidence Trend</h4>
+                  <div className="modern-line-chart-container">
+                    <svg className="modern-line-chart" viewBox="0 0 400 200">
+                      <defs>
+                        <linearGradient id="confidenceGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                          <stop offset="0%" stopColor="#60a5fa" stopOpacity="0.8"/>
+                          <stop offset="100%" stopColor="#60a5fa" stopOpacity="0.1"/>
+                        </linearGradient>
+                      </defs>
+                      {words.map((word, index) => {
+                        const x = (index / (words.length - 1)) * 350 + 25;
+                        const confidence = parseFloat(word.alternatives?.[0]?.confidence || 0);
+                        const y = 180 - (confidence * 150);
+                        
+                        return (
+                          <g key={index}>
+                            <circle 
+                              cx={x} 
+                              cy={y} 
+                              r="4" 
+                              fill="#60a5fa"
+                              className="confidence-point"
+                            />
+                            {index > 0 && (
+                              <line
+                                x1={(index - 1) / (words.length - 1) * 350 + 25}
+                                y1={180 - (parseFloat(words[index - 1].alternatives?.[0]?.confidence || 0) * 150)}
+                                x2={x}
+                                y2={y}
+                                stroke="#60a5fa"
+                                strokeWidth="2"
+                              />
+                            )}
+                          </g>
+                        );
+                      })}
+                      <line x1="25" y1="30" x2="25" y2="180" stroke="#e5e7eb" strokeWidth="1"/>
+                      <line x1="25" y1="180" x2="375" y2="180" stroke="#e5e7eb" strokeWidth="1"/>
+                      <text x="15" y="35" fontSize="12" fill="#6b7280">100%</text>
+                      <text x="15" y="185" fontSize="12" fill="#6b7280">0%</text>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const formatDateTime = (dateTimeString) => {
     if (!dateTimeString) return 'Not available';
@@ -52,41 +166,6 @@ function SituationSpeakDashboard() {
   };
 
   useEffect(() => {
-    const root = document.documentElement;
-    document.body.style.margin = '0';
-    document.body.style.padding = '0';
-    
-    if (theme === 'light') {
-      document.body.style.background = 'linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%)';
-      root.style.setProperty('--bg-primary', 'linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%)');
-      root.style.setProperty('--bg-secondary', '#ffffff');
-      root.style.setProperty('--text-primary', '#1f2937');
-      root.style.setProperty('--text-muted', '#6b7280');
-      root.style.setProperty('--accent-blue', '#0ea5e9');
-      root.style.setProperty('--border-color', 'rgba(0,0,0,0.1)');
-      root.style.setProperty('--card-bg', 'rgba(255,255,255,0.8)');
-    } else if (theme === 'custom') {
-      document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-      root.style.setProperty('--bg-primary', 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)');
-      root.style.setProperty('--bg-secondary', 'rgba(255,255,255,0.1)');
-      root.style.setProperty('--text-primary', '#ffffff');
-      root.style.setProperty('--text-muted', 'rgba(255,255,255,0.8)');
-      root.style.setProperty('--accent-blue', '#fbbf24');
-      root.style.setProperty('--border-color', 'rgba(255,255,255,0.2)');
-      root.style.setProperty('--card-bg', 'rgba(255,255,255,0.1)');
-    } else {
-      document.body.style.background = 'linear-gradient(180deg, #071028 0%, #07182b 60%)';
-      root.style.setProperty('--bg-primary', 'linear-gradient(180deg, #071028 0%, #07182b 60%)');
-      root.style.setProperty('--bg-secondary', '#0b1220');
-      root.style.setProperty('--text-primary', '#e6eef8');
-      root.style.setProperty('--text-muted', '#94a3b8');
-      root.style.setProperty('--accent-blue', '#60a5fa');
-      root.style.setProperty('--border-color', 'rgba(255,255,255,0.06)');
-      root.style.setProperty('--card-bg', 'linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01))');
-    }
-  }, [theme]);
-
-  useEffect(() => {
     const fetchSituationSpeakData = async () => {
       if (!userEmail) return;
       
@@ -114,6 +193,26 @@ function SituationSpeakDashboard() {
     fetchSituationSpeakData();
   }, [userEmail]);
 
+  useEffect(() => {
+    if (!apiData.sessions) {
+      setFilteredSessions([]);
+      return;
+    }
+
+    const filtered = apiData.sessions.filter(session => {
+      const matchesSearch = searchTerm === '' || 
+        session.sessionId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        formatDateTime(session.start_time).toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesDate = dateFilter === '' || 
+        formatDate(session.start_time) === new Date(dateFilter).toLocaleDateString();
+      
+      return matchesSearch && matchesDate;
+    });
+
+    setFilteredSessions(filtered);
+  }, [apiData.sessions, searchTerm, dateFilter]);
+
   const fetchSessionDetails = async (sessionId) => {
     if (sessionDetails[sessionId]) {
       setSelectedSession({ ...apiData.sessions.find(s => s.sessionId === sessionId), ...sessionDetails[sessionId] });
@@ -140,60 +239,6 @@ function SituationSpeakDashboard() {
       console.error('Error fetching session details:', error);
     }
   };
-
-  const fetchConfidenceData = async (sessionId) => {
-    try {
-      console.log('Fetching confidence data for:', sessionId);
-      const transcriptUrl = `https://students-recording-communication-activities-transcribe-startup.s3.ap-south-1.amazonaws.com/transcribe-${sessionId}.json`;
-      console.log('Transcript URL:', transcriptUrl);
-      
-      const response = await fetch(transcriptUrl);
-      console.log('Response status:', response.status);
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const confidenceData = await response.json();
-      console.log('Confidence data loaded:', confidenceData);
-      
-      // Filter only pronunciation items
-      const pronunciationItems = confidenceData.results.items.filter(item => item.type === 'pronunciation');
-      console.log('Pronunciation items:', pronunciationItems.length);
-      
-      const processedData = {
-        results: {
-          transcripts: confidenceData.results.transcripts,
-          items: pronunciationItems
-        }
-      };
-      
-      setSelectedSession(prev => ({ ...prev, confidenceData: processedData }));
-    } catch (error) {
-      console.error('Error fetching confidence data:', error);
-      console.error('Error details:', error.message);
-    }
-  };
-
-  useEffect(() => {
-    if (!apiData.sessions) {
-      setFilteredSessions([]);
-      return;
-    }
-
-    let filtered = apiData.sessions.filter(session => {
-      const matchesSearch = searchTerm === '' || 
-        session.sessionId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        formatDateTime(session.start_time).toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const matchesDate = dateFilter === '' || 
-        formatDate(session.start_time) === new Date(dateFilter).toLocaleDateString();
-      
-      return matchesSearch && matchesDate;
-    });
-
-    setFilteredSessions(filtered);
-  }, [apiData.sessions, searchTerm, dateFilter]);
 
   const renderFilterHeader = () => (
     <div className="filter-header">
@@ -233,16 +278,61 @@ function SituationSpeakDashboard() {
     </div>
   );
 
-  const renderHistoryContent = () => {
-    if (selectedSession) {
-      return (
+  if (activeSection === 'main') {
+    return null;
+  }
+
+  if (activeSection === 'analytics' && userType !== 'premium') {
+    return (
+      <div style={{ textAlign: 'center', padding: '50px' }}>
+        <h3>🔒 Premium Feature Required</h3>
+        <p>Analytics are available for Premium users only.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ marginTop: '30px' }}>
+      <h2>Situation Speak {activeSection === 'history' ? 'History' : 'Analytics'}</h2>
+      {renderFilterHeader()}
+      {loading ? (
+        <div className="loading">Loading sessions...</div>
+      ) : (
+        <div className="sessions-list">
+          {filteredSessions.map(session => (
+            <div 
+              key={session.sessionId} 
+              className="session-card"
+              onClick={() => fetchSessionDetails(session.sessionId)}
+              style={{ cursor: 'pointer' }}
+            >
+              <div className="session-info">
+                <div className="session-id">{session.sessionId}</div>
+                <div className="session-details">
+                  <span className="session-type">Situation Speak</span>
+                  <div className="session-datetime">
+                    <div className="session-date">{formatDate(session.start_time)}</div>
+                    <div className="session-time">
+                      {formatTime(session.start_time)} - {formatTime(session.end_time)}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="session-metrics">
+                <div className="session-conversations">Score: {session.score || 'N/A'}</div>
+              </div>
+            </div>
+          )) || <div className="no-data">No sessions found</div>}
+        </div>
+      )}
+      
+      {selectedSession && (
         <div className="modal-overlay" onClick={() => setSelectedSession(null)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3>Situation Speak Details: {selectedSession.sessionId}</h3>
               <button className="close-btn" onClick={() => setSelectedSession(null)}>×</button>
             </div>
-            
             <div className="modal-body">
               <div className="session-overview">
                 <div className="overview-item">
@@ -254,23 +344,58 @@ function SituationSpeakDashboard() {
                   <span className="value">{formatDate(selectedSession.start_time)}</span>
                 </div>
                 <div className="overview-item">
-                  <span className="label">Start Time:</span>
-                  <span className="value">{formatTime(selectedSession.start_time)}</span>
-                </div>
-                <div className="overview-item">
-                  <span className="label">End Time:</span>
-                  <span className="value">{formatTime(selectedSession.end_time)}</span>
-                </div>
-                <div className="overview-item">
                   <span className="label">Score:</span>
                   <span className="value">{selectedSession.score || 'N/A'}</span>
                 </div>
-                <div className="overview-item">
-                  <span className="label">Total Messages:</span>
-                  <span className="value">{selectedSession.conversationHistory?.length || 0}</span>
-                </div>
               </div>
-
+              
+              {selectedSession.audioFiles && selectedSession.audioFiles.length > 0 && (
+                <div className="audio-files">
+                  <h4>🎧 Audio Files</h4>
+                  <div className="files-list">
+                    {selectedSession.audioFiles.map((file, index) => (
+                      <div key={index} className="file-item">
+                        <span className="file-icon">🎧</span>
+                        <span className="file-name">{file.filename || `Audio ${index + 1}`}</span>
+                        <audio controls style={{marginLeft: 'auto'}}>
+                          <source src={file.url} type="audio/mpeg" />
+                          Your browser does not support the audio element.
+                        </audio>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {selectedSession.transcripts && selectedSession.transcripts.length > 0 && (
+                <div className="transcripts">
+                  <h4>📝 Speech Analysis</h4>
+                  <div className="confidence-analysis">
+                    <button 
+                      className="confidence-btn"
+                      onClick={() => {
+                        if (selectedSession.transcripts[0]?.url) {
+                          loadTranscriptData(selectedSession.transcripts[0].url);
+                          setShowConfidenceModal(true);
+                        }
+                      }}
+                      disabled={loadingTranscript}
+                    >
+                      {loadingTranscript ? 'Loading...' : '📈 View Audio & Speech Analysis'}
+                    </button>
+                  </div>
+                  <div className="transcripts-list">
+                    {selectedSession.transcripts.map((transcript, index) => (
+                      <div key={index} className="transcript-item">
+                        <div className="transcript-content">
+                          {transcript.content || 'Transcript analysis available'}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
               <div className="conversation-history">
                 <h4>Conversation History</h4>
                 <div className="messages-container">
@@ -295,348 +420,23 @@ function SituationSpeakDashboard() {
             </div>
           </div>
         </div>
-      );
-    }
-
-    return (
-      <div>
-        <h2>Situation Speak History</h2>
-        {renderFilterHeader()}
-        {loading ? (
-          <div className="loading">Loading sessions...</div>
-        ) : (
-          <div className="sessions-list">
-            {filteredSessions.map(session => (
-              <div 
-                key={session.sessionId} 
-                className="session-card"
-                onClick={() => fetchSessionDetails(session.sessionId)}
-                style={{ cursor: 'pointer' }}
-              >
-                <div className="session-info">
-                  <div className="session-id">{session.sessionId}</div>
-                  <div className="session-details">
-                    <span className="session-type">Situation Speak</span>
-                    <div className="session-datetime">
-                      <div className="session-date">{formatDate(session.start_time)}</div>
-                      <div className="session-time">
-                        {formatTime(session.start_time)} - {formatTime(session.end_time)}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="session-metrics">
-                  <div className="session-conversations">Score: {session.score || 'N/A'}</div>
-                </div>
-              </div>
-            )) || <div className="no-data">No sessions found</div>}
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const renderAnalyticsContent = () => {
-    if (selectedSession) {
-      return (
-        <div className="modal-overlay" onClick={() => setSelectedSession(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Situation Speak Analytics: {selectedSession.sessionId}</h3>
-              <button className="close-btn" onClick={() => setSelectedSession(null)}>×</button>
-            </div>
-            
-            <div className="modal-body">
-              <div className="session-overview">
-                <div className="overview-item">
-                  <span className="label">Start Date:</span>
-                  <span className="stat-value">{formatDate(selectedSession.start_time)}</span>
-                </div>
-                <div className="overview-item">
-                  <span className="label">Start Time:</span>
-                  <span className="stat-value">{formatTime(selectedSession.start_time)}</span>
-                </div>
-                <div className="overview-item">
-                  <span className="label">End Time:</span>
-                  <span className="stat-value">{formatTime(selectedSession.end_time)}</span>
-                </div>
-                <div className="overview-item">
-                  <span className="label">Score:</span>
-                  <span className="stat-value">{selectedSession.score || 'N/A'}</span>
-                </div>
-                <div className="overview-item">
-                  <span className="label">Test Type:</span>
-                  <span className="stat-value">Situation Speak</span>
-                </div>
-              </div>
-
-              {selectedSession.audioFiles && selectedSession.audioFiles.length > 0 && (
-                <div className="audio-files">
-                  <h4>Audio Recording</h4>
-                  <audio 
-                    controls 
-                    style={{width: '100%'}}
-                    preload="none"
-                  >
-                    <source src={selectedSession.audioFiles[0].url} type="audio/webm" />
-                    <source src={selectedSession.audioFiles[0].url} type="audio/mp4" />
-                    <source src={selectedSession.audioFiles[0].url} type="audio/wav" />
-                    <source src={selectedSession.audioFiles[0].url} type="audio/mpeg" />
-                    Your browser does not support audio playback.
-                  </audio>
-                </div>
-              )}
-
-              <div className="confidence-analysis">
-                <button 
-                  className="confidence-btn"
-                  onClick={() => fetchConfidenceData(selectedSession.sessionId)}
-                >
-                  Click here to See Confidence Graph of Your Speech
-                </button>
-                {selectedSession.confidenceData && (
-                  <div className="confidence-modal-overlay" onClick={() => setSelectedSession(prev => ({ ...prev, confidenceData: null }))}>
-                    <div className="confidence-modal" onClick={(e) => e.stopPropagation()}>
-                      <div className="confidence-modal-header">
-                        <h3>Speech Confidence Analysis</h3>
-                        <button className="close-btn" onClick={() => setSelectedSession(prev => ({ ...prev, confidenceData: null }))}>×</button>
-                      </div>
-                      <div className="confidence-modal-body">
-                        <div className="graphs-side-by-side">
-                          <div className="graph-section left-graph">
-                            <h4>Word Confidence Analysis</h4>
-                            <div className="modern-bar-chart">
-                              {selectedSession.confidenceData.results?.items?.map((item, idx) => {
-                                const confidence = parseFloat(item.alternatives[0].confidence) * 100;
-                                const getColor = (conf) => {
-                                  if (conf >= 85) return '#10b981';
-                                  if (conf >= 70) return '#f59e0b';
-                                  return '#ef4444';
-                                };
-                                return (
-                                  <div key={idx} className="modern-bar-item" style={{'--delay': `${idx * 0.02}s`}}>
-                                    <span className="modern-word-label">{item.alternatives[0].content}</span>
-                                    <div className="modern-bar-container">
-                                      <div 
-                                        className="modern-progress-bar" 
-                                        style={{
-                                          width: `${confidence}%`,
-                                          backgroundColor: getColor(confidence)
-                                        }}
-                                      ></div>
-                                      <span className="modern-confidence-score">{confidence.toFixed(1)}%</span>
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                          <div className="graph-section right-graph">
-                            <h4>Confidence Trend Analysis</h4>
-                            <div className="modern-line-chart-container">
-                              <svg className="modern-line-chart" viewBox="0 0 600 300">
-                                <defs>
-                                  <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                                    <stop offset="0%" stopColor="#0ea5e9" stopOpacity="0.3" />
-                                    <stop offset="100%" stopColor="#0ea5e9" stopOpacity="0.05" />
-                                  </linearGradient>
-                                  <filter id="dropShadow">
-                                    <feDropShadow dx="0" dy="2" stdDeviation="3" floodOpacity="0.1"/>
-                                  </filter>
-                                </defs>
-                                
-                                {/* Grid lines */}
-                                {[0, 25, 50, 75, 100].map(y => (
-                                  <line key={y} x1="55" y1={250 - (y * 2)} x2="555" y2={250 - (y * 2)} stroke="#e5e7eb" strokeWidth="1" opacity="0.5" />
-                                ))}
-                                
-                                {/* Area under curve */}
-                                <path
-                                  d={`M 55,250 ${selectedSession.confidenceData.results?.items?.map((item, idx) => {
-                                    const x = 55 + (idx / (selectedSession.confidenceData.results.items.length - 1)) * 500;
-                                    const y = 250 - (parseFloat(item.alternatives[0].confidence) * 200);
-                                    return `L ${x},${y}`;
-                                  }).join(' ')} L 555,250 Z`}
-                                  fill="url(#areaGradient)"
-                                />
-                                
-                                {/* Main line */}
-                                <path
-                                  d={`M ${selectedSession.confidenceData.results?.items?.map((item, idx) => {
-                                    const x = 55 + (idx / (selectedSession.confidenceData.results.items.length - 1)) * 500;
-                                    const y = 250 - (parseFloat(item.alternatives[0].confidence) * 200);
-                                    return `${x},${y}`;
-                                  }).join(' L ')}`}
-                                  fill="none"
-                                  stroke="#0ea5e9"
-                                  strokeWidth="3"
-                                  filter="url(#dropShadow)"
-                                />
-                                
-                                {/* Data points with confidence drops highlighted */}
-                                {selectedSession.confidenceData.results?.items?.map((item, idx) => {
-                                  const confidence = parseFloat(item.alternatives[0].confidence);
-                                  const x = 55 + (idx / (selectedSession.confidenceData.results.items.length - 1)) * 500;
-                                  const y = 250 - (confidence * 200);
-                                  const isLowConfidence = confidence < 0.7;
-                                  return (
-                                    <circle
-                                      key={idx}
-                                      cx={x}
-                                      cy={y}
-                                      r={isLowConfidence ? "6" : "4"}
-                                      fill={isLowConfidence ? "#ef4444" : "#0ea5e9"}
-                                      stroke="white"
-                                      strokeWidth="2"
-                                      className="confidence-point"
-                                    >
-                                      <title>{item.alternatives[0].content}: {(confidence * 100).toFixed(1)}%</title>
-                                    </circle>
-                                  );
-                                })}
-                                
-                                {/* Y-axis labels */}
-                                {[0, 25, 50, 75, 100].map(y => (
-                                  <text key={y} x="50" y={255 - (y * 2)} fontSize="12" fill="#6b7280" textAnchor="end">{y}%</text>
-                                ))}
-                                
-                                {/* Axis labels */}
-                                <text x="300" y="285" fontSize="14" fill="#374151" textAnchor="middle">Word Index (Speech Timeline)</text>
-                                <text x="20" y="150" fontSize="14" fill="#374151" textAnchor="middle" transform="rotate(-90 20 150)">Confidence Score</text>
-                              </svg>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-
-              {selectedSession.conversationHistory && selectedSession.conversationHistory.some(conv => conv.user) && (
-                <div className="user-response">
-                  <h4>Your Response</h4>
-                  <div className="response-content">
-                    {selectedSession.conversationHistory.map((conv, idx) => (
-                      conv.user && (
-                        <p key={idx} className="user-text">{conv.user}</p>
-                      )
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {selectedSession.conversationHistory && selectedSession.conversationHistory.some(conv => conv.agent) && (
-                <div className="ai-feedback">
-                  <h4>AI Feedback & Analysis</h4>
-                  <div className="feedback-content">
-                    {selectedSession.conversationHistory.map((conv, idx) => (
-                      conv.agent && (
-                        <div key={idx} className="feedback-item">
-                          {conv.agent.split('\n').map((line, lineIdx) => (
-                            line.trim() && <p key={lineIdx} className="feedback-line">{line}</p>
-                          ))}
-                        </div>
-                      )
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div>
-        <h2>Situation Speak Analytics</h2>
-        {renderFilterHeader()}
-        {loading ? (
-          <div className="loading">Loading sessions...</div>
-        ) : (
-          <div className="sessions-list">
-            {filteredSessions.map(session => (
-              <div
-                key={session.sessionId}
-                className="session-card analytics-session-card"
-                onClick={() => fetchSessionDetails(session.sessionId)}
-              >
-                <div className="session-info">
-                  <div className="session-id">{session.sessionId}</div>
-                  <div className="session-details">
-                    <span className="session-type">Situation Speak</span>
-                    <div className="session-datetime">
-                      <div className="session-date">{formatDate(session.start_time)}</div>
-                      <div className="session-time">
-                        {formatTime(session.start_time)} - {formatTime(session.end_time)}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="session-metrics">
-                  <div className="analytics-indicator">📊 Score: {session.score || 'N/A'}</div>
-                </div>
-              </div>
-            )) || <div className="no-data">No sessions found</div>}
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  return (
-    <div>
-      <header className="header">
-        <div className="header-content">
-          <div className="logo">
-            <span className="logo-text">Skill Route</span>
-            <div className="nav-links">
-              <a href="#" onClick={() => navigate('/student-dashboard')}>Back to Main Dashboard</a>
-            </div>
-          </div>
-        </div>
-      </header>
+      )}
       
-      <div style={{ padding: '20px', marginTop: '80px' }}>
-        <div className="dashboard-main">
-          <div className="dashboard-header">
-            <h1>Situation Speak Dashboard</h1>
-            <p className="dashboard-subtitle">Practice speaking in different scenarios</p>
-          </div>
-          
-          <div className="dashboard-actions">
-            <button 
-              className="action-btn history-btn"
-              onClick={() => setActiveSection('history')}
-            >
-              <span className="btn-icon">📊</span>
-              History
-            </button>
-            <button 
-              className="action-btn analytics-btn"
-              onClick={() => setActiveSection('analytics')}
-            >
-              <span className="btn-icon">📈</span>
-              Analytics
-            </button>
-          </div>
-          
-          {activeSection === 'history' && (
-            <div style={{ marginTop: '30px' }}>
-              {renderHistoryContent()}
-            </div>
-          )}
-          
-          {activeSection === 'analytics' && (
-            <div style={{ marginTop: '30px' }}>
-              {renderAnalyticsContent()}
-            </div>
-          )}
-        </div>
-      </div>
+      {showConfidenceModal && renderConfidenceGraphs()}
     </div>
+  );
+}
+
+function SituationSpeakDashboard() {
+  return (
+    <BaseDashboard
+      testType="situational"
+      testTitle="Situation Speak"
+      testDescription="Practice speaking in different scenarios"
+      apiTestType="SITUATIONSPEAK"
+    >
+      <SituationSpeakDashboardContent />
+    </BaseDashboard>
   );
 }
 

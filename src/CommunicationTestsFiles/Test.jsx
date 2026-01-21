@@ -2,6 +2,249 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./test.css";
 
+const testInstructions = {
+  jam: [
+    {
+      title: "Instructions for JAM",
+      content: (
+        <strong>
+          - You will be given a <b>random topic</b> by{" "}
+          <b style={{ fontFamily: "Arial", fontSize: "22px" }}>Tara AI</b>.<br />
+          - You will have <b>1 minute</b> to speak continuously.<br />
+          - Focus on <b>content relevance, clarity, fluency, confidence</b>.
+        </strong>
+      )
+    },
+    {
+      title: "Microphone Rules",
+      content: (
+        <strong>
+          - Microphone access is provided <b>only once</b>.<br />
+          - Take a few seconds to think before you start speaking.
+        </strong>
+      )
+    },
+    {
+      title: "Grammar & Vocabulary",
+      content: (
+        <strong>
+          - Use correct sentence structures.<br />
+          - Avoid fillers like <i>um, uh, so</i>.<br />
+          -{" "}
+          <b style={{ fontSize: "21px" }}>
+            Tara AI
+          </b>{" "}
+          rewards strong grammar and vocabulary with higher scores.
+        </strong>
+      )
+    },
+    {
+      title: "Confidence & Delivery",
+      content: (
+        <strong>
+          - Speak clearly with a steady pace.<br />
+          - Sit in a quiet place and speak confidently with{" "}
+          <b>Tara AI</b>.
+        </strong>
+      )
+    },
+    {
+      title: "Watch How to Take the JAM Test",
+      content: (
+        <iframe
+          width="100%"
+          height="250"
+          src="https://www.youtube.com/embed/ReZgqLI3Hq0"
+          title="JAM Practice"
+          frameBorder="0"
+          allowFullScreen
+        />
+      )
+    }
+  ],
+
+  pronunciation: [
+    {
+      title: "Pronunciation Practice Overview",
+      content: (
+        <strong>
+          - You will be given <b>words or sentences</b> to pronounce.<br />
+          - Focus on <b>clarity, accuracy, and correct sounds</b>.
+        </strong>
+      )
+    },
+    {
+      title: "Clarity & Articulation",
+      content: (
+        <strong>
+          - Pronounce each sound clearly.<br />
+          - Avoid rushing through words.
+        </strong>
+      )
+    },
+    {
+      title: "Accuracy Matters",
+      content: (
+        <strong>
+          - Incorrect pronunciation affects your score.<br />
+          -{" "}
+          <b style={{ fontSize: "21px" }}>
+            Tara AI
+          </b>{" "}
+          analyzes sound accuracy precisely.
+        </strong>
+      )
+    },
+    {
+      title: "How to Practice Pronunciation",
+      content: (
+        <iframe
+          width="100%"
+          height="250"
+          src="https://www.youtube.com/embed/ReZgqLI3Hq0"
+          title="Pronunciation Practice"
+          frameBorder="0"
+          allowFullScreen
+        />
+      )
+    }
+  ],
+
+  listening: [
+    {
+      title: "Listening Test Instructions",
+      content: (
+        <strong>
+          - You will hear <b>audio clips</b> carefully curated by{" "}
+          <b>Tara AI</b>.<br />
+          - Listen attentively before answering.
+        </strong>
+      )
+    },
+    {
+      title: "Focus & Attention",
+      content: (
+        <strong>
+          - Use headphones for better clarity.<br />
+          - Avoid distractions while listening.
+        </strong>
+      )
+    },
+    {
+      title: "Answer Carefully",
+      content: (
+        <strong>
+          - Questions are based on <b>details and understanding</b>.<br />
+          - Tara AI evaluates comprehension accuracy.
+        </strong>
+      )
+    },
+    {
+      title: "How to Take the Listening Test",
+      content: (
+        <iframe
+          width="100%"
+          height="250"
+          src="https://www.youtube.com/embed/ReZgqLI3Hq0"
+          title="Listening Practice"
+          frameBorder="0"
+          allowFullScreen
+        />
+      )
+    }
+  ],
+
+  situational: [
+    {
+      title: "Situational Speaking Overview",
+      content: (
+        <strong>
+          - You will be given a <b>real-life situation</b>.<br />
+          - Respond as you would in an interview or workplace.
+        </strong>
+      )
+    },
+    {
+      title: "Think Before You Speak",
+      content: (
+        <strong>
+          - Analyze the problem logically.<br />
+          - Structure your response clearly.
+        </strong>
+      )
+    },
+    {
+      title: "Professional Communication",
+      content: (
+        <strong>
+          - Maintain a professional tone.<br />
+          -{" "}
+          <b style={{ fontSize: "21px" }}>
+            Tara AI
+          </b>{" "}
+          evaluates reasoning, clarity, and confidence.
+        </strong>
+      )
+    },
+    {
+      title: "How to Practice Situational Speaking",
+      content: (
+        <iframe
+          width="100%"
+          height="250"
+          src="https://www.youtube.com/embed/ReZgqLI3Hq0"
+          title="Situational Practice"
+          frameBorder="0"
+          allowFullScreen
+        />
+      )
+    }
+  ],
+
+  "image-speak": [
+    {
+      title: "Image Speaking Instructions",
+      content: (
+        <strong>
+          - You will be shown an <b>image</b>.<br />
+          - Describe what you observe clearly and confidently.
+        </strong>
+      )
+    },
+    {
+      title: "Observation Skills",
+      content: (
+        <strong>
+          - Focus on key elements in the image.<br />
+          - Organize your description logically.
+        </strong>
+      )
+    },
+    {
+      title: "Fluency & Structure",
+      content: (
+        <strong>
+          - Avoid long pauses.<br />
+          - Tara AI evaluates clarity, structure, and fluency.
+        </strong>
+      )
+    },
+    {
+      title: "How to Take Image Speaking Test",
+      content: (
+        <iframe
+          width="100%"
+          height="250"
+          src="https://www.youtube.com/embed/ReZgqLI3Hq0"
+          title="Image Speaking Practice"
+          frameBorder="0"
+          allowFullScreen
+        />
+      )
+    }
+  ]
+};
+
 function Test() {
     const [tests, setTests] = useState({});
     const [loading, setLoading] = useState(true);
@@ -9,6 +252,8 @@ function Test() {
     const [instructionIndex, setInstructionIndex] = useState(0);
     const [userName, setUserName] = useState("");
     const [apiData, setApiData] = useState({});
+    const [userType, setUserType] = useState('free');
+    const [streakData, setStreakData] = useState({ current_streak: 0 });
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -18,31 +263,50 @@ function Test() {
             return;
         }  
         
-        // Fetch test counts
-        fetch('https://ntjkr8rnd6.execute-api.ap-south-1.amazonaws.com/dev/student_profilecreate/student_profile_senddata', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ college_email: storedEmail }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data?.body) {
-                const parsedData = typeof data.body === "string" ? JSON.parse(data.body) : data.body;
-                setTests(parsedData.tests || {});
+        // Fetch user profile and streak data
+        Promise.all([
+            fetch('https://ntjkr8rnd6.execute-api.ap-south-1.amazonaws.com/dev/student_profilecreate/student_profile_senddata', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ college_email: storedEmail }),
+            }),
+            fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/update-user-streak', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    body: JSON.stringify({
+                        college_email: storedEmail,
+                        get_streak_data: true
+                    })
+                })
+            }),
+            fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/comm-test-send-results', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ college_email: storedEmail })
+            })
+        ])
+        .then(async ([profileResponse, streakResponse, dashboardResponse]) => {
+            const profileData = await profileResponse.json();
+            const streakDataResult = await streakResponse.json();
+            const dashboardData = await dashboardResponse.json();
+            
+            if (profileData?.body) {
+                const parsedProfileData = typeof profileData.body === "string" ? JSON.parse(profileData.body) : profileData.body;
+                setTests(parsedProfileData.tests || {});
+                setUserType(parsedProfileData.user_type === 'premium' && parsedProfileData.premium_status === 'active' ? 'premium' : 'free');
             }
-        })
-        .catch(() => {});
-        
-        // Fetch dashboard stats
-        fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/comm-test-send-results', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ college_email: storedEmail })
-        })
-        .then(response => response.json())
-        .then(data => {
-            const dashboardData = JSON.parse(data.body).dashboard;
-            setApiData(dashboardData);
+            
+            if (streakDataResult?.body) {
+                const parsedStreakData = typeof streakDataResult.body === "string" ? JSON.parse(streakDataResult.body) : streakDataResult.body;
+                setStreakData(parsedStreakData);
+            }
+            
+            if (dashboardData?.body) {
+                const parsedDashboardData = JSON.parse(dashboardData.body).dashboard;
+                setApiData(parsedDashboardData);
+            }
+            
             setLoading(false);
         })
         .catch(() => setLoading(false));
@@ -53,8 +317,7 @@ function Test() {
             'pronunciation': 'pronunciation', 
             'listening': 'listening',
             'situational': 'situation',
-            'image-speak': 'image_speak',
-            'story': 'image_story'
+            'image-speak': 'image_speak'
         };
         
         const testData = apiData[testMap[activityId]];
@@ -144,51 +407,10 @@ function Test() {
             description: 'Describe images to enhance vocabulary and fluency',
             count: tests.image_speak || 0,
             route: '/test/image-speak'
-        },
-        {
-            id: 'story',
-            title: 'Image-Based Story Telling',
-            description: 'Expand your vocabulary with interactive learning exercises',
-            count: tests.image_story || 0,
-            route: '/test/image-story'
         }
     ];
 
-    const instructions = {
-        jam: [
-            { title: "Instructions", content: "You've been given a random topic! You will have 1 minute to speak. Focus on fluency, clarity, and confidence." },
-            { title: "Fluency", content: "Maintain a smooth and uninterrupted flow of speech." },
-            { title: "Grammar", content: "Use correct sentence structures and grammatical conventions." },
-            { title: "Confidence", content: "Speak with assurance and composure." },
-            { title: "How to Practice", content: <iframe width="100%" height="250" src="https://www.youtube.com/embed/ReZgqLI3Hq0" title="JAM Practice" frameBorder="0" allowFullScreen></iframe> }
-        ],
-        pronunciation: [
-            { title: "Instructions", content: "Improve your pronunciation by practicing words and sentences. Focus on clarity and accuracy." },
-            { title: "Clarity", content: "Speak clearly, enunciating each sound." },
-            { title: "Accuracy", content: "Pronounce words correctly." },
-            { title: "How to Practice", content: <iframe width="100%" height="250" src="https://www.youtube.com/embed/ReZgqLI3Hq0" title="Pronunciation Practice" frameBorder="0" allowFullScreen></iframe> }
-        ],
-        listening: [
-            { title: "Instructions", content: "Enhance your listening comprehension with interactive exercises." },
-            { title: "Focus", content: "Listen carefully to audio clips and answer questions." },
-            { title: "How to Practice", content: <iframe width="100%" height="250" src="https://www.youtube.com/embed/ReZgqLI3Hq0" title="Listening Practice" frameBorder="0" allowFullScreen></iframe> }
-        ],
-        situational: [
-            { title: "Instructions", content: "Respond to real-life situations with appropriate communication." },
-            { title: "Context", content: "Analyze the situation and respond appropriately." },
-            { title: "How to Practice", content: <iframe width="100%" height="250" src="https://www.youtube.com/embed/ReZgqLI3Hq0" title="Situational Practice" frameBorder="0" allowFullScreen></iframe> }
-        ],
-        "image-speak": [
-            { title: "Instructions", content: "Describe the given image in detail." },
-            { title: "Observation", content: "Note key elements in the image." },
-            { title: "How to Practice", content: <iframe width="100%" height="250" src="https://www.youtube.com/embed/ReZgqLI3Hq0" title="Image Speaking Practice" frameBorder="0" allowFullScreen></iframe> }
-        ],
-        story: [
-            { title: "Instructions", content: "Build a story based on given prompts." },
-            { title: "Creativity", content: "Be creative in your storytelling." },
-            { title: "How to Practice", content: <iframe width="100%" height="250" src="https://www.youtube.com/embed/ReZgqLI3Hq0" title="Story Building Practice" frameBorder="0" allowFullScreen></iframe> }
-        ]
-    };
+
 
     const handleStartChallenge = (id) => {
         setActiveChallenge(id);
@@ -196,7 +418,7 @@ function Test() {
     };
 
     const handleNext = () => {
-        const currentInstructions = instructions[activeChallenge];
+        const currentInstructions = testInstructions[activeChallenge];
         if (instructionIndex < currentInstructions.length - 1) {
             setInstructionIndex(instructionIndex + 1);
         }
@@ -229,7 +451,7 @@ function Test() {
     }
 
     return (
-        <div>
+        <div className={userType === 'premium' ? 'premium-bg' : 'free-bg'} style={{ minHeight: '100vh' }}>
             <div>
                 <header className="header">
                 <div className="header-content">
@@ -262,7 +484,19 @@ function Test() {
                             borderRadius: '20px',
                             fontSize: '0.9rem'
                         }}>
-                            🔥0
+                            🔥{streakData.current_streak || 0}
+                        </span>
+                        <span style={{ 
+                            marginRight: '15px', 
+                            fontWeight: '600',
+                            background: userType === 'premium' ? 'linear-gradient(135deg, #f59e0b, #d97706)' : '#f8f9fa',
+                            color: userType === 'premium' ? 'white' : '#6b7280',
+                            padding: '8px 16px',
+                            borderRadius: '20px',
+                            border: userType === 'premium' ? '2px solid #f59e0b' : '2px solid #e5e7eb',
+                            fontSize: '0.9rem'
+                        }}>
+                            {userType === 'premium' ? '👑 Premium' : '🆓 Free'}
                         </span>
                         <span style={{ 
                             marginRight: '15px', 
@@ -275,9 +509,6 @@ function Test() {
                             fontSize: '0.9rem'
                         }}>
                             {localStorage.getItem('email')?.slice(0, 10) || 'User'}
-                        </span>
-                        <span style={{ marginRight: '15px', color: '#2c3e50', fontWeight: '600' }}>
-                            {userName}
                         </span>
                         <button 
                             className="btn-signup"
@@ -344,7 +575,7 @@ function Test() {
                     animation: 'pulse 2s infinite 0.5s'
                 }}>
                     <span style={{ fontSize: '1rem', fontWeight: '600' }}>
-                        Image-Based Speaking and Image-Based Story Telling
+                        Image-Based Speaking
                     </span>
                     <span style={{ 
                         marginLeft: '8px', 
@@ -683,16 +914,16 @@ function Test() {
                             </button>
                             
                             <h2 style={{ marginBottom: '20px', color: '#2c3e50' }}>
-                                {instructions[activeChallenge]?.[instructionIndex]?.title}
+                                {testInstructions[activeChallenge]?.[instructionIndex]?.title}
                             </h2>
                             
                             <div style={{ marginBottom: '30px', minHeight: '200px' }}>
-                                {typeof instructions[activeChallenge]?.[instructionIndex]?.content === 'string' ? (
+                                {typeof testInstructions[activeChallenge]?.[instructionIndex]?.content === 'string' ? (
                                     <p style={{ lineHeight: '1.6', color: '#555' }}>
-                                        {instructions[activeChallenge][instructionIndex].content}
+                                        {testInstructions[activeChallenge][instructionIndex].content}
                                     </p>
                                 ) : (
-                                    instructions[activeChallenge]?.[instructionIndex]?.content
+                                    testInstructions[activeChallenge]?.[instructionIndex]?.content
                                 )}
                             </div>
                             
@@ -714,7 +945,7 @@ function Test() {
                                 )}
                                 
                                 <div style={{ marginLeft: 'auto' }}>
-                                    {instructionIndex < instructions[activeChallenge]?.length - 1 ? (
+                                    {instructionIndex < testInstructions[activeChallenge]?.length - 1 ? (
                                         <>
                                             <button 
                                                 onClick={handleNext}
@@ -731,7 +962,7 @@ function Test() {
                                                 Next →
                                             </button>
                                             <button 
-                                                onClick={() => setInstructionIndex(instructions[activeChallenge].length - 1)}
+                                                onClick={() => setInstructionIndex(testInstructions[activeChallenge].length - 1)}
                                                 style={{
                                                     background: '#28a745',
                                                     color: 'white',

@@ -9,6 +9,9 @@ function Dashboard() {
   const [loading, setLoading] = useState(false);
   const [userEmail] = useState(localStorage.getItem('email'));
   const [dashboardStats, setDashboardStats] = useState({ testCount: 0, avgScore: 0 });
+  const [userType, setUserType] = useState('free');
+  const [streakData, setStreakData] = useState({ current_streak: 0 });
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
 
   const interviewActivities = [
     {
@@ -61,47 +64,73 @@ function Dashboard() {
       id: 'image-speak',
       title: 'Image-Based Speaking',
       icon: <img src="https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-image-128.png" alt="image" style={{ width: 50, height: 50 }} />
-    },
-    {
-      id: 'image-story',
-      title: 'Image-Based Story Telling',
-      icon: <img src="https://cdn1.iconfinder.com/data/icons/language-courses-3/504/vocabulary-language-translate-studying-learn-128.png" alt="vocabulary" style={{ width: 50, height: 50 }} />
     }
   ];
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const storedEmail = localStorage.getItem('email');
+        if (!storedEmail) return;
+
+        const [profileResponse, streakResponse] = await Promise.all([
+          fetch('https://ntjkr8rnd6.execute-api.ap-south-1.amazonaws.com/dev/student_profilecreate/student_profile_senddata', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ college_email: storedEmail })
+          }),
+          fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/update-user-streak', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              body: JSON.stringify({
+                college_email: storedEmail,
+                get_streak_data: true
+              })
+            })
+          })
+        ]);
+
+        const profile = await profileResponse.json();
+        const streak = await streakResponse.json();
+        
+        if (profile?.body) {
+          const userData = JSON.parse(profile.body);
+          const isPremium = userData?.user_type === 'premium' && userData?.premium_status === 'active';
+          setUserType(isPremium ? 'premium' : 'free');
+        }
+        
+        if (streak?.body) {
+          const streakDataResult = JSON.parse(streak.body);
+          setStreakData(streakDataResult);
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
   useEffect(() => {
     const root = document.documentElement;
     document.body.style.margin = '0';
     document.body.style.padding = '0';
     
-    if (theme === 'light') {
-      document.body.style.background = 'linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%)';
-      root.style.setProperty('--bg-primary', 'linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%)');
-      root.style.setProperty('--bg-secondary', '#ffffff');
-      root.style.setProperty('--text-primary', '#1f2937');
-      root.style.setProperty('--text-muted', '#6b7280');
-      root.style.setProperty('--accent-blue', '#0ea5e9');
-      root.style.setProperty('--border-color', 'rgba(0,0,0,0.1)');
-      root.style.setProperty('--card-bg', 'rgba(255,255,255,0.8)');
-    } else if (theme === 'custom') {
-      document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-      root.style.setProperty('--bg-primary', 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)');
-      root.style.setProperty('--bg-secondary', 'rgba(255,255,255,0.1)');
-      root.style.setProperty('--text-primary', '#ffffff');
-      root.style.setProperty('--text-muted', 'rgba(255,255,255,0.8)');
-      root.style.setProperty('--accent-blue', '#fbbf24');
-      root.style.setProperty('--border-color', 'rgba(255,255,255,0.2)');
-      root.style.setProperty('--card-bg', 'rgba(255,255,255,0.1)');
+    if (userType === 'premium') {
+      document.body.style.background = 'linear-gradient(135deg, #7dd3d3 75%, #9ee8e8 100%)';
+      root.style.setProperty('--bg-primary', 'linear-gradient(135deg, #7dd3d3 75%, #9ee8e8 100%)');
     } else {
-      document.body.style.background = 'linear-gradient(180deg, #071028 0%, #07182b 60%)';
-      root.style.setProperty('--bg-primary', 'linear-gradient(180deg, #071028 0%, #07182b 60%)');
-      root.style.setProperty('--bg-secondary', '#0b1220');
-      root.style.setProperty('--text-primary', '#e6eef8');
-      root.style.setProperty('--text-muted', '#94a3b8');
-      root.style.setProperty('--accent-blue', '#60a5fa');
-      root.style.setProperty('--border-color', 'rgba(255,255,255,0.06)');
-      root.style.setProperty('--card-bg', 'linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01))');
+      document.body.style.background = '#f8fafc';
+      root.style.setProperty('--bg-primary', '#f8fafc');
     }
-  }, [theme]);
+    
+    root.style.setProperty('--bg-secondary', '#ffffff');
+    root.style.setProperty('--text-primary', '#1f2937');
+    root.style.setProperty('--text-muted', '#6b7280');
+    root.style.setProperty('--accent-blue', '#0ea5e9');
+    root.style.setProperty('--border-color', 'rgba(0,0,0,0.1)');
+    root.style.setProperty('--card-bg', 'rgba(255,255,255,0.8)');
+  }, [userType]);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -133,8 +162,7 @@ function Dashboard() {
       'pronunciation': 'pronunciation', 
       'listening': 'listening',
       'situational': 'situation',
-      'image-speak': 'image_speak',
-      'image-story': 'image_story'
+      'image-speak': 'image_speak'
     };
     
     const testData = apiData[testMap[activityId]];
@@ -149,8 +177,19 @@ function Dashboard() {
     };
   };
 
-  const handleActivityClick = (activity) => {
-    navigate('/test');
+  const handleAnalyticsClick = (activity) => {
+    if (userType !== 'premium') {
+      setShowPremiumModal(true);
+    } else {
+      const routes = {
+        'jam': '/student-dashboard/jam',
+        'pronunciation': '/student-dashboard/pronunciation', 
+        'listening': '/student-dashboard/listening',
+        'situational': '/student-dashboard/situationspeak',
+        'image-speak': '/student-dashboard/imagespeak'
+      };
+      navigate(routes[activity.id]);
+    }
   };
 
   const renderMiniChart = (trend) => {
@@ -183,7 +222,7 @@ function Dashboard() {
   };
 
   return (
-    <div>
+    <div className={userType === 'premium' ? 'premium-bg' : 'free-bg'} style={{ minHeight: '100vh' }}>
       <header className="header">
         <div className="header-content">
           <div className="logo">
@@ -214,7 +253,19 @@ function Dashboard() {
                             borderRadius: '20px',
                             fontSize: '0.9rem'
                         }}>
-                            🔥0
+                            🔥{streakData.current_streak || 0}
+            </span>
+            <span style={{ 
+                            marginRight: '15px', 
+                            fontWeight: '600',
+                            background: userType === 'premium' ? 'linear-gradient(135deg, #f59e0b, #d97706)' : '#f8f9fa',
+                            color: userType === 'premium' ? 'white' : '#6b7280',
+                            padding: '8px 16px',
+                            borderRadius: '20px',
+                            border: userType === 'premium' ? '2px solid #f59e0b' : '2px solid #e5e7eb',
+                            fontSize: '0.9rem'
+                        }}>
+                            {userType === 'premium' ? '👑 Premium' : '🆓 Free'}
             </span>
             <span style={{ 
                             marginRight: '15px', 
@@ -315,17 +366,7 @@ function Dashboard() {
                 </div>
                 
                 <button 
-                  onClick={() => {
-                    const routes = {
-                      'jam': '/student-dashboard/jam',
-                      'pronunciation': '/student-dashboard/pronunciation', 
-                      'listening': '/student-dashboard/listening',
-                      'situational': '/student-dashboard/situationspeak',
-                      'image-speak': '/student-dashboard/imagespeak',
-                      'image-story': '/student-dashboard/imagestory'
-                    };
-                    navigate(routes[activity.id]);
-                  }}
+                  onClick={() => handleAnalyticsClick(activity)}
                   style={{
                     background: '#0d8888ff',
                     color: 'white',
@@ -335,10 +376,30 @@ function Dashboard() {
                     cursor: 'pointer',
                     fontWeight: '500',
                     width: '100%',
-                    marginBottom: '8px'
+                    marginBottom: '8px',
+                    position: 'relative',
+                    opacity: userType !== 'premium' ? 0.7 : 1
                   }}
                 >
                   View Detailed Dashboard →
+                  {userType !== 'premium' && (
+                    <span style={{
+                      position: 'absolute',
+                      top: '-5px',
+                      right: '-5px',
+                      background: '#ef4444',
+                      color: 'white',
+                      borderRadius: '50%',
+                      width: '18px',
+                      height: '18px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '10px'
+                    }}>
+                      🔒
+                    </span>
+                  )}
                 </button>
               </div>
             );
@@ -418,6 +479,44 @@ function Dashboard() {
           ))}
         </div>
       </div>
+      
+      {/* Premium Modal */}
+      {showPremiumModal && (
+        <div className="modal-overlay" onClick={() => setShowPremiumModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>🔒 Premium Feature</h3>
+              <button className="close-btn" onClick={() => setShowPremiumModal(false)}>×</button>
+            </div>
+            <div className="modal-body" style={{ textAlign: 'center', padding: '30px' }}>
+              <div style={{ fontSize: '48px', marginBottom: '20px' }}>👑</div>
+              <h2 style={{ color: '#f59e0b', marginBottom: '15px' }}>Upgrade to Premium</h2>
+              <p style={{ marginBottom: '25px', color: '#666' }}>
+                Detailed Analytics are available for Premium users only. 
+                Upgrade now to unlock advanced insights and analytics!
+              </p>
+              <button 
+                style={{
+                  background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                  color: 'white',
+                  border: 'none',
+                  padding: '12px 30px',
+                  borderRadius: '25px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 15px rgba(245, 158, 11, 0.3)'
+                }}
+                onClick={() => {
+                  window.open('/premium-upgrade', '_blank');
+                }}
+              >
+                Buy Premium 📎
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -12,7 +12,7 @@ const LandingPage = lazy(() => import("./LandingPageFiles/LandingPage.jsx"));
 // Registration components
 const Signup = lazy(() => import("./RegisterFiles/Signup.jsx"));
 const Login_Navbar = lazy(() => import("./RegisterFiles/Login_Navbar.jsx"));
-const ProfileData = lazy(() => import("./RegisterFiles/ProfileData/ProfileData.jsx"));
+const ProfileData = lazy(() => import("./RegisterFiles/ProfileData/ProfileDataNew.jsx"));
 const Progress = lazy(() => import("./RegisterFiles/ProfileData/Progress.jsx"));
 const ProfileCreation_Survey = lazy(() => import("./RegisterFiles/ProfileCreation/ProfileCreation.jsx"));
 
@@ -24,7 +24,6 @@ const Test = lazy(() => import("./CommunicationTestsFiles/Test.jsx"));
 const JAM1 = lazy(() => import("./CommunicationTestsFiles/JAM1.jsx"))
 const Pronunciation1 = lazy(() => import("./CommunicationTestsFiles/Pronunciation1.jsx"));
 const Listening = lazy(() => import("./CommunicationTestsFiles/Listening.jsx"));
-const ImageStory = lazy(() => import("./CommunicationTestsFiles/ImageStory.jsx"));
 const TranslateSpeak = lazy(() => import("./CommunicationTestsFiles/TranslateSpeak.jsx"));
 const ImageSpeak = lazy(() => import("./CommunicationTestsFiles/ImageSpeak.jsx"));
 const SituationSpeak = lazy(() => import("./CommunicationTestsFiles/SituationSpeak.jsx"));
@@ -36,7 +35,6 @@ const PronunciationDashboard = lazy(() => import("./Dashboard_LeaderboardFiles/P
 const ListeningDashboard = lazy(()=> import("./Dashboard_LeaderboardFiles/ListeningDashboard.jsx"))
 const SituationSpeakDashboard = lazy(() => import("./Dashboard_LeaderboardFiles/SituationSpeakDashboard.jsx"));
 const ImageSpeakDashboard = lazy(() => import("./Dashboard_LeaderboardFiles/ImageSpeakDashboard.jsx"));
-const ImageStoryDashboard = lazy(() => import("./Dashboard_LeaderboardFiles/ImageStoryDashboard.jsx"))
 const Leaderboard = lazy(() => import("./Dashboard_LeaderboardFiles/Leaderboard.jsx"))
 
 
@@ -221,12 +219,6 @@ function App() {
             </ProtectedRoute>
           } />
 
-          <Route path="/student-dashboard/imagestory" element={
-            <ProtectedRoute>
-              <ImageStoryDashboard />
-            </ProtectedRoute>
-          } />
-
           <Route path="/student-leaderboard" element={
             <ProtectedRoute>
               <Leaderboard />
@@ -254,15 +246,6 @@ function App() {
             <ProtectedRoute>
               <CommunicationPraticeLayout>
                 <Pronunciation1 />
-              </CommunicationPraticeLayout>
-            </ProtectedRoute>
-          } />
-
-
-          <Route path="/test/image-story" element={
-            <ProtectedRoute>
-              <CommunicationPraticeLayout>
-                <ImageStory />
               </CommunicationPraticeLayout>
             </ProtectedRoute>
           } />

@@ -971,10 +971,12 @@ body {
   background: white;
   border-radius: 20px;
   padding: 2rem;
-  max-width: 500px;
+  max-width: 600px;
+  max-height: 80vh;
   width: 90%;
   position: relative;
   animation: slideIn 0.3s ease;
+  overflow-y: auto;
 }
 
 .modal-close {
@@ -1015,6 +1017,86 @@ body {
 .modal-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+}
+
+/* Premium Modal Styles */
+.premium-steps {
+  margin: 2rem 0;
+}
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: rgba(59, 151, 151, 0.05);
+  border-radius: 12px;
+  border-left: 4px solid #3B9797;
+}
+
+.step-number {
+  width: 30px;
+  height: 30px;
+  background: linear-gradient(135deg, #3B9797, #5bb5b5);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.step-content h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #3B9797;
+  margin-bottom: 0.5rem;
+}
+
+.step-content p {
+  color: #666;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.premium-benefits {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: rgba(59, 151, 151, 0.05);
+  border-radius: 12px;
+}
+
+.premium-benefits h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #3B9797;
+  margin-bottom: 1rem;
+}
+
+.premium-benefits ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.premium-benefits li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.premium-benefits li:before {
+  content: '✓';
+  color: #3B9797;
+  font-weight: bold;
+  font-size: 1rem;
 }
 
 @keyframes fadeIn {

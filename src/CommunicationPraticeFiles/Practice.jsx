@@ -100,12 +100,6 @@ function Practice() {
             title: 'Image-Based Speaking Practice',
             description: 'Describe images to enhance vocabulary and fluency',
             route: '/test/image-speak'
-        },
-        {
-            id: 'story',
-            title: 'Image-Based Story Telling Practice',
-            description: 'Expand your vocabulary with interactive learning exercises',
-            route: '/test/image-story'
         }
     ];
 
@@ -137,11 +131,6 @@ function Practice() {
             { title: "Instructions", content: "Describe the given image in detail." },
             { title: "Observation", content: "Note key elements in the image." },
             { title: "How to Practice", content: <iframe width="100%" height="250" src="https://www.youtube.com/embed/ReZgqLI3Hq0" title="Image Speaking Practice" frameBorder="0" allowFullScreen></iframe> }
-        ],
-        story: [
-            { title: "Instructions", content: "Build a story based on given prompts." },
-            { title: "Creativity", content: "Be creative in your storytelling." },
-            { title: "How to Practice", content: <iframe width="100%" height="250" src="https://www.youtube.com/embed/ReZgqLI3Hq0" title="Story Building Practice" frameBorder="0" allowFullScreen></iframe> }
         ]
     };
 

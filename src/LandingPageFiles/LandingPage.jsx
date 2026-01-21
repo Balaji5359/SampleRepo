@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './landing.css';
 import logo from '../assets/logo.png';
+import PricingPlans from './PricingPlans';
 
 function LandingPage() {
   const [activeModal, setActiveModal] = useState(null);
@@ -139,6 +140,7 @@ function LandingPage() {
             <a href="#home" onClick={(e) => handleNavClick(e, 'home')}>Home</a>
             <a href="#features" onClick={(e) => handleNavClick(e, 'features')}>Features</a>
             <a href="#activities" onClick={(e) => handleNavClick(e, 'activities')}>Activities</a>
+            <a href="#pricing" onClick={(e) => handleNavClick(e, 'pricing')}>Pricing</a>
             <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')}>Contact</a>
           </div>
           <div className="auth-buttons">
@@ -408,86 +410,7 @@ function LandingPage() {
       </section>
 
       {/* Pricing Section */}
-      {/* <section id="pricing" className="pricing">
-        <div className="section-header">
-          <h2>Choose Your Learning Path</h2>
-          <p>Flexible plans designed for every learner's needs</p>
-        </div>
-        <div className="pricing-container">
-          <div className="pricing-card">
-            <div className="plan-badge">Free</div>
-            <div className="plan-price">
-              <span className="currency"><img src="https://cdn0.iconfinder.com/data/icons/business-469/28/Rupee_Rupees_Currency_Symbol_Money_Indian-Currency-512.png" alt="rupee" style={{ width: 20, height: 20 }} /></span>
-              <span className="amount">0</span>
-              <span className="period">/Free Trail</span>
-            </div>
-            <ul className="plan-features">
-              <li>✓ 1-Free trail for JAM </li>
-              <li>✓ 1-Free trail for Image-Based Speaking </li>
-              <li>✓ Limited AI feedback</li>
-              <li>✓ Progress tracking</li>
-              <li>✗ Advanced analytics</li>
-              <li>✗ Premium activities</li>
-            </ul>
-            <button className="plan-btn">Start Free</button>
-          </div>
-          
-          <div className="pricing-card">
-            <div className="plan-badge">1 Month</div>
-            <div className="plan-price">
-              <span className="currency"><img src="https://cdn0.iconfinder.com/data/icons/business-469/28/Rupee_Rupees_Currency_Symbol_Money_Indian-Currency-512.png" alt="rupee" style={{ width: 20, height: 20 }} /></span>
-              <span className="amount">199</span>
-              <span className="period">/1 month</span>
-            </div>
-            <ul className="plan-features">
-              <li>✓ Access to all activities</li>
-              <li>✓ 1-free trail for every Test</li>
-              <li>✓ 10 min of free practise sessions for every activity</li>
-              <li>✓ 2-free trails for Image-Based Speaking</li>
-              <li>✓ Basic AI feedback</li>
-              <li>✓ Progress tracking</li>
-            </ul>
-            <button className="plan-btn">Get Started</button>
-          </div>
-          
-          <div className="pricing-card featured">
-            <div className="plan-badge popular">Most Popular</div>
-            <div className="plan-price">
-              <span className="currency"><img src="https://cdn0.iconfinder.com/data/icons/business-469/28/Rupee_Rupees_Currency_Symbol_Money_Indian-Currency-512.png" alt="rupee" style={{ width: 20, height: 20 }} /></span>
-              <span className="amount">499</span>
-              <span className="period">/3 months</span>
-            </div>
-            <ul className="plan-features">
-              <li>✓ Access to all activities </li>
-              <li>✓ 2-free trails for every Test</li>
-              <li>✓ 20 min of free practise sessions for every activity</li>
-              <li>✓ Only 3-free trails for Image-Based Speaking practise sessions</li>
-              <li>✓ Advanced AI feedback</li>
-              <li>✓ Detailed analytics</li>
-              <li>✓ Progress tracking</li>
-            </ul>
-            <button className="plan-btn">Upgrade Now</button>
-          </div>
-          
-          <div className="pricing-card">
-            <div className="plan-badge">Premium</div>
-            <div className="plan-price">
-              <span className="currency"><img src="https://cdn0.iconfinder.com/data/icons/business-469/28/Rupee_Rupees_Currency_Symbol_Money_Indian-Currency-512.png" alt="rupee" style={{ width: 20, height: 20 }} /></span>
-              <span className="amount">1399</span>
-              <span className="period">/1 Year🌟</span>
-            </div>
-            <ul className="plan-features">
-              <li>✓ Everything in Pro</li>
-              <li>✓ 2-free trails for every Test</li>
-              <li>✓ 40 min of free practise sessions for every activity</li>
-              <li>✓ 5-free trails for Image-Based Speaking practise sessions</li>
-              <li>✓ Advanced AI feedback</li>
-              <li>✓ 24/7 support</li>
-            </ul>
-            <button className="plan-btn">Go Premium</button>
-          </div>
-        </div>
-      </section> */}
+      <PricingPlans />
 
       {/* Contact Section */}
       <section id="contact" className="contact">
