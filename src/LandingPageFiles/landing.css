@@ -445,7 +445,7 @@ body {
   position: relative;
   z-index: 5;
   margin-top: 0px;
-  /* top: -100px; */
+  top: -110px;
 }
 
 .activities-grid {
