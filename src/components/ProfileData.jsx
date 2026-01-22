@@ -4,17 +4,9 @@ import './profile.css';
 
 function ProfileData() {
     const navigate = useNavigate();
-    const [profileData, setProfileData] = useState({
-        full_name: "Student",
-        user_type: "free",
-        premium_status: "inactive"
-    });
-    const [streakData, setStreakData] = useState({
-        current_streak: 0,
-        longest_streak: 0,
-        active_dates: []
-    });
-    const [loading, setLoading] = useState(false);
+    const [profileData, setProfileData] = useState(null);
+    const [streakData, setStreakData] = useState(null);
+    const [loading, setLoading] = useState(true);
     const [greeting, setGreeting] = useState("");
     const [motivationalQuote, setMotivationalQuote] = useState("");
     const [showPricingModal, setShowPricingModal] = useState(false);
@@ -30,12 +22,77 @@ function ProfileData() {
     ];
 
     useEffect(() => {
-        const hour = new Date().getHours();
-        if (hour < 12) setGreeting("Good Morning");
-        else if (hour < 17) setGreeting("Good Afternoon");
-        else setGreeting("Good Evening");
-        
-        setMotivationalQuote(quotes[Math.floor(Math.random() * quotes.length)]);
+        const fetchData = async () => {
+            try {
+                const storedEmail = localStorage.getItem("email");
+                const [profileResponse, streakResponse] = await Promise.all([
+                    fetch(import.meta.env.VITE_STUDENT_PROFILE_API, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ college_email: storedEmail })
+                    }),
+                    fetch(import.meta.env.VITE_UPDATE_USER_STREAK_API, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            body: JSON.stringify({
+                                college_email: storedEmail,
+                                get_streak_data: true
+                            })
+                        })
+                    })
+                ]);
+
+                // Check if responses are OK and contain JSON
+                if (!profileResponse.ok) {
+                    throw new Error(`Profile API failed: ${profileResponse.status}`);
+                }
+                if (!streakResponse.ok) {
+                    throw new Error(`Streak API failed: ${streakResponse.status}`);
+                }
+
+                const profileText = await profileResponse.text();
+                const streakText = await streakResponse.text();
+                
+                let profile, streak;
+                try {
+                    profile = JSON.parse(profileText);
+                    streak = JSON.parse(streakText);
+                } catch (parseError) {
+                    console.error('JSON Parse Error:', parseError);
+                    console.error('Profile Response:', profileText.substring(0, 200));
+                    console.error('Streak Response:', streakText.substring(0, 200));
+                    throw new Error('Invalid JSON response from API');
+                }
+                
+                setProfileData(JSON.parse(profile.body));
+                setStreakData(JSON.parse(streak.body));
+
+                const hour = new Date().getHours();
+                if (hour < 12) setGreeting("Good Morning");
+                else if (hour < 17) setGreeting("Good Afternoon");
+                else setGreeting("Good Evening");
+                
+                setMotivationalQuote(quotes[Math.floor(Math.random() * quotes.length)]);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                // Set default data when API fails
+                setProfileData({
+                    full_name: "Student",
+                    user_type: "free",
+                    premium_status: "inactive"
+                });
+                setStreakData({
+                    current_streak: 0,
+                    longest_streak: 0,
+                    active_dates: []
+                });
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
     }, []);
 
     const isPremium = profileData?.user_type === 'premium' && profileData?.premium_status === 'active';
@@ -367,11 +424,106 @@ const PaymentModal = ({ plan, onClose, profileData }) => {
     const [loading, setLoading] = useState(false);
 
     const handlePayment = async () => {
-        alert('Payment feature will be available soon!');
+        if (!window.Razorpay) {
+            alert('Payment gateway not loaded. Please refresh the page and try again.');
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const email = profileData?.college_email || localStorage.getItem("email");
+            
+            const response = await fetch(import.meta.env.VITE_PAYMENT_API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    body: JSON.stringify({
+                        action: "create_order",
+                        college_email: email,
+                        plan_type: plan.type
+                    })
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Payment API failed: ${response.status}`);
+            }
+
+            const responseText = await response.text();
+            let result;
+            try {
+                result = JSON.parse(responseText);
+            } catch (parseError) {
+                console.error('Payment JSON Parse Error:', parseError);
+                console.error('Payment Response:', responseText.substring(0, 200));
+                throw new Error('Invalid JSON response from payment API');
+            }
+            const orderData = JSON.parse(result.body);
+
+            const options = {
+                key: orderData.razorpay_key,
+                amount: orderData.amount,
+                currency: orderData.currency,
+                name: "Skill Route",
+                description: plan.title,
+                order_id: orderData.order_id,
+                handler: async (response) => {
+                    await verifyPayment(response, email, plan.type);
+                },
+                prefill: { email: email },
+                theme: { color: "#3B9797" },
+                modal: {
+                    ondismiss: () => {
+                        setLoading(false);
+                    }
+                }
+            };
+
+            const rzp = new window.Razorpay(options);
+            rzp.open();
+        } catch (error) {
+            console.error('Payment error:', error);
+            alert('Payment initialization failed. Please try again.');
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const verifyPayment = async () => {
-        alert('Payment verification will be available soon!');
+    const verifyPayment = async (paymentResponse, email, planType) => {
+        try {
+            const response = await fetch(import.meta.env.VITE_PAYMENT_API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    body: JSON.stringify({
+                        action: "verify_payment",
+                        college_email: email,
+                        razorpay_payment_id: paymentResponse.razorpay_payment_id,
+                        razorpay_order_id: paymentResponse.razorpay_order_id,
+                        razorpay_signature: paymentResponse.razorpay_signature,
+                        plan_type: planType
+                    })
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Payment verification failed: ${response.status}`);
+            }
+
+            const responseText = await response.text();
+            try {
+                const result = JSON.parse(responseText);
+                alert('Payment successful! Premium activated.');
+                window.location.reload();
+            } catch (parseError) {
+                console.error('Verification JSON Parse Error:', parseError);
+                console.error('Verification Response:', responseText.substring(0, 200));
+                alert('Payment verification failed. Please contact support.');
+            }
+        } catch (error) {
+            console.error('Verification error:', error);
+            alert('Payment verification failed. Please contact support.');
+        }
     };
 
     return (
