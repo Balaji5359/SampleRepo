@@ -1,21 +1,20 @@
-/* Test component specific styles */
+/* Test component specific styles - all classes prefixed with 'test-' */
 
 .test-container {
-  background: #f8fafc;
+  min-height: calc(100vh - var(--header-height));
 }
 
 .test-div {
-  margin-top: 100px;
+  padding: 20px;
 }
 
 .test-title {
   font-size: 2rem;
-  color: #2c3e50;
   margin-bottom: 20px;
+  color: #0d8888ff;
   text-align: center;
 }
-
-.announcement-banner {
+.test-announcement-banner {
   display: inline-block;
   background: linear-gradient(135deg, #318383ff, #1d5555ff);
   color: white;
@@ -27,17 +26,17 @@
   animation: pulse 2s infinite;
 }
 
-.announcement-banner.delayed {
+.test-announcement-banner.delayed {
   animation: pulse 2s infinite 0.5s;
   margin-bottom: 30px;
 }
 
-.announcement-text {
+.test-announcement-text {
   font-size: 1rem;
   font-weight: 600;
 }
 
-.coming-soon-badge {
+.test-coming-soon-badge {
   margin-left: 8px;
   background: rgba(255, 255, 255, 0.2);
   padding: 4px 8px;
@@ -46,7 +45,7 @@
   font-weight: bold;
 }
 
-.activity-grid {
+.test-activity-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 20px;
@@ -54,11 +53,11 @@
   margin: 0 auto 60px auto;
 }
 
-.activity-grid.blurred {
+.test-activity-grid.blurred {
   filter: blur(3px);
 }
 
-.activity-card {
+.test-activity-card {
   background: white;
   border-radius: 12px;
   padding: 24px;
@@ -68,44 +67,44 @@
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.activity-card:hover {
+.test-activity-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
 }
 
-.activity-title {
+.test-activity-title {
   font-size: 1.3rem;
   color: #2c3e50;
   margin-bottom: 12px;
   font-weight: 600;
 }
 
-.activity-description {
+.test-activity-description {
   color: #666;
   margin-bottom: 20px;
   line-height: 1.5;
 }
 
-.card-content {
+.test-card-content {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
 }
 
-.activity-buttons {
+.test-activity-buttons {
   display: flex;
   gap: 8px;
   flex-direction: column;
   flex: 1;
 }
 
-.activity-stats {
+.test-activity-stats {
   margin-left: 12px;
   text-align: right;
   min-width: 140px;
 }
 
-.activity-stats-text {
+.test-activity-stats-text {
   font-size: 0.85rem;
   color: #666;
   display: flex;
@@ -113,7 +112,7 @@
   gap: 4px;
 }
 
-.level-button {
+.test-level-button {
   background: #3B9797;
   color: white;
   border: none;
@@ -125,12 +124,12 @@
   width: 100%;
 }
 
-.level-button:disabled {
+.test-level-button:disabled {
   background: #ccc;
   cursor: not-allowed;
 }
 
-.level-button-coming-soon {
+.test-level-button-coming-soon {
   background: linear-gradient(135deg, #3B9797, #2c7a7a);
   color: white;
   border: none;
@@ -145,7 +144,7 @@
   overflow: hidden;
 }
 
-.level-button-shimmer {
+.test-level-button-shimmer {
   position: absolute;
   top: 0;
   left: -100%;
@@ -155,11 +154,11 @@
   animation: shimmer 2s infinite;
 }
 
-.level-button-shimmer.delayed {
+.test-level-button-shimmer.delayed {
   animation: shimmer 2s infinite 0.5s;
 }
 
-.soon-badge {
+.test-soon-badge {
   position: absolute;
   top: 2px;
   right: 4px;
@@ -172,32 +171,31 @@
   font-weight: bold;
 }
 
-.soon-badge.red {
+.test-soon-badge.red {
   background: #f60909ff;
 }
 
-/* Interview roadmap styles */
-.interview-section {
+.test-interview-section {
   max-width: 1200px;
   margin: 0 auto;
 }
 
-.interview-section.blurred {
+.test-interview-section.blurred {
   filter: blur(3px);
 }
 
-.interview-level {
+.test-interview-level {
   margin-bottom: 60px;
 }
 
-.interview-level-title {
+.test-interview-level-title {
   font-size: 2rem;
   color: #0d8888ff;
   margin-bottom: 30px;
   text-align: center;
 }
 
-.roadmap-row {
+.test-roadmap-row {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -205,7 +203,7 @@
   flex-wrap: wrap;
 }
 
-.roadmap-step {
+.test-roadmap-step {
   background: white;
   border-radius: 15px;
   padding: 25px;
@@ -215,24 +213,24 @@
   min-width: 250px;
 }
 
-.roadmap-step.unlocked {
+.test-roadmap-step.unlocked {
   border: 3px solid #0d8888ff;
   cursor: pointer;
   opacity: 1;
 }
 
-.roadmap-step.locked {
+.test-roadmap-step.locked {
   border: 3px solid #ccc;
   cursor: not-allowed;
   opacity: 0.6;
 }
 
-.roadmap-step.unlocked:hover {
+.test-roadmap-step.unlocked:hover {
   transform: translateY(-5px);
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
 }
 
-.step-number {
+.test-step-number {
   width: 50px;
   height: 50px;
   border-radius: 50%;
@@ -245,44 +243,44 @@
   margin: 0 auto 15px;
 }
 
-.step-number.unlocked {
+.test-step-number.unlocked {
   background: linear-gradient(135deg, #0d8888ff, #0d8888dd);
   box-shadow: 0 4px 15px #0d888830;
 }
 
-.step-number.locked {
+.test-step-number.locked {
   background: #ccc;
 }
 
-.step-content h4 {
+.test-step-content h4 {
   font-size: 1.2rem;
   margin-bottom: 10px;
   font-weight: 600;
 }
 
-.step-content h4.unlocked {
+.test-step-content h4.unlocked {
   color: #2c3e50;
 }
 
-.step-content h4.locked {
+.test-step-content h4.locked {
   color: #999;
 }
 
-.step-content p {
+.test-step-content p {
   font-size: 0.9rem;
   line-height: 1.4;
   margin: 0;
 }
 
-.step-content p.unlocked {
+.test-step-content p.unlocked {
   color: #666;
 }
 
-.step-content p.locked {
+.test-step-content p.locked {
   color: #999;
 }
 
-.step-start-button {
+.test-step-start-button {
   margin-top: 15px;
   background: #0d8888ff;
   color: white;
@@ -294,29 +292,29 @@
   cursor: pointer;
 }
 
-.roadmap-connector {
+.test-roadmap-connector {
   width: 40px;
   height: 4px;
   background: #ddd;
 }
 
-.roadmap-connector.horizontal {
+.test-roadmap-connector.horizontal {
   width: 40px;
   height: 4px;
 }
 
-.roadmap-connector.vertical-center {
+.test-roadmap-connector.vertical-center {
   width: 4px;
   height: 40px;
   margin: 20px auto;
 }
 
-.progress-section {
+.test-progress-section {
   text-align: center;
   margin-top: 40px;
 }
 
-.progress-card {
+.test-progress-card {
   display: inline-block;
   padding: 20px 40px;
   background: white;
@@ -325,7 +323,7 @@
   border: 3px solid #3B9797;
 }
 
-.progress-bar {
+.test-progress-bar {
   width: 200px;
   height: 8px;
   background: #e0e0e0;
@@ -335,7 +333,7 @@
   overflow: hidden;
 }
 
-.progress-fill {
+.test-progress-fill {
   position: absolute;
   left: 0;
   top: 0;
@@ -345,13 +343,12 @@
   border-radius: 4px;
 }
 
-.progress-text {
+.test-progress-text {
   color: #2c3e50;
   font-weight: 600;
   font-size: 1.1rem;
 }
 
-/* Modal styles specific to Test component */
 .test-modal {
   background: white;
   border-radius: 12px;
@@ -394,4 +391,14 @@
 
 .test-modal-nav button:last-child {
   margin-right: 0;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
 }

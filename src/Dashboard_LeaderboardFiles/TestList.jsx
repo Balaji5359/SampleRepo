@@ -1,4 +1,5 @@
 import React from 'react';
+import './advanced-dashboard.css';
 
 const TestList = ({ tests, onTestClick }) => {
     const formatDate = (dateTimeString) => {

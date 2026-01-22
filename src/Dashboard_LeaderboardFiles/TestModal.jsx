@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import SpeechAnalysis from './SpeechAnalysis';
 import AIFeedback from './AIFeedback';
+import './advanced-dashboard.css';
+import './modern-graphs.css';
 
 const TestModal = ({ test, onClose, testType, userEmail }) => {
     const [showHistory, setShowHistory] = useState(false);

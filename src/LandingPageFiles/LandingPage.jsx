@@ -69,14 +69,18 @@ function LandingPage() {
       button: "Try Free",
       highlight: false,
       features: [
-        "2-Free Communication Tests - Basic Level",
-        "1-Free trial for Image-Based Speaking",
-        "1-Free trial for 3 Interview Modules - Basic",
-        "Limited AI feedback and Speech Analytics",
-        "Advanced interview & communication modules locked",
-        "AI Feedback on Every Attempt",
-        "Advanced analytics, Confident scores (Locked)",
-        "Audio replay & AI pronunciation insights (Locked)",
+        "✓ 2-Free Communication Tests - Basic Level",
+        "✓ 1-Free trial for Image-Based Speaking",
+        "✓ 1-Free trial for 3 Interview Modules - Basic",
+        "✓ Limited AI feedback and Speech Analytics",
+        "✗ Advanced interview & communication modules locked",
+        "✓ AI Feedback on Every Attempt",
+        "<h3>Your Progress tracking</h3>",
+        "✗ Advanced analytics, Confident scores",
+        "<h3>Premium Features</h3>",
+        "✗ Audio replay & AI pronunciation insights",
+        "✗ Advanced analytics dashboard",
+        "✗ Leaderboards & streak rewards",
       ],
     },
     {
@@ -86,16 +90,18 @@ function LandingPage() {
       button: "Start 1-Month Plan",
       highlight: false,
       features: [
-        "2 Communication Tests (Daily) - All Level",
-        "1 Image-Based Speaking (Daily) - All Level",
-        "TaraAI-guided 2 practice modules daily",
-        "2-free trials for Image-Based Speaking",
-        "Interview Modules Basic, Advance and communication all Levels - Unlock",
-        "AI Feedback on Every Attempt",
-        "Advanced analytics, Confident scores",
-        "Audio replay & AI pronunciation insights",
-        "Advanced analytics dashboard",
-        "Leaderboards & streak rewards",
+        "✓ 2 Communication Tests (Daily) - All Level",
+        "✓ 1 Image-Based Speaking (Daily) - All Level",
+        "✓ TaraAI-guided 2 practice modules daily",
+        "✓ 2-free trials for Image-Based Speaking",
+        "✓ Interview Modules Basic, Advance and communication all Levels - Unlock",
+        "✓ AI Feedback on Every Attempt",
+        "<h3>Your Progress tracking</h3>",
+        "✓ Advanced analytics, Confident scores",
+        "<h3>Premium Features</h3>",
+        "✓ Audio replay & AI pronunciation insights",
+        "✓ Advanced analytics dashboard",
+        "✓ Leaderboards & streak rewards",
       ],
     },
     {
@@ -105,16 +111,18 @@ function LandingPage() {
       button: "Upgrade Now",
       highlight: true,
       features: [
-        "2 Communication Tests (Daily) - All Level",
-        "1 Image-Based Speaking (Daily) - All Level",
-        "TaraAI-guided 2 practice modules daily",
-        "2-free trials for Image-Based Speaking",
-        "Interview Modules Basic, Advance and communication all Levels - Unlock",
-        "AI Feedback on Every Attempt",
-        "Advanced analytics, Confident scores",
-        "Audio replay & AI pronunciation insights",
-        "Advanced analytics dashboard",
-        "Leaderboards & streak rewards",
+        "✓ 2 Communication Tests (Daily) - All Level",
+        "✓ 1 Image-Based Speaking (Daily) - All Level",
+        "✓ TaraAI-guided 2 practice modules daily",
+        "✓ 2-free trials for Image-Based Speaking",
+        "✓ Interview Modules Basic, Advance and communication all Levels - Unlock",
+        "✓ AI Feedback on Every Attempt",
+        "<h3>Your Progress tracking</h3>",
+        "✓ Advanced analytics, Confident scores",
+        "<h3>Premium Features</h3>",
+        "✓ Audio replay & AI pronunciation insights",
+        "✓ Advanced analytics dashboard",
+        "✓ Leaderboards & streak rewards",
       ],
     },
     {
@@ -124,16 +132,18 @@ function LandingPage() {
       button: "Go Premium",
       highlight: false,
       features: [
-        "2 Communication Tests (Daily) - All Level",
-        "1 Image-Based Speaking (Daily) - All Level",
-        "TaraAI-guided 2 practice modules daily",
-        "2-free trials for Image-Based Speaking",
-        "Interview Modules Basic, Advance and communication all Levels - Unlock",
-        "AI Feedback on Every Attempt",
-        "Advanced analytics, Confident scores",
-        "Audio replay & AI pronunciation insights",
-        "Advanced analytics dashboard",
-        "Leaderboards & streak rewards",
+        "✓ 2 Communication Tests (Daily) - All Level",
+        "✓ 1 Image-Based Speaking (Daily) - All Level",
+        "✓ TaraAI-guided 2 practice modules daily",
+        "✓ 2-free trials for Image-Based Speaking",
+        "✓ Interview Modules Basic, Advance and communication all Levels - Unlock",
+        "✓ AI Feedback on Every Attempt",
+        "<h3>Your Progress tracking</h3>",
+        "✓ Advanced analytics, Confident scores",
+        "<h3>Premium Features</h3>",
+        "✓ Audio replay & AI pronunciation insights",
+        "✓ Advanced analytics dashboard",
+        "✓ Leaderboards & streak rewards",
       ],
     },
   ];
@@ -575,26 +585,44 @@ function LandingPage() {
                 flex: 1,
                 padding: 0
               }}>
-                {plan.features.map((feature, i) => (
-                  <li key={i} style={{
-                    color: '#000000',
-                    fontSize: '0.8rem',
-                    lineHeight: '1.4',
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: '0.75rem'
-                  }}>
-                    <svg style={{
-                      width: '16px',
-                      color: '#3B9797',
-                      marginTop: '0.125rem',
-                      flexShrink: 0
-                    }} fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                    <span>{feature}</span>
-                  </li>
-                ))}
+                {plan.features.map((feature, i) => {
+                  if (feature.startsWith('<h3>')) {
+                    return (
+                      <li key={i} style={{
+                        color: '#3B9797',
+                        fontSize: '0.9rem',
+                        fontWeight: 'bold',
+                        marginTop: '1rem',
+                        marginBottom: '0.5rem',
+                        textAlign: 'center'
+                      }}>
+                        <div dangerouslySetInnerHTML={{ __html: feature }} />
+                      </li>
+                    );
+                  }
+                  return (
+                    <li key={i} style={{
+                      color: '#000000',
+                      fontSize: '0.8rem',
+                      lineHeight: '1.4',
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: '0.75rem',
+                      marginBottom: '0.5rem'
+                    }}>
+                      <span style={{
+                        color: feature.startsWith('✓') ? '#3B9797' : '#ef4444',
+                        fontSize: '14px',
+                        fontWeight: 'bold',
+                        marginTop: '0.125rem',
+                        flexShrink: 0
+                      }}>
+                        {feature.startsWith('✓') ? '✓' : '✗'}
+                      </span>
+                      <span>{feature.substring(2)}</span>
+                    </li>
+                  );
+                })}
               </ul>
 
               <button

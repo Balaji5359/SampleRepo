@@ -1,5 +1,10 @@
 import React from 'react';
 import BaseDashboard from './BaseDashboard';
+import './dashboard-styles.css';
+
+const JAMContent = ({ activeSection, userType, testType, userEmail }) => {
+  return <div></div>;
+};
 
 function JAMDashboard() {
   return (
@@ -9,7 +14,7 @@ function JAMDashboard() {
       testDescription="Self-analyze your Just A Minute sessions"
       apiTestType="JAM"
     >
-      <div></div>
+      <JAMContent />
     </BaseDashboard>
   );
 }

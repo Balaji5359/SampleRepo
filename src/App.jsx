@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import Navigation from "./basic_components/Navigation.jsx";
 import LoadingSpinner from "./basic_components/LoadingSpinner.jsx";
 import ScrollToTop from "./basic_components/ScrollToTop.jsx";
+import Layout from "./components/Layout.jsx";
 
 // Landing page components
 const LandingPage = lazy(() => import("./LandingPageFiles/LandingPage.jsx"));
@@ -80,6 +81,12 @@ const ProtectedRoute = ({ children }) => {
   return isAuthenticated ? children : <Navigate to="/signup" />;
 };
 
+// Protected Layout for authenticated routes
+const ProtectedLayout = () => {
+  const isAuthenticated = localStorage.getItem("email");
+  return isAuthenticated ? <Layout /> : <Navigate to="/signup" />;
+};
+
 // Reset global styles when navigating between routes
 const RouteChangeHandler = () => {
   useEffect(() => {
@@ -128,9 +135,7 @@ function App() {
           {/* Public routes */}
           <Route path="/" element={
             <MainLayout>
-              <>
-                <LandingPage />
-              </>
+              <LandingPage />
             </MainLayout>
           } />
 
@@ -147,135 +152,32 @@ function App() {
             </AuthLayout>
           } />
 
-          <Route path="/profiledata" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <ProfileData />
-              </DashboardLayout>
-            </ProtectedRoute>
-          } />
+          {/* Protected routes with Layout */}
+          <Route path="/" element={<ProtectedLayout />}>
+            <Route path="profiledata" element={<ProfileData />} />
+            <Route path="practice" element={<Practice />} />
+            <Route path="test" element={<Test />} />
+            <Route path="student-dashboard" element={<Dashboard />} />
+            <Route path="student-dashboard/jam" element={<JAMDashboard />} />
+            <Route path="student-dashboard/situationspeak" element={<SituationSpeakDashboard />} />
+            <Route path="student-dashboard/listening" element={<ListeningDashboard />} />
+            <Route path="student-dashboard/pronunciation" element={<PronunciationDashboard />} />
+            <Route path="student-leaderboard" element={<Leaderboard />} />
+            <Route path="test/jam" element={<JAM1 />} />
+            <Route path="test/pronunciation" element={<Pronunciation1 />} />
+            <Route path="test/listening" element={<Listening />} />
+            <Route path="test/translate-speak" element={<TranslateSpeak />} />
+            <Route path="test/image-speak" element={<ImageSpeak />} />
+            <Route path="test/situation-speak" element={<SituationSpeak />} />
+          </Route>
 
-          <Route path="/practice" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <Practice />
-              </DashboardLayout>
-            </ProtectedRoute>
-          } />
-
-          <Route path="/test" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <Test />
-              </DashboardLayout>
-            </ProtectedRoute>
-          } />
-
-          
-          <Route path="/student-dashboard" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <Dashboard />
-              </DashboardLayout>
-            </ProtectedRoute>
-          } />
-
-          <Route path="/student-dashboard/jam" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <JAMDashboard />
-              </DashboardLayout>
-            </ProtectedRoute>
-          } />
-
-          <Route path="/student-dashboard/situationspeak" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <SituationSpeakDashboard />
-              </DashboardLayout>
-            </ProtectedRoute>
-          } />
-
-          <Route path="/student-dashboard/listening" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <ListeningDashboard />
-              </DashboardLayout>
-            </ProtectedRoute>
-          } />
-
-          <Route path="/student-dashboard/pronunciation" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <PronunciationDashboard />
-              </DashboardLayout>
-            </ProtectedRoute>
-          } />
-
-          <Route path="/student-leaderboard" element={
-            <ProtectedRoute>
-              <Leaderboard />
-            </ProtectedRoute>
-          } />
-
-          {/* Fallback route for non-existent paths */}
+          {/* Fallback routes */}
           <Route path="/not-found" element={
             <MainLayout>
               <h1>Page Not Found</h1>
               <p>The page you are looking for does not exist.</p>
             </MainLayout>
           } />
-          {/* Test Routers */}
-          <Route path="/test/jam" element={
-            <ProtectedRoute>
-              <CommunicationPraticeLayout>
-                <JAM1 />
-              </CommunicationPraticeLayout>
-            </ProtectedRoute>
-          } />
-
-
-          <Route path="/test/pronunciation" element={
-            <ProtectedRoute>
-              <CommunicationPraticeLayout>
-                <Pronunciation1 />
-              </CommunicationPraticeLayout>
-            </ProtectedRoute>
-          } />
-
-          <Route path = "/test/listening" element={
-            <ProtectedRoute>
-              <CommunicationPraticeLayout>
-                <Listening />
-              </CommunicationPraticeLayout>
-            </ProtectedRoute>
-          }/>
-
-          <Route path="/test/translate-speak" element={
-            <ProtectedRoute>
-              <CommunicationPraticeLayout>
-                <TranslateSpeak />
-              </CommunicationPraticeLayout>
-            </ProtectedRoute>
-          } />
-
-          <Route path="/test/image-speak" element={
-            <ProtectedRoute>
-              <CommunicationPraticeLayout>
-                <ImageSpeak />
-              </CommunicationPraticeLayout>
-            </ProtectedRoute>
-          } />
-
-          <Route path="/test/situation-speak" element={
-            <ProtectedRoute>
-              <CommunicationPraticeLayout>
-                <SituationSpeak />
-              </CommunicationPraticeLayout>
-            </ProtectedRoute>
-          } />
-
-          {/* Catch all route */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>

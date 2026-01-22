@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import './shared-styles.css';
+import { NavLink, useNavigate } from 'react-router-dom';
 
 function Header() {
     const navigate = useNavigate();
-    const location = useLocation();
     const [userType, setUserType] = useState('free');
     const [streakData, setStreakData] = useState({ current_streak: 0 });
-    const [profileData, setProfileData] = useState(null);
+    const [profileData, setProfileData] = useState({ roll_no: 'Loading...' });
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -54,21 +52,17 @@ function Header() {
         fetchUserData();
     }, []);
 
-    const getActiveClass = (path) => {
-        return location.pathname === path ? 'active-nav' : '';
-    };
-
     return (
         <header className="header">
             <div className="header-content">
                 <div className="logo">
                     <span className="logo-text">Skill Route</span>
                     <div className="nav-links">
-                        <a href="#" onClick={() => navigate('/profiledata')} className={getActiveClass('/profiledata')}>Home</a>
-                        <a href="#" onClick={() => navigate('/test')} className={getActiveClass('/test')}>Tests</a>
-                        <a href="#" onClick={() => navigate('/practice')} className={getActiveClass('/practice')}>Practice</a>
-                        <a href="#" onClick={() => navigate('/student-dashboard')} className={getActiveClass('/student-dashboard')}>Dashboard</a>
-                        <a href="#" onClick={() => navigate('/student-leaderboard')} className={getActiveClass('/student-leaderboard')}>Leaderboard</a>
+                        <NavLink to="/profiledata" className={({ isActive }) => isActive ? 'active-nav' : ''}>Home</NavLink>
+                        <NavLink to="/test" className={({ isActive }) => isActive ? 'active-nav' : ''}>Tests</NavLink>
+                        <NavLink to="/practice" className={({ isActive }) => isActive ? 'active-nav' : ''}>Practice</NavLink>
+                        <NavLink to="/student-dashboard" className={({ isActive }) => isActive ? 'active-nav' : ''}>Dashboard</NavLink>
+                        <NavLink to="/student-leaderboard" className={({ isActive }) => isActive ? 'active-nav' : ''}>Leaderboard</NavLink>
                     </div>
                 </div>
                 <div className="auth-buttons">

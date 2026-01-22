@@ -1,12 +1,11 @@
-/* Practice component specific styles */
+/* Practice component specific styles - all classes prefixed with 'practice-' */
 
 .practice-container {
-  min-height: 100vh;
-  background: #f8fafc;
+  min-height: calc(100vh - var(--header-height));
 }
 
 .practice-content {
-  margin-top: 80px;
+  padding: 20px;
 }
 
 .practice-title {
@@ -73,7 +72,6 @@
   cursor: not-allowed;
 }
 
-/* Practice interview roadmap styles */
 .practice-interview-section {
   max-width: 1200px;
   margin: 0 auto;
@@ -94,7 +92,6 @@
   text-align: center;
 }
 
-/* Practice modal styles */
 .practice-modal {
   background: white;
   border-radius: 12px;

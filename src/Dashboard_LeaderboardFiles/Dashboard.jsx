@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../components/shared-styles.css';
 import './dashboard-styles.css';
 import Header from '../components/Header';
 
@@ -32,18 +31,18 @@ function Dashboard() {
         {
             id: 'jam',
             title: 'JAM Sessions',
-            icon: <img src="https://cdn2.iconfinder.com/data/icons/timer-flat/64/timer-11-512.png" alt="timer" style={{ width: 50, height: 50 }} />
+            icon: <img src="https://cdn2.iconfinder.com/data/icons/timer-flat/64/timer-11-512.png" alt="timer" className="dashboard-activity-icon-img" />
         },
         {
             id: 'pronunciation',
             title: 'Pronunciation Test',
-            icon: <img src="https://cdn1.iconfinder.com/data/icons/miscellaneous-306-solid/128/accent_pronunciation_talk_pronouncing_diction_parlance_language-128.png" alt="pronunciation" style={{ width: 50, height: 50 }} />
+            icon: <img src="https://cdn1.iconfinder.com/data/icons/miscellaneous-306-solid/128/accent_pronunciation_talk_pronouncing_diction_parlance_language-128.png" alt="pronunciation" className="dashboard-activity-icon-img" />
         },
         {
             id: 'listening',
             title: 'Listening Test',
             icon: (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="50" height="50" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="dashboard-activity-icon-svg" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M3 13a9 9 0 0118 0v4a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3" />
                     <path d="M7 13v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4" opacity="0.9"/>
                     <path d="M21 10a7 7 0 00-18 0" />
@@ -54,7 +53,7 @@ function Dashboard() {
             id : 'situational',
             title: 'Situational Speaking',
             icon: (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="50" height="50" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-label="situational speaking">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="dashboard-activity-icon-svg" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-label="situational speaking">
                     <path d="M21 15a2 2 0 0 1-2 2H8l-4 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
                     <path d="M7 8h8M7 12h5" />
                 </svg>
@@ -63,7 +62,7 @@ function Dashboard() {
         {
             id: 'image-speak',
             title: 'Image-Based Speaking',
-            icon: <img src="https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-image-128.png" alt="image" style={{ width: 50, height: 50 }} />
+            icon: <img src="https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-image-128.png" alt="image" className="dashboard-activity-icon-img" />
         }
     ];
 
@@ -111,27 +110,6 @@ function Dashboard() {
 
         fetchUserData();
     }, []);
-
-    useEffect(() => {
-        const root = document.documentElement;
-        document.body.style.margin = '0';
-        document.body.style.padding = '0';
-        
-        if (userType === 'premium') {
-            document.body.style.background = 'linear-gradient(135deg, #eef4f4ff 75%, #eef7f7ff 100%)';
-            root.style.setProperty('--bg-primary', 'linear-gradient(135deg, #ecf4f4ff 75%, #f7fafaff 100%)');
-        } else {
-            document.body.style.background = '#f8fafc';
-            root.style.setProperty('--bg-primary', '#f8fafc');
-        }
-        
-        root.style.setProperty('--bg-secondary', '#ffffff');
-        root.style.setProperty('--text-primary', '#1f2937');
-        root.style.setProperty('--text-muted', '#6b7280');
-        root.style.setProperty('--accent-blue', '#0ea5e9');
-        root.style.setProperty('--border-color', 'rgba(0,0,0,0.1)');
-        root.style.setProperty('--card-bg', 'rgba(255,255,255,0.8)');
-    }, [userType]);
 
     useEffect(() => {
         const fetchDashboardData = async () => {
@@ -213,7 +191,7 @@ function Dashboard() {
                 <polyline
                     points={points}
                     fill="none"
-                    stroke="var(--accent-blue)"
+                    stroke="#0ea5e9"
                     strokeWidth="3"
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -226,11 +204,10 @@ function Dashboard() {
         <div className={`dashboard-main ${userType === 'premium' ? 'premium-bg' : 'free-bg'}`}>
             <Header />
             
-            <div className="dashboard-content">
-                <div className="dashboard-header">
-                    <h1 className="dashboard-main-title">Communication Dashboard</h1>
-                </div>
-                
+            <div className="dashboard-content">  
+                <center>
+                    <h1 className="dashboard-title">Communication Dashboard</h1>
+                </center>              
                 <div className="dashboard-activities-grid">
                     {activities.map((activity) => {
                         const stats = getTestStats(activity.id);
@@ -321,7 +298,7 @@ function Dashboard() {
                             <button 
                                 className="premium-modal-button"
                                 onClick={() => {
-                                    window.open('/premium-upgrade', '_blank');
+                                    navigate('/profiledata');
                                 }}
                             >
                                 Buy Premium 📎

@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './profile.css';
-import './shared-styles.css';
-import Header from './Header';
 
 function ProfileData() {
     const navigate = useNavigate();
@@ -72,25 +70,23 @@ function ProfileData() {
 
     if (loading) {
         return (
-            <div className="loading-container free-bg">
-                <div className="loading-spinner"></div>
+            <div className="app-loading-container app-bg-free">
+                <div className="app-loading-spinner"></div>
                 <p>Loading your dashboard...</p>
             </div>
         );
     }
 
     return (
-        <div className="dashboard-container free-bg">
-            <Header />
-            
-            <div className="dashboard-content">
+        <div className="profile-container app-bg-free">
+            <div className="profile-content">
                 <GreetingCard 
                     greeting={greeting} 
                     name={profileData?.full_name} 
                     quote={motivationalQuote} 
                 />
                 
-                <div className="dashboard-grid">
+                <div className="profile-dashboard-grid">
                     {isPremium ? (
                         <>
                             <PremiumInfoCard 
@@ -112,7 +108,7 @@ function ProfileData() {
                     />
                 </div>
 
-                <div className="dashboard-bottom">
+                <div className="profile-dashboard-bottom">
                     <ActivityCalendar activeDates={streakData?.active_dates} />
                     <QuickActions navigate={navigate} />
                 </div>
@@ -146,38 +142,38 @@ function ProfileData() {
 
 
 const GreetingCard = ({ greeting, name, quote }) => (
-    <div className="greeting-card">
-        <h1 className="greeting-title">
+    <div className="profile-greeting-card">
+        <h1 className="profile-greeting-title">
             {greeting}, {name || "Student"}! <span>👋</span>
         </h1>
-        <p className="motivational-quote">"{quote}"</p>
+        <p className="profile-motivational-quote">"{quote}"</p>
     </div>
 );
 
 const PremiumInfoCard = ({ plan, startDate }) => (
-    <div className="premium-info-card">
-        <div className="premium-header">
-            <div className="premium-icon">👑</div>
+    <div className="profile-premium-info-card">
+        <div className="profile-premium-header">
+            <div className="profile-premium-icon">👑</div>
             <h3>Premium Member</h3>
         </div>
-        <p className="premium-plan">Plan: {plan?.charAt(0).toUpperCase() + plan?.slice(1)}</p>
-        <p className="premium-date">Started: {new Date(startDate).toLocaleDateString()}</p>
+        <p className="profile-premium-plan">Plan: {plan?.charAt(0).toUpperCase() + plan?.slice(1)}</p>
+        <p className="profile-premium-date">Started: {new Date(startDate).toLocaleDateString()}</p>
     </div>
 );
 
 const DaysLeftCard = ({ daysLeft, expiryDate }) => (
-    <div className="days-left-card">
+    <div className="profile-days-left-card">
         <h3>Days Left</h3>
-        <div className="days-number">{daysLeft}</div>
-        <p className="expiry-date">Expires: {new Date(expiryDate).toLocaleDateString()}</p>
+        <div className="profile-days-number">{daysLeft}</div>
+        <p className="profile-expiry-date">Expires: {new Date(expiryDate).toLocaleDateString()}</p>
     </div>
 );
 
 const FreeVsPremiumCard = ({ onUpgrade }) => (
-    <div className="free-vs-premium-card">
+    <div className="profile-free-vs-premium-card">
         <h3>Free vs Premium</h3>
-        <div className="comparison-grid">
-            <div className="free-features">
+        <div className="profile-comparison-grid">
+            <div className="profile-free-features">
                 <h4>Free Plan</h4>
                 <ul>
                     <li>• 2 tests - for trial</li>
@@ -187,7 +183,7 @@ const FreeVsPremiumCard = ({ onUpgrade }) => (
                     <li>• No advanced analytics</li>
                 </ul>
             </div>
-            <div className="premium-features">
+            <div className="profile-premium-features">
                 <h4>🌟 Premium Plan</h4>
                 <ul>
                     <li>• Daily 2 tests of all Levels</li>
@@ -198,20 +194,20 @@ const FreeVsPremiumCard = ({ onUpgrade }) => (
                 </ul>
             </div>
         </div>
-        <button className="upgrade-btn" onClick={onUpgrade}>Upgrade to Premium</button>
+        <button className="profile-upgrade-btn" onClick={onUpgrade}>Upgrade to Premium</button>
     </div>
 );
 
 const StreakCard = ({ currentStreak, longestStreak }) => (
-    <div className="streak-card">
+    <div className="profile-streak-card">
         <h3>Daily Streak</h3>
-        <div className="streak-stats">
-            <div className="streak-item">
-                <div className="streak-number current">{currentStreak || 0}</div>
+        <div className="profile-streak-stats">
+            <div className="profile-streak-item">
+                <div className="profile-streak-number current">{currentStreak || 0}</div>
                 <p>Current</p>
             </div>
-            <div className="streak-item">
-                <div className="streak-number longest">{longestStreak || 0}</div>
+            <div className="profile-streak-item">
+                <div className="profile-streak-number longest">{longestStreak || 0}</div>
                 <p>Longest</p>
             </div>
         </div>
@@ -238,7 +234,7 @@ const ActivityCalendar = ({ activeDates }) => {
     const calendarDays = [];
     
     for (let i = 0; i < startingDayOfWeek; i++) {
-        calendarDays.push(<div key={`empty-${i}`} className="calendar-day empty"></div>);
+        calendarDays.push(<div key={`empty-${i}`} className="profile-calendar-day empty"></div>);
     }
     
     for (let day = 1; day <= daysInMonth; day++) {
@@ -249,7 +245,7 @@ const ActivityCalendar = ({ activeDates }) => {
         calendarDays.push(
             <div
                 key={day}
-                className={`calendar-day ${isActive ? 'active' : ''} ${isToday ? 'today' : ''}`}
+                className={`profile-calendar-day ${isActive ? 'active' : ''} ${isToday ? 'today' : ''}`}
                 title={`${monthName} ${day}${isActive ? ' - Active' : ''}`}
             >
                 {day}
@@ -258,22 +254,22 @@ const ActivityCalendar = ({ activeDates }) => {
     }
     
     return (
-        <div className="activity-calendar">
-            <div className="calendar-header">
+        <div className="profile-activity-calendar">
+            <div className="profile-calendar-header">
                 <h3>Activity Calendar</h3>
-                <div className="calendar-stats">
-                    <span className="month-name">{monthName}</span>
-                    <span className="active-count">{activeDaysCount} active days</span>
+                <div className="profile-calendar-stats">
+                    <span className="profile-month-name">{monthName}</span>
+                    <span className="profile-active-count">{activeDaysCount} active days</span>
                 </div>
             </div>
             
-            <div className="calendar-weekdays">
+            <div className="profile-calendar-weekdays">
                 {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                    <div key={day} className="weekday-label">{day}</div>
+                    <div key={day} className="profile-weekday-label">{day}</div>
                 ))}
             </div>
             
-            <div className="calendar-grid-month">
+            <div className="profile-calendar-grid-month">
                 {calendarDays}
             </div>
         </div>
@@ -281,28 +277,28 @@ const ActivityCalendar = ({ activeDates }) => {
 };
 
 const QuickActions = ({ navigate }) => (
-    <div className="quick-actions">
+    <div className="profile-quick-actions">
         <h3>Quick Actions</h3>
-        <div className="actions-grid">
-            <button className="action-btn" onClick={() => navigate('/test')}>
-                <div className="action-icon">🎤</div>
-                <div className="action-text">
-                    <div className="action-title">Start JAM Session</div>
-                    <div className="action-desc">Practice speaking skills</div>
+        <div className="profile-actions-grid">
+            <button className="profile-action-btn" onClick={() => navigate('/test')}>
+                <div className="profile-action-icon">🎤</div>
+                <div className="profile-action-text">
+                    <div className="profile-action-title">Start JAM Session</div>
+                    <div className="profile-action-desc">Practice speaking skills</div>
                 </div>
             </button>
-            <button className="action-btn" onClick={() => navigate('/test')}>
-                <div className="action-icon">🗣️</div>
-                <div className="action-text">
-                    <div className="action-title">Pronunciation Test</div>
-                    <div className="action-desc">Improve pronunciation</div>
+            <button className="profile-action-btn" onClick={() => navigate('/test')}>
+                <div className="profile-action-icon">🗣️</div>
+                <div className="profile-action-text">
+                    <div className="profile-action-title">Pronunciation Test</div>
+                    <div className="profile-action-desc">Improve pronunciation</div>
                 </div>
             </button>
-            <button className="action-btn" onClick={() => navigate('/student-dashboard')}>
-                <div className="action-icon">📊</div>
-                <div className="action-text">
-                    <div className="action-title">View Progress</div>
-                    <div className="action-desc">Check analytics</div>
+            <button className="profile-action-btn" onClick={() => navigate('/student-dashboard')}>
+                <div className="profile-action-icon">📊</div>
+                <div className="profile-action-text">
+                    <div className="profile-action-title">View Progress</div>
+                    <div className="profile-action-desc">Check analytics</div>
                 </div>
             </button>
         </div>
@@ -366,23 +362,23 @@ const PricingModal = ({ onClose, onSelectPlan }) => {
     ];
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
-            <div className="pricing-modal" onClick={(e) => e.stopPropagation()}>
-                <button className="modal-close" onClick={onClose}>×</button>
+        <div className="app-modal-overlay" onClick={onClose}>
+            <div className="profile-pricing-modal" onClick={(e) => e.stopPropagation()}>
+                <button className="app-modal-close" onClick={onClose}>×</button>
                 <h2>Choose Your Premium Plan</h2>
-                <div className="pricing-plans">
+                <div className="profile-pricing-plans">
                     {plans.map((plan, idx) => (
-                        <div key={idx} className={`pricing-plan ${plan.badge ? 'best-value' : ''}`}>
-                            {plan.badge && <div className="plan-badge">{plan.badge}</div>}
-                            <div className="plan-price">{plan.price}</div>
-                            <div className="plan-title">{plan.title}</div>
-                            <ul className="plan-features">
+                        <div key={idx} className={`profile-pricing-plan ${plan.badge ? 'best-value' : ''}`}>
+                            {plan.badge && <div className="profile-plan-badge">{plan.badge}</div>}
+                            <div className="profile-plan-price">{plan.price}</div>
+                            <div className="profile-plan-title">{plan.title}</div>
+                            <ul className="profile-plan-features">
                                 {plan.features.map((feature, i) => (
                                     <li key={i}>✓ {feature}</li>
                                 ))}
                             </ul>
                             <button 
-                                className="select-plan-btn"
+                                className="profile-select-plan-btn"
                                 onClick={() => onSelectPlan(plan)}
                             >
                                 Select Plan
@@ -483,19 +479,19 @@ const PaymentModal = ({ plan, onClose, profileData }) => {
     };
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
-            <div className="payment-modal" onClick={(e) => e.stopPropagation()}>
-                <button className="modal-close" onClick={onClose}>×</button>
+        <div className="app-modal-overlay" onClick={onClose}>
+            <div className="profile-payment-modal" onClick={(e) => e.stopPropagation()}>
+                <button className="app-modal-close" onClick={onClose}>×</button>
                 <h2>Complete Your Purchase</h2>
-                <div className="payment-details">
+                <div className="profile-payment-details">
                     <h3>{plan.title}</h3>
-                    <div className="payment-price">{plan.price}</div>
+                    <div className="profile-payment-price">{plan.price}</div>
                     <p>You will be redirected to our secure payment gateway to complete your purchase.</p>
                 </div>
-                <div className="payment-actions">
-                    <button className="cancel-btn" onClick={onClose}>Cancel</button>
+                <div className="profile-payment-actions">
+                    <button className="profile-cancel-btn" onClick={onClose}>Cancel</button>
                     <button 
-                        className="proceed-btn" 
+                        className="profile-proceed-btn" 
                         onClick={handlePayment}
                         disabled={loading}
                     >

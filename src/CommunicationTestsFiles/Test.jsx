@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../components/shared-styles.css";
 import "./test-styles.css";
-import Header from '../components/Header';
 
 function Test() {
     const [tests, setTests] = useState({});
@@ -229,8 +228,8 @@ function Test() {
 
     if (loading) {
         return (
-            <div className="loading-container free-bg">
-                <div className="loading-spinner"></div>
+            <div className="app-loading-container app-bg-free">
+                <div className="app-loading-spinner"></div>
                 <p>Loading tests...</p>
             </div>
         );
@@ -238,54 +237,52 @@ function Test() {
 
 
     return (
-        <div className="test-container">
-            <Header />
-
+        <div className="test-container app-bg-free">
             <div className="test-div">
                 <center>
-                    <h1 className="test-title">Communication Tests</h1>
-                    <div className="announcement-banner">
-                        <span className="announcement-text">
+                    <h2 className="test-title">Communication Tests</h2>
+                    <div className="test-announcement-banner">
+                        <span className="test-announcement-text">
                             Intermediate and Advanced levels will be unlocked based on your average score from the latest 10 tests
                         </span>
-                        <span className="coming-soon-badge">Coming Soon</span>
+                        <span className="test-coming-soon-badge">Coming Soon</span>
                     </div>
                     <br/>
-                    <div className="announcement-banner delayed">
-                        <span className="announcement-text">Image-Based Speaking</span>
-                        <span className="coming-soon-badge">Coming Soon</span>
+                    <div className="test-announcement-banner delayed">
+                        <span className="test-announcement-text">Image-Based Speaking</span>
+                        <span className="test-coming-soon-badge">Coming Soon</span>
                     </div>
                 </center>
 
-                <div className={`activity-grid ${activeChallenge ? 'blurred' : ''}`}>
+                <div className={`test-activity-grid ${activeChallenge ? 'blurred' : ''}`}>
                     {activities.map((activity) => {
                         const stats = getTestStats(activity.id);
                         return (
-                            <div key={activity.id} className="activity-card">
-                                <h3 className="activity-title">{activity.title}</h3>
-                                <p className="activity-description">{activity.description}</p>
-                                <div className="card-content">
-                                    <div className="activity-buttons">
+                            <div key={activity.id} className="test-activity-card">
+                                <h3 className="test-activity-title">{activity.title}</h3>
+                                <p className="test-activity-description">{activity.description}</p>
+                                <div className="test-card-content">
+                                    <div className="test-activity-buttons">
                                         <button 
                                             onClick={() => activity.count > 0 ? handleStartChallenge(activity.id) : null}
-                                            className={activity.count > 0 ? "level-button" : "btn-disabled"}
+                                            className={activity.count > 0 ? "test-level-button" : "app-btn-disabled"}
                                             disabled={activity.count === 0}
                                         >
                                             Basic Level
                                         </button>
-                                        <button className="level-button-coming-soon" disabled>
+                                        <button className="test-level-button-coming-soon" disabled>
                                             <span>Intermediate Level</span>
-                                            <div className="level-button-shimmer"></div>
-                                            <span className="soon-badge">SOON</span>
+                                            <div className="test-level-button-shimmer"></div>
+                                            <span className="test-soon-badge">SOON</span>
                                         </button>
-                                        <button className="level-button-coming-soon" disabled>
+                                        <button className="test-level-button-coming-soon" disabled>
                                             <span>Advanced Level</span>
-                                            <div className="level-button-shimmer delayed"></div>
-                                            <span className="soon-badge red">SOON</span>
+                                            <div className="test-level-button-shimmer delayed"></div>
+                                            <span className="test-soon-badge red">SOON</span>
                                         </button>
                                     </div>
-                                    <div className="activity-stats">
-                                        <div className="activity-stats-text">
+                                    <div className="test-activity-stats">
+                                        <div className="test-activity-stats-text">
                                             <div>Remaining: {activity.count}</div>
                                             <div>Avg Score: {loading ? '...' : stats.avgScore}</div>
                                             <div>Test Count: {loading ? '...' : stats.testCount}</div>
@@ -297,25 +294,25 @@ function Test() {
                     })}
                 </div>
 
-                <div className={`interview-section ${activeChallenge ? 'blurred' : ''}`}>
+                <div className={`test-interview-section ${activeChallenge ? 'blurred' : ''}`}>
                     {interviewLevels.map((level, levelIndex) => {
                         const unlocked = isInterviewLevelUnlocked(level.level);
                         
                         return (
-                            <div key={level.level} className="interview-level">
-                                <h1 className="interview-level-title">{level.title}</h1>
+                            <div key={level.level} className="test-interview-level">
+                                <h1 className="test-interview-level-title">{level.title}</h1>
                                 
-                                <div className="roadmap-row">
+                                <div className="test-roadmap-row">
                                     {level.steps.map((step, stepIndex) => {
                                         const stepUnlocked = unlocked && (stepIndex === 0 || getScoreFromStorage(`interview_step_${step.id - 1}`) >= 70);
                                         
                                         return (
                                             <React.Fragment key={step.id}>
-                                                <div className={`roadmap-step ${stepUnlocked ? 'unlocked' : 'locked'}`}>
-                                                    <div className={`step-number ${stepUnlocked ? 'unlocked' : 'locked'}`}>
+                                                <div className={`test-roadmap-step ${stepUnlocked ? 'unlocked' : 'locked'}`}>
+                                                    <div className={`test-step-number ${stepUnlocked ? 'unlocked' : 'locked'}`}>
                                                         {stepUnlocked ? step.id : '🔒'}
                                                     </div>
-                                                    <div className="step-content">
+                                                    <div className="test-step-content">
                                                         <h4 className={stepUnlocked ? 'unlocked' : 'locked'}>
                                                             {step.title}
                                                         </h4>
@@ -324,13 +321,13 @@ function Test() {
                                                         </p>
                                                     </div>
                                                     {stepUnlocked && (
-                                                        <button className="step-start-button">
+                                                        <button className="test-step-start-button">
                                                             START STEP
                                                         </button>
                                                     )}
                                                 </div>
                                                 {stepIndex < level.steps.length - 1 && (
-                                                    <div className="roadmap-connector horizontal"></div>
+                                                    <div className="test-roadmap-connector horizontal"></div>
                                                 )}
                                             </React.Fragment>
                                         );
@@ -338,28 +335,28 @@ function Test() {
                                 </div>
                                 
                                 {levelIndex < interviewLevels.length - 1 && (
-                                    <div className="roadmap-connector vertical-center"></div>
+                                    <div className="test-roadmap-connector vertical-center"></div>
                                 )}
                             </div>
                         );
                     })}
                     
-                    <div className="progress-section">
-                        <div className="progress-card">
-                            <div className="progress-bar">
-                                <div className="progress-fill"></div>
+                    <div className="test-progress-section">
+                        <div className="test-progress-card">
+                            <div className="test-progress-bar">
+                                <div className="test-progress-fill"></div>
                             </div>
-                            <div className="progress-text">Complete Your Interview Journey</div>
+                            <div className="test-progress-text">Complete Your Interview Journey</div>
                         </div>
                     </div>
                 </div>
 
                 {activeChallenge && (
-                    <div className="modal-overlay">
+                    <div className="app-modal-overlay">
                         <div className="test-modal">
                             <button 
                                 onClick={() => setActiveChallenge(null)}
-                                className="modal-close"
+                                className="app-modal-close"
                             >
                                 ×
                             </button>
@@ -382,7 +379,7 @@ function Test() {
                                 {instructionIndex > 0 && (
                                     <button 
                                         onClick={handlePrev}
-                                        className="btn-secondary"
+                                        className="app-btn-secondary"
                                     >
                                         ← Previous
                                     </button>
@@ -393,13 +390,13 @@ function Test() {
                                         <>
                                             <button 
                                                 onClick={handleNext}
-                                                className="btn-primary"
+                                                className="app-btn-primary"
                                             >
                                                 Next →
                                             </button>
                                             <button 
                                                 onClick={() => setInstructionIndex(testInstructions[activeChallenge].length - 1)}
-                                                className="btn-success"
+                                                className="app-btn-success"
                                             >
                                                 Skip
                                             </button>
@@ -407,7 +404,7 @@ function Test() {
                                     ) : (
                                         <button 
                                             onClick={handleLaunchChallenge}
-                                            className="btn-danger"
+                                            className="app-btn-danger"
                                         >
                                             START TEST
                                         </button>

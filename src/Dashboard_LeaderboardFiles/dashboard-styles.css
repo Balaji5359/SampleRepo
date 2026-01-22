@@ -6,7 +6,7 @@
 
 .dashboard-content {
   padding: 20px;
-  margin-top: 80px;
+  margin-top: 0px;
 }
 
 .dashboard-header {
@@ -51,6 +51,14 @@
 
 .dashboard-activity-icon {
   margin-right: 12px;
+}
+
+.dashboard-activity-icon img,
+.dashboard-activity-icon svg,
+.dashboard-activity-icon-img,
+.dashboard-activity-icon-svg {
+  width: 50px;
+  height: 50px;
 }
 
 .dashboard-activity-title {
@@ -193,6 +201,20 @@
   width: 100%;
 }
 
+/* Modal overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
 /* Premium modal styles */
 .premium-modal-content {
   background: white;
@@ -208,6 +230,25 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+}
+.dashboard-title {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #0d8888ff;
+  text-align: center;
+}
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 5px;
+  border-radius: 4px;
+}
+
+.close-btn:hover {
+  background: #f3f4f6;
 }
 
 .premium-modal-body {
@@ -240,4 +281,13 @@
   font-weight: 600;
   cursor: pointer;
   box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+}
+
+/* Background styles */
+.premium-bg {
+  background: linear-gradient(135deg, #eef4f4ff 75%, #eef7f7ff 100%);
+}
+
+.free-bg {
+  background: #f8fafc;
 }

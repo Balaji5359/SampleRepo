@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import TestList from './TestList';
 import TestModal from './TestModal';
+import './dashboard-styles.css';
+import './advanced-dashboard.css';
+import './modern-graphs.css';
 
 const AdvancedDashboard = ({ testType, userEmail, onBack }) => {
     const [tests, setTests] = useState([]);
@@ -96,8 +99,7 @@ const AdvancedDashboard = ({ testType, userEmail, onBack }) => {
     return (
         <div className="advanced-dashboard">
             <div className="dashboard-header">
-                <button onClick={onBack} className="back-btn">← Back</button>
-                <h2>Advanced Test Dashboard</h2>
+                <button onClick={onBack} className="back-btn">Click here ← to Close</button>
             </div>
 
             <div className="filter-section">

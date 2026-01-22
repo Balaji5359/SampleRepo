@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './dashboard.css';
 import AdvancedDashboard from './AdvancedDashboard';
+import './dashboard-styles.css';
 
 const BaseDashboard = ({ 
     testType, 
@@ -105,18 +105,13 @@ const BaseDashboard = ({
             
             <div style={{ padding: '20px', marginTop: '80px' }}>
                 <div className="dashboard-main">
-                    <div className="dashboard-header">
-                        <h1>{testTitle} Dashboard</h1>
-                        <p className="dashboard-subtitle">{testDescription}</p>
-                    </div>
-                    
                     <div className="dashboard-actions">
                         <button 
                             className="action-btn advanced-btn"
                             onClick={handleAdvancedDashboard}
                         >
                             <span className="btn-icon">⚡</span>
-                            Advanced Dashboard
+                            Click here for Advanced Dashboard - {testTitle}
                         </button>
                     </div>
                     
