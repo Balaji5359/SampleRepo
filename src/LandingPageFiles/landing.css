@@ -20,6 +20,7 @@ body {
   background: rgb(247, 247, 247);
   position: relative;
   overflow-x: hidden;
+  top: -90px;
 }
 
 /* Header */
@@ -443,7 +444,8 @@ body {
   background: rgba(255, 255, 255, 0.05);
   position: relative;
   z-index: 5;
-  top: -150px;
+  margin-top: 0px;
+  /* top: -100px; */
 }
 
 .activities-grid {

@@ -24,7 +24,6 @@ const JAM1 = lazy(() => import("./CommunicationTestsFiles/JAM1.jsx"))
 const Pronunciation1 = lazy(() => import("./CommunicationTestsFiles/Pronunciation1.jsx"));
 const Listening = lazy(() => import("./CommunicationTestsFiles/Listening.jsx"));
 const TranslateSpeak = lazy(() => import("./CommunicationTestsFiles/TranslateSpeak.jsx"));
-const ImageSpeak = lazy(() => import("./CommunicationTestsFiles/ImageSpeak.jsx"));
 const SituationSpeak = lazy(() => import("./CommunicationTestsFiles/SituationSpeak.jsx"));
 
 // Student Dashboard and Leaderboard files
@@ -167,7 +166,6 @@ function App() {
             <Route path="test/pronunciation" element={<Pronunciation1 />} />
             <Route path="test/listening" element={<Listening />} />
             <Route path="test/translate-speak" element={<TranslateSpeak />} />
-            <Route path="test/image-speak" element={<ImageSpeak />} />
             <Route path="test/situation-speak" element={<SituationSpeak />} />
           </Route>
 
