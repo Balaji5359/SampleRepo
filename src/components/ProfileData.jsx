@@ -44,8 +44,27 @@ function ProfileData() {
                     })
                 ]);
 
-                const profile = await profileResponse.json();
-                const streak = await streakResponse.json();
+                // Check if responses are OK and contain JSON
+                if (!profileResponse.ok) {
+                    throw new Error(`Profile API failed: ${profileResponse.status}`);
+                }
+                if (!streakResponse.ok) {
+                    throw new Error(`Streak API failed: ${streakResponse.status}`);
+                }
+
+                const profileText = await profileResponse.text();
+                const streakText = await streakResponse.text();
+                
+                let profile, streak;
+                try {
+                    profile = JSON.parse(profileText);
+                    streak = JSON.parse(streakText);
+                } catch (parseError) {
+                    console.error('JSON Parse Error:', parseError);
+                    console.error('Profile Response:', profileText.substring(0, 200));
+                    console.error('Streak Response:', streakText.substring(0, 200));
+                    throw new Error('Invalid JSON response from API');
+                }
                 
                 setProfileData(JSON.parse(profile.body));
                 setStreakData(JSON.parse(streak.body));
@@ -58,6 +77,17 @@ function ProfileData() {
                 setMotivationalQuote(quotes[Math.floor(Math.random() * quotes.length)]);
             } catch (error) {
                 console.error('Error fetching data:', error);
+                // Set default data when API fails
+                setProfileData({
+                    full_name: "Student",
+                    user_type: "free",
+                    premium_status: "inactive"
+                });
+                setStreakData({
+                    current_streak: 0,
+                    longest_streak: 0,
+                    active_dates: []
+                });
             } finally {
                 setLoading(false);
             }
@@ -416,7 +446,19 @@ const PaymentModal = ({ plan, onClose, profileData }) => {
                 })
             });
 
-            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(`Payment API failed: ${response.status}`);
+            }
+
+            const responseText = await response.text();
+            let result;
+            try {
+                result = JSON.parse(responseText);
+            } catch (parseError) {
+                console.error('Payment JSON Parse Error:', parseError);
+                console.error('Payment Response:', responseText.substring(0, 200));
+                throw new Error('Invalid JSON response from payment API');
+            }
             const orderData = JSON.parse(result.body);
 
             const options = {
@@ -465,11 +507,18 @@ const PaymentModal = ({ plan, onClose, profileData }) => {
                 })
             });
             
-            const result = await response.json();
-            if (response.ok) {
+            if (!response.ok) {
+                throw new Error(`Payment verification failed: ${response.status}`);
+            }
+
+            const responseText = await response.text();
+            try {
+                const result = JSON.parse(responseText);
                 alert('Payment successful! Premium activated.');
                 window.location.reload();
-            } else {
+            } catch (parseError) {
+                console.error('Verification JSON Parse Error:', parseError);
+                console.error('Verification Response:', responseText.substring(0, 200));
                 alert('Payment verification failed. Please contact support.');
             }
         } catch (error) {
