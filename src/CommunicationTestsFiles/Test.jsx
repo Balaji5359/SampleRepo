@@ -7,6 +7,7 @@ function Test() {
     const [tests, setTests] = useState({});
     const [loading, setLoading] = useState(true);
     const [activeChallenge, setActiveChallenge] = useState(null);
+    const [selectedLevel, setSelectedLevel] = useState('basic');
     const [instructionIndex, setInstructionIndex] = useState(0);
     const [userName, setUserName] = useState("");
     const [apiData, setApiData] = useState({});
@@ -170,34 +171,254 @@ function Test() {
         }
     ];
 
-    const testInstructions = {
-        jam: [
-            { title: "Instructions", content: "You've been given a random topic! You will have 1 minute to speak. Focus on fluency, clarity, and confidence." },
-            { title: "Fluency", content: "Maintain a smooth and uninterrupted flow of speech." },
-            { title: "Grammar", content: "Use correct sentence structures and grammatical conventions." },
-            { title: "Confidence", content: "Speak with assurance and composure." }
-        ],
-        pronunciation: [
-            { title: "Instructions", content: "Improve your pronunciation by practicing words and sentences. Focus on clarity and accuracy." },
-            { title: "Clarity", content: "Speak clearly, enunciating each sound." },
-            { title: "Accuracy", content: "Pronounce words correctly." }
-        ],
-        listening: [
-            { title: "Instructions", content: "Enhance your listening comprehension with interactive exercises." },
-            { title: "Focus", content: "Listen carefully to audio clips and answer questions." }
-        ],
-        situational: [
-            { title: "Instructions", content: "Respond to real-life situations with appropriate communication." },
-            { title: "Context", content: "Analyze the situation and respond appropriately." }
-        ],
-        "image-speak": [
-            { title: "Instructions", content: "Describe the given image in detail." },
-            { title: "Observation", content: "Note key elements in the image." }
-        ]
+const testInstructions = {
+
+    jam: [
+        {
+        title: "Instructions for JAM",
+        content: (
+            <strong>
+            - You will be given a <b>random topic</b> by{" "}
+            <b style={{ fontFamily: "Arial", fontSize: "22px" }}>Tara AI</b>.<br />
+            - You will have <b>1 minute</b> to speak continuously.<br />
+            - Focus on <b>content relevance, clarity, fluency, confidence</b>.
+            </strong>
+        )
+        },
+        {
+        title: "Microphone Rules",
+        content: (
+            <strong>
+            - Microphone access is provided <b>only once</b>.<br />
+            - Take a few seconds to think before you start speaking.
+            </strong>
+        )
+        },
+        {
+        title: "Grammar & Vocabulary",
+        content: (
+            <strong>
+            - Use correct sentence structures.<br />
+            - Avoid fillers like <i>um, uh, so</i>.<br />
+            -{" "}
+            <b style={{ fontSize: "21px" }}>
+                Tara AI
+            </b>{" "}
+            rewards strong grammar and vocabulary with higher scores.
+            </strong>
+        )
+        },
+        {
+        title: "Confidence & Delivery",
+        content: (
+            <strong>
+            - Speak clearly with a steady pace.<br />
+            - Sit in a quiet place and speak confidently with{" "}
+            <b>Tara AI</b>.
+            </strong>
+        )
+        },
+        {
+        title: "Watch How to Take the JAM Test",
+        content: (
+            <iframe
+            width="100%"
+            height="250"
+            src="https://www.youtube.com/embed/ReZgqLI3Hq0"
+            title="JAM Practice"
+            frameBorder="0"
+            allowFullScreen
+            />
+        )
+        }
+    ],
+
+    pronunciation: [
+        {
+        title: "Pronunciation Practice Overview",
+        content: (
+            <strong>
+            - You will be given <b>words or sentences</b> to pronounce.<br />
+            - Focus on <b>clarity, accuracy, and correct sounds</b>.
+            </strong>
+        )
+        },
+        {
+        title: "Clarity & Articulation",
+        content: (
+            <strong>
+            - Pronounce each sound clearly.<br />
+            - Avoid rushing through words.
+            </strong>
+        )
+        },
+        {
+        title: "Accuracy Matters",
+        content: (
+            <strong>
+            - Incorrect pronunciation affects your score.<br />
+            -{" "}
+            <b style={{ fontSize: "21px" }}>
+                Tara AI
+            </b>{" "}
+            analyzes sound accuracy precisely.
+            </strong>
+        )
+        },
+        {
+        title: "How to Practice Pronunciation",
+        content: (
+            <iframe
+            width="100%"
+            height="250"
+            src="https://www.youtube.com/embed/ReZgqLI3Hq0"
+            title="Pronunciation Practice"
+            frameBorder="0"
+            allowFullScreen
+            />
+        )
+        }
+    ],
+
+    listening: [
+        {
+        title: "Listening Test Instructions",
+        content: (
+            <strong>
+            - You will hear <b>audio clips</b> carefully curated by{" "}
+            <b>Tara AI</b>.<br />
+            - Listen attentively before answering.
+            </strong>
+        )
+        },
+        {
+        title: "Focus & Attention",
+        content: (
+            <strong>
+            - Use headphones for better clarity.<br />
+            - Avoid distractions while listening.
+            </strong>
+        )
+        },
+        {
+        title: "Answer Carefully",
+        content: (
+            <strong>
+            - Questions are based on <b>details and understanding</b>.<br />
+            - Tara AI evaluates comprehension accuracy.
+            </strong>
+        )
+        },
+        {
+        title: "How to Take the Listening Test",
+        content: (
+            <iframe
+            width="100%"
+            height="250"
+            src="https://www.youtube.com/embed/ReZgqLI3Hq0"
+            title="Listening Practice"
+            frameBorder="0"
+            allowFullScreen
+            />
+        )
+        }
+    ],
+
+    situational: [
+        {
+        title: "Situational Speaking Overview",
+        content: (
+            <strong>
+            - You will be given a <b>real-life situation</b>.<br />
+            - Respond as you would in an interview or workplace.
+            </strong>
+        )
+        },
+        {
+        title: "Think Before You Speak",
+        content: (
+            <strong>
+            - Analyze the problem logically.<br />
+            - Structure your response clearly.
+            </strong>
+        )
+        },
+        {
+        title: "Professional Communication",
+        content: (
+            <strong>
+            - Maintain a professional tone.<br />
+            -{" "}
+            <b style={{ fontSize: "21px" }}>
+                Tara AI
+            </b>{" "}
+            evaluates reasoning, clarity, and confidence.
+            </strong>
+        )
+        },
+        {
+        title: "How to Practice Situational Speaking",
+        content: (
+            <iframe
+            width="100%"
+            height="250"
+            src="https://www.youtube.com/embed/ReZgqLI3Hq0"
+            title="Situational Practice"
+            frameBorder="0"
+            allowFullScreen
+            />
+        )
+        }
+    ],
+
+    "image-speak": [
+        {
+        title: "Image Speaking Instructions",
+        content: (
+            <strong>
+            - You will be shown an <b>image</b>.<br />
+            - Describe what you observe clearly and confidently.
+            </strong>
+        )
+        },
+        {
+        title: "Observation Skills",
+        content: (
+            <strong>
+            - Focus on key elements in the image.<br />
+            - Organize your description logically.
+            </strong>
+        )
+        },
+        {
+        title: "Fluency & Structure",
+        content: (
+            <strong>
+            - Avoid long pauses.<br />
+            - Tara AI evaluates clarity, structure, and fluency.
+            </strong>
+        )
+        },
+        {
+        title: "How to Take Image Speaking Test",
+        content: (
+            <iframe
+            width="100%"
+            height="250"
+            src="https://www.youtube.com/embed/ReZgqLI3Hq0"
+            title="Image Speaking Practice"
+            frameBorder="0"
+            allowFullScreen
+            />
+        )
+        }
+    ]
     };
 
-    const handleStartChallenge = (id) => {
+
+    const handleStartChallenge = (id, level = 'basic') => {
         setActiveChallenge(id);
+        setSelectedLevel(level);
         setInstructionIndex(0);
     };
 
@@ -220,7 +441,8 @@ function Test() {
             navigate(activity.route, {
                 state: {
                     remainingTests: activity.count || 0,
-                    testKey: activeChallenge
+                    testKey: activeChallenge,
+                    testLevel: selectedLevel
                 }
             });
         }
@@ -264,22 +486,55 @@ function Test() {
                                 <div className="test-card-content">
                                     <div className="test-activity-buttons">
                                         <button 
-                                            onClick={() => activity.count > 0 ? handleStartChallenge(activity.id) : null}
+                                            onClick={() => activity.count > 0 ? handleStartChallenge(activity.id, 'basic') : null}
                                             className={activity.count > 0 ? "test-level-button" : "app-btn-disabled"}
                                             disabled={activity.count === 0}
                                         >
                                             Basic Level
                                         </button>
-                                        <button className="test-level-button-coming-soon" disabled>
-                                            <span>Intermediate Level</span>
-                                            <div className="test-level-button-shimmer"></div>
-                                            <span className="test-soon-badge">SOON</span>
-                                        </button>
-                                        <button className="test-level-button-coming-soon" disabled>
-                                            <span>Advanced Level</span>
-                                            <div className="test-level-button-shimmer delayed"></div>
-                                            <span className="test-soon-badge red">SOON</span>
-                                        </button>
+                                        {(activity.id === 'jam' || activity.id === 'situational') ? (
+                                            <>
+                                                <button 
+                                                    onClick={() => userType === 'premium' && activity.count > 0 ? handleStartChallenge(activity.id, 'intermediate') : null}
+                                                    className={userType === 'premium' && activity.count > 0 ? "test-level-button" : "test-level-button-coming-soon"}
+                                                    disabled={userType !== 'premium' || activity.count === 0}
+                                                >
+                                                    <span>Intermediate Level</span>
+                                                    {userType !== 'premium' && (
+                                                        <>
+                                                            <div className="test-level-button-shimmer"></div>
+                                                            <span className="test-soon-badge">PREMIUM</span>
+                                                        </>
+                                                    )}
+                                                </button>
+                                                <button 
+                                                    onClick={() => userType === 'premium' && activity.count > 0 ? handleStartChallenge(activity.id, 'advanced') : null}
+                                                    className={userType === 'premium' && activity.count > 0 ? "test-level-button" : "test-level-button-coming-soon"}
+                                                    disabled={userType !== 'premium' || activity.count === 0}
+                                                >
+                                                    <span>Advanced Level</span>
+                                                    {userType !== 'premium' && (
+                                                        <>
+                                                            <div className="test-level-button-shimmer delayed"></div>
+                                                            <span className="test-soon-badge red">PREMIUM</span>
+                                                        </>
+                                                    )}
+                                                </button>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <button className="test-level-button-coming-soon" disabled>
+                                                    <span>Intermediate Level</span>
+                                                    <div className="test-level-button-shimmer"></div>
+                                                    <span className="test-soon-badge">SOON</span>
+                                                </button>
+                                                <button className="test-level-button-coming-soon" disabled>
+                                                    <span>Advanced Level</span>
+                                                    <div className="test-level-button-shimmer delayed"></div>
+                                                    <span className="test-soon-badge red">SOON</span>
+                                                </button>
+                                            </>
+                                        )}
                                     </div>
                                     <div className="test-activity-stats">
                                         <div className="test-activity-stats-text">

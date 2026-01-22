@@ -20,10 +20,9 @@ const Practice = lazy(() => import("./CommunicationPraticeFiles/Practice.jsx"))
 
 // Test Components
 const Test = lazy(() => import("./CommunicationTestsFiles/Test.jsx"));
-const JAM1 = lazy(() => import("./CommunicationTestsFiles/JAM1.jsx"))
-const Pronunciation1 = lazy(() => import("./CommunicationTestsFiles/Pronunciation1.jsx"));
+const JAM1 = lazy(() => import("./CommunicationTestsFiles/JAM.jsx"))
+const Pronunciation1 = lazy(() => import("./CommunicationTestsFiles/Pronunciation.jsx"));
 const Listening = lazy(() => import("./CommunicationTestsFiles/Listening.jsx"));
-const TranslateSpeak = lazy(() => import("./CommunicationTestsFiles/TranslateSpeak.jsx"));
 const SituationSpeak = lazy(() => import("./CommunicationTestsFiles/SituationSpeak.jsx"));
 
 // Student Dashboard and Leaderboard files
@@ -162,12 +161,29 @@ function App() {
             <Route path="student-dashboard/listening" element={<ListeningDashboard />} />
             <Route path="student-dashboard/pronunciation" element={<PronunciationDashboard />} />
             <Route path="student-leaderboard" element={<Leaderboard />} />
-            <Route path="test/jam" element={<JAM1 />} />
-            <Route path="test/pronunciation" element={<Pronunciation1 />} />
-            <Route path="test/listening" element={<Listening />} />
-            <Route path="test/translate-speak" element={<TranslateSpeak />} />
-            <Route path="test/situation-speak" element={<SituationSpeak />} />
           </Route>
+
+          {/* Communication test routes without header */}
+          <Route path="test/jam" element={
+            <ProtectedRoute>
+              <JAM1 />
+            </ProtectedRoute>
+          } />
+          <Route path="test/pronunciation" element={
+            <ProtectedRoute>
+              <Pronunciation1 />
+            </ProtectedRoute>
+          } />
+          <Route path="test/listening" element={
+            <ProtectedRoute>
+              <Listening />
+            </ProtectedRoute>
+          } />
+          <Route path="test/situation-speak" element={
+            <ProtectedRoute>
+              <SituationSpeak />
+            </ProtectedRoute>
+          } />
 
           {/* Fallback routes */}
           <Route path="/not-found" element={

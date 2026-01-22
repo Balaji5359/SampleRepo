@@ -7,10 +7,11 @@ export default function SituationSpeak() {
             testType="situation"
             testTitle="Situational Speaking"
             testDescription="Practice real-life scenarios to build confidence"
+            testLevel="basic"
+            testDuration={600}
             apiEndpoint="https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/situationagent-test"
-            useRecordingAPI={true}
-            onTimeRecording={true}
+            recordingMode="long"
+            autoStartMessage="hi"
         />
     );
 }
-

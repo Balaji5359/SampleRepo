@@ -2,17 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const styles = `
-    :root {
-        --bg: linear-gradient(180deg,#0f172a 0%,#071129 100%);
-        --card-bg: rgba(255,255,255,0.04);
-        --glass: rgba(255,255,255,0.06);
-        --accent: #4f46e5;
-        --muted: rgba(255,255,255,0.75);
-        --text-color: #e6eef8;
-        --focus: rgba(79,70,229,0.18);
-    }
-
-    .jam-root {
+    .base-root {
         min-height:100vh;
         display:flex;
         flex-direction:column;
@@ -22,7 +12,7 @@ const styles = `
         font-family: Inter, "Segoe UI", system-ui, Roboto, Arial;
     }
 
-    .jam-topnav {
+    .base-topnav {
         position:sticky;
         top:0;
         z-index:60;
@@ -35,13 +25,13 @@ const styles = `
         border-bottom:1px solid rgba(255,255,255,0.04);
     }
 
-    .jam-topnav .left {
+    .base-topnav .left {
         display:flex;
         gap:16px;
         align-items:center;
     }
 
-    .jam-title {
+    .base-title {
         font-weight:700;
         font-size:18px;
         letter-spacing:0.2px;
@@ -51,13 +41,13 @@ const styles = `
         color: var(--text-color);
     }
 
-    .jam-nav {
+    .base-nav {
         display:flex;
         gap:10px;
         align-items:center;
     }
 
-    .jam-nav button {
+    .base-nav button {
         background:transparent;
         border:none;
         color:var(--muted);
@@ -68,14 +58,14 @@ const styles = `
         transition: all 180ms;
     }
 
-    .jam-nav button.active {
+    .base-nav button.active {
         color: var(--text-color);
         background: linear-gradient(90deg, rgba(79,70,229,0.18), rgba(34,211,238,0.06));
         box-shadow: 0 6px 20px rgba(79,70,229,0.08);
         transform: translateY(-1px);
     }
 
-    .jam-container {
+    .base-container {
         width:100%;
         max-width:1200px;
         margin:32px auto;
@@ -85,7 +75,7 @@ const styles = `
         box-sizing:border-box;
     }
 
-    .card {
+    .base-card {
         background: var(--card-bg);
         border-radius:14px;
         padding:18px;
@@ -95,7 +85,7 @@ const styles = `
         color: var(--text-color);
     }
 
-    .chat-container {
+    .base-chat-container {
         width:100%;
         height:400px;
         overflow-y:auto;
@@ -103,40 +93,46 @@ const styles = `
         border-radius:12px;
         padding:16px;
         background:rgba(255,255,255,0.02);
+        font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
     }
 
-    .chat-message {
-        margin-bottom:16px;
+    .base-chat-message {
+        margin-bottom:20px;
     }
 
-    .chat-message.user {
+    .base-chat-message.user {
         text-align:right;
     }
 
-    .chat-message.ai {
+    .base-chat-message.ai {
         text-align:left;
     }
 
-    .message-bubble {
+    .base-message-bubble {
         display:inline-block;
         max-width:80%;
-        padding:12px 16px;
+        padding:16px 20px;
         border-radius:18px;
-        font-size:14px;
-        line-height:1.4;
+        font-size:15px;
+        line-height:1.6;
+        font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        font-weight: 400;
+        letter-spacing: 0.3px;
     }
 
-    .message-bubble.user {
+    .base-message-bubble.user {
         background:var(--accent);
         color:white;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
     }
 
-    .message-bubble.ai {
+    .base-message-bubble.ai {
         background:rgba(255,255,255,0.08);
         color:var(--text-color);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
-    .popup-overlay {
+    .base-popup-overlay {
         position:fixed;
         top:0;
         left:0;
@@ -149,17 +145,137 @@ const styles = `
         z-index:1000;
     }
 
-    .popup-content {
-        background:var(--card-bg);
-        border-radius:16px;
+    .base-popup-content {
+        background: white;
+        border-radius:20px;
         padding:32px;
         max-width:600px;
         width:90%;
-        backdrop-filter:blur(10px);
-        border:1px solid rgba(255,255,255,0.1);
+        height: 70vh;
+        box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+        border: none;
     }
 
-    .start-btn {
+    .modern-btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 14px;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-danger {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+        color: white;
+    }
+
+    .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #51cf66 0%, #40c057 100%);
+        color: white;
+    }
+
+    .btn-secondary {
+        background: #f8f9fa;
+        color: #495057;
+        border: 2px solid #e9ecef;
+    }
+
+    .confirmation-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+    }
+
+    .confirmation-content {
+        background: white;
+        padding: 40px;
+        border-radius: 20px;
+        text-align: center;
+        box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+        max-width: 400px;
+        width: 90%;
+    }
+
+    .congrats-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 3000;
+    }
+
+    .congrats-content {
+        background: white;
+        padding: 60px 40px;
+        border-radius: 25px;
+        text-align: center;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+        max-width: 500px;
+        width: 90%;
+        animation: bounceIn 0.6s ease;
+    }
+
+    @keyframes bounceIn {
+        0% { transform: scale(0.3); opacity: 0; }
+        50% { transform: scale(1.05); }
+        70% { transform: scale(0.9); }
+        100% { transform: scale(1); opacity: 1; }
+    }
+
+    .recording-status {
+        padding: 16px;
+        border-radius: 12px;
+        margin: 20px 0;
+        text-align: center;
+        font-weight: 600;
+    }
+
+    .status-preparing {
+        background: linear-gradient(135deg, #ffd93d 0%, #ff9500 100%);
+        color: white;
+    }
+
+    .status-recording {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+        color: white;
+        animation: pulse 1.5s infinite;
+    }
+
+    .status-processing {
+        background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+        color: white;
+    }
+
+    .base-start-btn {
         padding:16px 32px;
         font-size:18px;
         font-weight:700;
@@ -171,12 +287,12 @@ const styles = `
         transition:all 200ms;
     }
 
-    .start-btn:hover {
+    .base-start-btn:hover {
         transform:translateY(-2px);
         box-shadow:0 8px 25px rgba(16,185,129,0.3);
     }
 
-    .mic-btn {
+    .base-mic-btn {
         width:120px;
         height:120px;
         border-radius:999px;
@@ -193,23 +309,23 @@ const styles = `
         position:relative;
     }
 
-    .mic-btn:hover {
+    .base-mic-btn:hover {
         transform: translateY(-2px);
         box-shadow: 0 20px 40px rgba(0,0,0,0.32);
     }
 
-    .mic-btn.recording {
-        animation: pulse 1.25s infinite;
+    .base-mic-btn.recording {
+        animation: base-pulse 1.25s infinite;
         transform: scale(1.04);
     }
 
-    @keyframes pulse {
+    @keyframes base-pulse {
         0% { box-shadow: 0 8px 22px rgba(79,70,229,0.12); }
         50% { box-shadow: 0 18px 40px rgba(79,70,229,0.22); }
         100% { box-shadow: 0 8px 22px rgba(79,70,229,0.12); }
     }
 
-    .mic-area {
+    .base-mic-area {
         display:flex;
         flex-direction:column;
         align-items:center;
@@ -219,24 +335,32 @@ const styles = `
         min-height:700px;
     }
 
-    .loading-dots {
+    .base-loading-dots {
         display:inline-block;
     }
 
-    .loading-dots::after {
+    .base-loading-dots::after {
         content:'...';
-        animation:dots 1.5s infinite;
+        animation:base-dots 1.5s infinite;
     }
 
-    @keyframes dots {
+    @keyframes base-dots {
         0%, 20% { content:''; }
         40% { content:'.'; }
         60% { content:'..'; }
         80%, 100% { content:'...'; }
     }
 
+    :root {
+        --bg: linear-gradient(180deg,#0f172a 0%,#071129 100%);
+        --card-bg: rgba(255,255,255,0.04);
+        --accent: #4f46e5;
+        --muted: rgba(255,255,255,0.75);
+        --text-color: #e6eef8;
+    }
+
     @media (max-width: 940px) {
-        .jam-container {
+        .base-container {
             flex-direction:column;
             padding:16px;
             margin:16px;
@@ -248,26 +372,38 @@ const BaseComponent = ({
     testType, 
     testTitle, 
     testDescription,
+    testLevel = 'basic',
+    testDuration = 600,
     apiEndpoint,
-    useRecordingAPI = false,
-    onTimeRecording = false
+    recordingMode = 'short',
+    autoStartMessage = 'hi'
 }) => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { remainingTests: initialRemainingTests = 0 } = location.state || {};
+    const { remainingTests: initialRemainingTests = 0, testLevel: passedTestLevel = 'basic' } = location.state || {};
+    
+    const actualTestLevel = passedTestLevel !== 'basic' ? passedTestLevel : testLevel;
 
     const [activeTab, setActiveTab] = useState(`${testTitle} Dashboard`);
     const [remainingTests, setRemainingTests] = useState(initialRemainingTests);
-    const [sessionId] = useState(`${testType}-test-${Math.floor(1000000 + Math.random() * 9000000)}`);
+    const [testId] = useState(`${testType}-test-${actualTestLevel}-${Math.floor(1000000 + Math.random() * 9000000)}`);
+    const [sessionId] = useState(`${testType}-test-${actualTestLevel}-${Math.floor(1000000 + Math.random() * 9000000)}`);
     const [userEmail] = useState(localStorage.getItem("email"));
     const [chatMessages, setChatMessages] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [recording, setRecording] = useState(false);
-    const [timeLeft, setTimeLeft] = useState(10);
+    const [timeLeft, setTimeLeft] = useState(recordingMode === 'short' ? 10 : 30);
     const [showTestPopup, setShowTestPopup] = useState(false);
     const [theme, setTheme] = useState('light');
     const [userType, setUserType] = useState('free');
     const [streakData, setStreakData] = useState({ current_streak: 0 });
+    const [recordingState, setRecordingState] = useState('idle'); // idle, preparing, recording, processing
+    const [showEndConfirm, setShowEndConfirm] = useState(false);
+    const [showCongrats, setShowCongrats] = useState(false);
+    const [hasRecorded, setHasRecorded] = useState(false);
+    const [clickedButtons, setClickedButtons] = useState(new Set());
+    const [testTimeLeft, setTestTimeLeft] = useState(testDuration);
+    const testTimerRef = useRef(null);
     
     const chatRef = useRef(null);
     const recognitionRef = useRef(null);
@@ -399,7 +535,46 @@ const BaseComponent = ({
         }
     };
 
-    const sendAudioToRecordingAPI = async (audioBlob) => {
+    const sendAudioToDirectAPI = async (audioBlob) => {
+        try {
+            setIsLoading(true);
+            const reader = new FileReader();
+            reader.readAsDataURL(audioBlob);
+
+            reader.onloadend = async () => {
+                const base64Audio = reader.result.split(',')[1];
+                
+                const response = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/audiototranscript-api', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        body: JSON.stringify({ data: base64Audio }),
+                        isBase64Encoded: false
+                    })
+                });
+
+                const data = await response.json();
+                const transcript = JSON.parse(data.body).transcript;
+                
+                if (transcript) {
+                    await sendMessage(transcript.trim());
+                } else {
+                    setChatMessages(prev => [...prev, 
+                        { type: 'ai', content: 'Could not process audio. Please try again.', timestamp: Date.now() }
+                    ]);
+                }
+                setIsLoading(false);
+            };
+        } catch (error) {
+            console.error('Error processing audio:', error);
+            setChatMessages(prev => [...prev, 
+                { type: 'ai', content: 'Error processing audio. Please try again.', timestamp: Date.now() }
+            ]);
+            setIsLoading(false);
+        }
+    };
+
+    const sendAudioToLongRecordingAPI = async (audioBlob) => {
         try {
             setIsLoading(true);
             const reader = new FileReader();
@@ -411,17 +586,19 @@ const BaseComponent = ({
                 const requestBody = {
                     body: JSON.stringify({
                         data: base64Audio,
-                        sessionId: sessionId
+                        sessionId: sessionId,
+                        testId: testId,
+                        testType: testType,
+                        testLevel: actualTestLevel
                     })
                 };
 
-                const response1 = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/studentcommunicationtests_recordingapi', {
+                await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/studentcommunicationtests_recordingapi', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(requestBody)
                 });
 
-                // Poll for transcript
                 let attempts = 0;
                 const maxAttempts = 12;
                 const pollTranscript = async () => {
@@ -429,7 +606,7 @@ const BaseComponent = ({
                         const response2 = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/studentcommunicationtests_transcribeapi', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ body: { sessionId: sessionId } })
+                            body: JSON.stringify({ body: { sessionId: sessionId, testId: testId } })
                         });
 
                         const data2 = await response2.json();
@@ -474,8 +651,27 @@ const BaseComponent = ({
         }
     };
 
+    // Get recording duration based on test type
+    const getRecordingDuration = () => {
+        if (testType === 'jam' || testType === 'situation') return 60;
+        if (testType === 'listening' || testType === 'pronunciation') return 10;
+        return 30;
+    };
+
     const startRecording = async () => {
-        if (useRecordingAPI) {
+        if (hasRecorded && (testType === 'jam' || testType === 'situation')) {
+            return; // Only allow one recording for JAM and situation tests
+        }
+
+        setRecordingState('preparing');
+        
+        // Wait 2-3 seconds before starting
+        setTimeout(async () => {
+            const duration = getRecordingDuration();
+            setTimeLeft(duration);
+            setRecordingState('recording');
+            setRecording(true);
+            
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 streamRef.current = stream;
@@ -491,8 +687,17 @@ const BaseComponent = ({
                 };
 
                 mediaRecorder.onstop = async () => {
+                    setRecordingState('processing');
                     const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
-                    await sendAudioToRecordingAPI(audioBlob);
+                    
+                    // Wait 2-3 seconds for processing UI
+                    setTimeout(async () => {
+                        await sendAudioToLongRecordingAPI(audioBlob);
+                        setRecordingState('idle');
+                        if (testType === 'jam' || testType === 'situation') {
+                            setHasRecorded(true);
+                        }
+                    }, 2500);
                     
                     if (streamRef.current) {
                         streamRef.current.getTracks().forEach(track => track.stop());
@@ -501,82 +706,210 @@ const BaseComponent = ({
                 };
 
                 mediaRecorder.start();
-                setRecording(true);
+                
+                // Auto-stop after duration
+                timerRef.current = setInterval(() => {
+                    setTimeLeft(prev => {
+                        if (prev <= 1) {
+                            stopRecording();
+                            return 0;
+                        }
+                        return prev - 1;
+                    });
+                }, 1000);
+                
             } catch (error) {
                 console.error('Error starting recording:', error);
+                setRecordingState('idle');
                 alert('Failed to start recording. Please check microphone permissions.');
             }
-        } else {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) {
-                alert('Speech Recognition not supported. Please type your response.');
-                return;
-            }
-
-            try {
-                const recognition = new SpeechRecognition();
-                recognition.continuous = false;
-                recognition.interimResults = false;
-                recognition.lang = 'en-US';
-
-                recognition.onstart = () => {
-                    setRecording(true);
-                    setTimeLeft(10);
-                    
-                    timerRef.current = setInterval(() => {
-                        setTimeLeft(prev => {
-                            if (prev <= 1) {
-                                stopRecording();
-                                return 0;
-                            }
-                            return prev - 1;
-                        });
-                    }, 1000);
-                };
-
-                recognition.onresult = (event) => {
-                    const transcript = event.results[0][0].transcript;
-                    sendMessage(transcript);
-                };
-
-                recognition.onerror = () => {
-                    setRecording(false);
-                    if (timerRef.current) clearInterval(timerRef.current);
-                };
-
-                recognition.onend = () => {
-                    setRecording(false);
-                    if (timerRef.current) clearInterval(timerRef.current);
-                };
-
-                recognition.start();
-                recognitionRef.current = recognition;
-            } catch (error) {
-                console.error('Failed to start speech recognition:', error);
-            }
-        }
+        }, 2500);
     };
 
     const stopRecording = () => {
-        if (useRecordingAPI) {
-            if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
-                mediaRecorderRef.current.stop();
-            }
-            if (streamRef.current) {
-                streamRef.current.getTracks().forEach(track => track.stop());
-                streamRef.current = null;
-            }
-        } else {
-            if (recognitionRef.current) {
-                recognitionRef.current.stop();
-            }
-            if (timerRef.current) {
-                clearInterval(timerRef.current);
-            }
+        if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+            mediaRecorderRef.current.stop();
+        }
+        if (timerRef.current) {
+            clearInterval(timerRef.current);
         }
         setRecording(false);
     };
 
+    const handleEndTest = () => {
+        setShowEndConfirm(true);
+    };
+
+    const confirmEndTest = () => {
+        if (testTimerRef.current) {
+            clearInterval(testTimerRef.current);
+        }
+        setShowCongrats(true);
+        setTimeout(() => {
+            window.location.reload();
+        }, 4000);
+    };
+
+    // Format AI message content with proper styling and interactive buttons
+    const formatAIMessage = (content, messageIndex) => {
+        const handleButtonClick = (value, buttonId) => {
+            setClickedButtons(prev => new Set([...prev, buttonId]));
+            sendMessage(value);
+        };
+
+        // Check for yes/no questions
+        if (content.includes("Click 'yes' or 'no'") || content.includes("'yes' or 'no'")) {
+            const parts = content.split("Click 'yes' or 'no'.");
+            const yesButtonId = `yes-${messageIndex}`;
+            const noButtonId = `no-${messageIndex}`;
+            
+            return (
+                <div>
+                    <div dangerouslySetInnerHTML={{ __html: formatMessageText(parts[0]) }} />
+                    <div style={{ marginTop: 15, display: 'flex', gap: 10, justifyContent: 'center' }}>
+                        <button 
+                            onClick={() => handleButtonClick('yes', yesButtonId)}
+                            disabled={clickedButtons.has(yesButtonId) || clickedButtons.has(noButtonId)}
+                            style={{
+                                background: clickedButtons.has(yesButtonId) || clickedButtons.has(noButtonId) 
+                                    ? 'linear-gradient(135deg, #6c757d 0%, #495057 100%)'
+                                    : 'linear-gradient(135deg, #ffd93d 0%, #ff9500 100%)',
+                                color: 'white',
+                                border: 'none',
+                                padding: '10px 20px',
+                                borderRadius: '20px',
+                                fontWeight: '600',
+                                cursor: clickedButtons.has(yesButtonId) || clickedButtons.has(noButtonId) ? 'not-allowed' : 'pointer',
+                                boxShadow: clickedButtons.has(yesButtonId) || clickedButtons.has(noButtonId) 
+                                    ? 'none' : '0 4px 15px rgba(255, 217, 61, 0.3)',
+                                transition: 'all 0.3s ease',
+                                opacity: clickedButtons.has(yesButtonId) || clickedButtons.has(noButtonId) ? 0.6 : 1
+                            }}
+                        >
+                            Yes
+                        </button>
+                        <button 
+                            onClick={() => handleButtonClick('no', noButtonId)}
+                            disabled={clickedButtons.has(yesButtonId) || clickedButtons.has(noButtonId)}
+                            style={{
+                                background: clickedButtons.has(yesButtonId) || clickedButtons.has(noButtonId)
+                                    ? 'linear-gradient(135deg, #6c757d 0%, #495057 100%)'
+                                    : 'linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%)',
+                                color: 'white',
+                                border: 'none',
+                                padding: '10px 20px',
+                                borderRadius: '20px',
+                                fontWeight: '600',
+                                cursor: clickedButtons.has(yesButtonId) || clickedButtons.has(noButtonId) ? 'not-allowed' : 'pointer',
+                                boxShadow: clickedButtons.has(yesButtonId) || clickedButtons.has(noButtonId)
+                                    ? 'none' : '0 4px 15px rgba(255, 107, 107, 0.3)',
+                                transition: 'all 0.3s ease',
+                                opacity: clickedButtons.has(yesButtonId) || clickedButtons.has(noButtonId) ? 0.6 : 1
+                            }}
+                        >
+                            No
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+        
+        // Check for topic selection (1 or 2)
+        if (content.includes("Click '1' or '2'") || content.includes("'1' or '2'")) {
+            const parts = content.split("Click '1' or '2'.");
+            const button1Id = `topic1-${messageIndex}`;
+            const button2Id = `topic2-${messageIndex}`;
+            
+            return (
+                <div>
+                    <div dangerouslySetInnerHTML={{ __html: formatMessageText(parts[0]) }} />
+                    <div style={{ marginTop: 15, display: 'flex', gap: 10, justifyContent: 'center' }}>
+                        <button 
+                            onClick={() => handleButtonClick('1', button1Id)}
+                            disabled={clickedButtons.has(button1Id) || clickedButtons.has(button2Id)}
+                            style={{
+                                background: clickedButtons.has(button1Id) || clickedButtons.has(button2Id)
+                                    ? 'linear-gradient(135deg, #6c757d 0%, #495057 100%)'
+                                    : 'linear-gradient(135deg, #ffd93d 0%, #ff9500 100%)',
+                                color: 'white',
+                                border: 'none',
+                                padding: '10px 20px',
+                                borderRadius: '20px',
+                                fontWeight: '600',
+                                cursor: clickedButtons.has(button1Id) || clickedButtons.has(button2Id) ? 'not-allowed' : 'pointer',
+                                boxShadow: clickedButtons.has(button1Id) || clickedButtons.has(button2Id)
+                                    ? 'none' : '0 4px 15px rgba(255, 217, 61, 0.3)',
+                                transition: 'all 0.3s ease',
+                                opacity: clickedButtons.has(button1Id) || clickedButtons.has(button2Id) ? 0.6 : 1
+                            }}
+                        >
+                            1
+                        </button>
+                        <button 
+                            onClick={() => handleButtonClick('2', button2Id)}
+                            disabled={clickedButtons.has(button1Id) || clickedButtons.has(button2Id)}
+                            style={{
+                                background: clickedButtons.has(button1Id) || clickedButtons.has(button2Id)
+                                    ? 'linear-gradient(135deg, #6c757d 0%, #495057 100%)'
+                                    : 'linear-gradient(135deg, #ffd93d 0%, #ff9500 100%)',
+                                color: 'white',
+                                border: 'none',
+                                padding: '10px 20px',
+                                borderRadius: '20px',
+                                fontWeight: '600',
+                                cursor: clickedButtons.has(button1Id) || clickedButtons.has(button2Id) ? 'not-allowed' : 'pointer',
+                                boxShadow: clickedButtons.has(button1Id) || clickedButtons.has(button2Id)
+                                    ? 'none' : '0 4px 15px rgba(255, 217, 61, 0.3)',
+                                transition: 'all 0.3s ease',
+                                opacity: clickedButtons.has(button1Id) || clickedButtons.has(button2Id) ? 0.6 : 1
+                            }}
+                        >
+                            2
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+        
+        return <div dangerouslySetInnerHTML={{ __html: formatMessageText(content) }} />;
+    };
+
+    // Format message text with proper styling
+    const formatMessageText = (text) => {
+        return text
+            // Assessment Report Headers
+            .replace(/ASSESSMENT REPORT/g, '<div style="background: linear-gradient(135deg, #b4beafff 0%, #b2e357ff 100%); color: black; padding: 16px 20px; border-radius: 12px; font-weight: 700; font-size: 18px; margin: 15px 0; text-align: center; font-family: Inter, sans-serif; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">📊 ASSESSMENT REPORT</div>')
+            .replace(/SITUATIONAL ASSESSMENT REPORT/g, '<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 16px 20px; border-radius: 12px; font-weight: 700; font-size: 18px; margin: 15px 0; text-align: center; font-family: Inter, sans-serif; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">📊 SITUATIONAL ASSESSMENT REPORT</div>')
+            
+            // Topic and Scenario headers
+            .replace(/TOPIC:/g, '<div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); color: #1565c0; padding: 12px 16px; border-radius: 10px; font-weight: 700; margin: 12px 0; font-family: Inter, sans-serif; border-left: 4px solid #1565c0;">🎯 TOPIC:</div>')
+            .replace(/SCENARIO:/g, '<div style="background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%); color: #2e7d32; padding: 12px 16px; border-radius: 10px; font-weight: 700; margin: 12px 0; font-family: Inter, sans-serif; border-left: 4px solid #2e7d32;">🎭 SCENARIO:</div>')
+            .replace(/Situation:/g, '<div style="background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%); color: #2e7d32; padding: 12px 16px; border-radius: 10px; font-weight: 700; margin: 12px 0; font-family: Inter, sans-serif; border-left: 4px solid #2e7d32;">🎭 Situation:</div>')
+            
+            // Performance and Analysis sections
+            .replace(/PERFORMANCE SUMMARY:/g, '<div style="background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); color: #ef6c00; padding: 12px 16px; border-radius: 10px; font-weight: 700; margin: 12px 0; font-family: Inter, sans-serif; border-left: 4px solid #ef6c00;">📈 PERFORMANCE SUMMARY:</div>')
+            .replace(/RESPONSE ANALYSIS:/g, '<div style="background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); color: #ef6c00; padding: 12px 16px; border-radius: 10px; font-weight: 700; margin: 12px 0; font-family: Inter, sans-serif; border-left: 4px solid #ef6c00;">📈 RESPONSE ANALYSIS:</div>')
+            .replace(/DETAILED EVALUATION:/g, '<div style="background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%); color: #7b1fa2; padding: 12px 16px; border-radius: 10px; font-weight: 700; margin: 12px 0; font-family: Inter, sans-serif; border-left: 4px solid #7b1fa2;">🔍 DETAILED EVALUATION:</div>')
+            
+            // Development and Readiness sections
+            .replace(/PROFESSIONAL DEVELOPMENT AREAS:/g, '<div style="background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%); color: #388e3c; padding: 12px 16px; border-radius: 10px; font-weight: 700; margin: 12px 0; font-family: Inter, sans-serif; border-left: 4px solid #388e3c;">🚀 DEVELOPMENT AREAS:</div>')
+            .replace(/INTERVIEW READINESS ASSESSMENT:/g, '<div style="background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%); color: #388e3c; padding: 12px 16px; border-radius: 10px; font-weight: 700; margin: 12px 0; font-family: Inter, sans-serif; border-left: 4px solid #388e3c;">💼 INTERVIEW READINESS:</div>')
+            
+            // Placement sections
+            .replace(/PLACEMENT READINESS:/g, '<div style="background: linear-gradient(135deg, #4caf50 0%, #45a049 100%); color: white; padding: 12px 16px; border-radius: 10px; font-weight: 700; margin: 12px 0; font-family: Inter, sans-serif; box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);">🎯 PLACEMENT READINESS:</div>')
+            .replace(/PLACEMENT EVALUATION:/g, '<div style="background: linear-gradient(135deg, #4caf50 0%, #45a049 100%); color: white; padding: 12px 16px; border-radius: 10px; font-weight: 700; margin: 12px 0; font-family: Inter, sans-serif; box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);">🎯 PLACEMENT EVALUATION:</div>')
+            
+            // Scores with highlighting
+            .replace(/(JAM Score:|Situational Score:)\s*(\d+\.\d+)\s*\/\s*(\d+\.\d+)/g, '<div style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); color: white; padding: 8px 14px; border-radius: 20px; display: inline-block; font-weight: 700; margin: 6px 0; font-family: Inter, sans-serif; box-shadow: 0 3px 10px rgba(255, 152, 0, 0.4);">⭐ $1 $2/$3</div>')
+            
+            // Bullet points with better styling
+            .replace(/^- /gm, '<span style="color: #667eea; font-weight: 600; margin-right: 8px;">•</span> ')
+            .replace(/^\d+\. /gm, (match) => `<span style="color: #667eea; font-weight: 700; background: rgba(102, 126, 234, 0.1); padding: 2px 8px; border-radius: 12px; margin-right: 8px; font-size: 13px;">${match}</span>`)
+            
+            // Better paragraph spacing
+            .replace(/\n\n/g, '<br/><br/>')
+            .replace(/\n/g, '<br/>');
+    };
     const sendMessage = async (message) => {
         setIsLoading(true);
         
@@ -584,8 +917,9 @@ const BaseComponent = ({
             const requestBody = {
                 body: {
                     message: message,
-                    sessionId: sessionId,
-                    email: userEmail
+                    sessionId: `${testType}-test-${actualTestLevel.slice(0,2)}-${sessionId.split('-').pop()}`,
+                    email: userEmail,
+                    level: actualTestLevel
                 }
             };
 
@@ -632,29 +966,70 @@ const BaseComponent = ({
         
         await decrementTestCount();
         setShowTestPopup(true);
-        await sendMessage('hi');
+        setTestTimeLeft(testDuration);
+        
+        // Start test timer
+        testTimerRef.current = setInterval(() => {
+            setTestTimeLeft(prev => {
+                if (prev <= 1) {
+                    confirmEndTest(); // Auto-end test when time runs out
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+        
+        await sendMessage(autoStartMessage);
+    };
+
+    const formatTime = (seconds) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
 
     return (
-        <div className={`jam-root ${userType === 'premium' ? 'premium-bg' : 'free-bg'}`}>
-            <div className="jam-topnav">
+        <div className={`base-root ${userType === 'premium' ? 'premium-bg' : 'free-bg'}`}>
+            <div className="base-topnav">
                 <div className="left">
-                    <div className="jam-title">
+                    <div className="base-title">
                         {testTitle}
                     </div>
-                    <div className="jam-nav">
-                        {['Back', 'Practice', `${testTitle} Dashboard`, `${testTitle} Leaderboard`].map((t) => (
-                            <button
-                                key={t}
-                                className={activeTab === t ? 'active' : ''}
-                                onClick={() => {
-                                    if (t === 'Back') navigate('/test');
-                                    else setActiveTab(t);
-                                }}
-                            >
-                                {t}
-                            </button>
-                        ))}
+                    <div className="base-nav">
+                        {['Back', 'Practice', `${testTitle} Dashboard`, `${testTitle} Leaderboard`].map((t) => {
+                            const getRoute = (tabName) => {
+                                if (tabName === 'Back') return '/test';
+                                if (tabName === 'Practice') return '/practice';
+                                if (tabName === `${testTitle} Dashboard`) {
+                                    const dashboardRoutes = {
+                                        'JAM Test': '#',
+                                        'Situation Speaking': '#',
+                                        'Listening Test': '#',
+                                        'Pronunciation Test': '#'
+                                    };
+                                    return dashboardRoutes[testTitle] || '/student-dashboard';
+                                }
+                                if (tabName === `${testTitle} Leaderboard`) return '/student-leaderboard';
+                                return '#';
+                            };
+                            
+                            return (
+                                <button
+                                    key={t}
+                                    className={activeTab === t ? 'active' : ''}
+                                    onClick={() => {
+                                        const route = getRoute(t);
+                                        if (route !== '#') {
+                                            navigate(route);
+                                        } else {
+                                            setActiveTab(t);
+                                        }
+                                    }}
+                                >
+                                    {t}
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -700,12 +1075,15 @@ const BaseComponent = ({
                 </div>
             </div>
 
-            <div className="jam-container">
+            <div className="base-container">
                 {!showTestPopup && (
-                    <div className="card" style={{ textAlign: 'center', padding: 60, width: '100%' }}>
+                    <div className="base-card" style={{ textAlign: 'center', padding: 60, width: '100%' }}>
                         <div style={{ fontWeight: 700, fontSize: 32, marginBottom: 20, color: 'var(--accent)' }}>
                             {testTitle}
                         </div>
+                        <h2 style={{ color: 'var(--muted)', fontSize: '18px', marginTop: '10px', textTransform: 'capitalize' }}>
+                            {actualTestLevel} Level
+                        </h2>
                         <div style={{ fontSize: 18, color: 'var(--muted)', marginBottom: 20 }}>
                             {testDescription}
                         </div>
@@ -714,7 +1092,7 @@ const BaseComponent = ({
                         </div>
                         <div style={{ display: 'flex', gap: 20, justifyContent: 'center' }}>
                             <button 
-                                className="start-btn" 
+                                className="base-start-btn" 
                                 onClick={startTest} 
                                 disabled={remainingTests <= 0}
                             >
@@ -726,26 +1104,38 @@ const BaseComponent = ({
             </div>
 
             {showTestPopup && (
-                <div className="popup-overlay">
-                    <div className="popup-content" style={{ maxWidth: '1300px', width: '80%', height: '90%' }}>
+                <div className="base-popup-overlay">
+                    <div className="base-popup-content" style={{ maxWidth: '1300px', width: '80%', height: '80%' }}>
                         <div style={{ display: 'flex', gap: 20, height: '100%' }}>
                             <div style={{ flex: 1 }}>
                                 <h2 style={{ color: 'var(--accent)' }}>
                                     {testTitle}
                                 </h2>
+                                <h2 style={{ color: 'var(--muted)', fontSize: '18px', marginTop: '10px', textTransform: 'capitalize' }}>
+                                    {actualTestLevel} Level
+                                </h2>
                                 
-                                <div className="chat-container" ref={chatRef} style={{ height: '550px' }}>
+                                <div className="base-chat-container" ref={chatRef} style={{ height: '450px' }}>
                                     {chatMessages.map((msg, index) => (
-                                        <div key={index} className={`chat-message ${msg.type}`}>
-                                            <div className={`message-bubble ${msg.type}`}>
-                                                <div style={{ whiteSpace: 'pre-wrap' }}>{msg.content}</div>
+                                        <div key={index} className={`base-chat-message ${msg.type}`}>
+                                            <div className={`base-message-bubble ${msg.type}`} style={{
+                                                background: msg.type === 'user' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : '#f8f9fa',
+                                                color: msg.type === 'user' ? 'white' : '#333',
+                                                border: msg.type === 'ai' ? '2px solid #e9ecef' : 'none',
+                                                maxWidth: '85%',
+                                                padding: '12px 16px',
+                                                lineHeight: '1.5'
+                                            }}>
+                                                {msg.type === 'ai' ? formatAIMessage(msg.content, index) : (
+                                                    <div style={{ whiteSpace: 'pre-wrap' }}>{msg.content}</div>
+                                                )}
                                             </div>
                                         </div>
                                     ))}
                                     {isLoading && (
-                                        <div className="chat-message ai">
-                                            <div className="message-bubble ai">
-                                                <span className="loading-dots">Thinking</span>
+                                        <div className="base-chat-message ai">
+                                            <div className="base-message-bubble ai" style={{ background: '#f8f9fa', color: '#333', border: '2px solid #e9ecef' }}>
+                                                <span className="base-loading-dots">Thinking</span>
                                             </div>
                                         </div>
                                     )}
@@ -753,23 +1143,54 @@ const BaseComponent = ({
                             </div>
 
                             <div style={{ flex: 1 }}>
-                                <div className="mic-area">
+                                <div className="base-mic-area">
                                     <h3 style={{ color: 'var(--text-color)', marginBottom: 20 }}>
                                         Voice Recording
                                     </h3>
                                     
-                                    {recording && !useRecordingAPI && (
-                                        <div style={{ fontSize: '18px', fontWeight: '600', color: 'var(--accent)', marginBottom: 16 }}>
-                                            Recording: {timeLeft}s
+                                    {recordingState === 'preparing' && (
+                                        <div className="recording-status status-preparing">
+                                            🎤 Preparing to record... Get ready!
+                                        </div>
+                                    )}
+                                    
+                                    {recordingState === 'recording' && (
+                                        <div className="recording-status status-recording">
+                                            🔴 Recording: {timeLeft}s remaining
+                                        </div>
+                                    )}
+                                    
+                                    {recordingState === 'processing' && (
+                                        <div className="recording-status status-processing">
+                                            ⚡ Processing your audio...
                                         </div>
                                     )}
 
                                     <button
-                                        className={`mic-btn ${recording ? 'recording' : ''}`}
-                                        onClick={recording ? stopRecording : startRecording}
-                                        disabled={isLoading}
+                                        className={`base-mic-btn ${recording ? 'recording' : ''}`}
+                                        onClick={recordingState === 'recording' ? stopRecording : startRecording}
+                                        disabled={isLoading || recordingState === 'preparing' || recordingState === 'processing' || (hasRecorded && (testType === 'jam' || testType === 'situation'))}
+                                        style={{
+                                            background: hasRecorded && (testType === 'jam' || testType === 'situation') 
+                                                ? 'linear-gradient(135deg, #6c757d 0%, #495057 100%)'
+                                                : recordingState === 'recording' 
+                                                ? 'linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%)'
+                                                : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                            cursor: (hasRecorded && (testType === 'jam' || testType === 'situation')) || isLoading || recordingState === 'preparing' || recordingState === 'processing' ? 'not-allowed' : 'pointer',
+                                            opacity: (hasRecorded && (testType === 'jam' || testType === 'situation')) || isLoading || recordingState === 'preparing' || recordingState === 'processing' ? 0.6 : 1
+                                        }}
                                     >
-                                        {recording ? (
+                                        {recordingState === 'preparing' ? (
+                                            <svg width="36" height="36" viewBox="0 0 24 24" fill="currentColor">
+                                                <circle cx="12" cy="12" r="10" opacity="0.3"/>
+                                                <path d="M12 6v6l4 2"/>
+                                            </svg>
+                                        ) : recordingState === 'processing' ? (
+                                            <svg width="36" height="36" viewBox="0 0 24 24" fill="currentColor">
+                                                <circle cx="12" cy="12" r="3" opacity="0.8"/>
+                                                <path d="M12 1v6M12 17v6M4.22 4.22l4.24 4.24M15.54 15.54l4.24 4.24M1 12h6M17 12h6M4.22 19.78l4.24-4.24M15.54 8.46l4.24-4.24"/>
+                                            </svg>
+                                        ) : recording ? (
                                             <svg width="36" height="36" viewBox="0 0 24 24" fill="currentColor">
                                                 <rect x="6" y="6" width="12" height="12" rx="2" />
                                             </svg>
@@ -784,32 +1205,56 @@ const BaseComponent = ({
                                     </button>
 
                                     <p style={{ color: 'var(--muted)', fontSize: '14px', textAlign: 'center', marginTop: 20 }}>
-                                        {useRecordingAPI 
+                                        {recordingMode === 'long'
                                             ? "Click to start/stop recording (one-time recording)"
-                                            : "Click to record for 10 seconds"
+                                            : `Click to record for ${recordingMode === 'short' ? '10' : '30'} seconds`
                                         }
                                     </p>
 
                                     <button
-                                        onClick={() => {
-                                            alert('Test completed!');
-                                            window.location.reload();
-                                        }}
-                                        style={{
-                                            marginTop: 40,
-                                            padding: '12px 24px',
-                                            background: '#ef4444',
-                                            color: 'white',
-                                            border: 'none',
-                                            borderRadius: '8px',
-                                            cursor: 'pointer'
-                                        }}
+                                        onClick={handleEndTest}
+                                        className="modern-btn btn-danger"
+                                        style={{ marginTop: 30, width: '30%' }}
                                     >
                                         End Test
                                     </button>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {showEndConfirm && (
+                <div className="confirmation-modal">
+                    <div className="confirmation-content">
+                        <h3 style={{ color: '#333', marginBottom: 20, fontSize: 22 }}>End Test?</h3>
+                        <p style={{ color: '#666', marginBottom: 30, fontSize: 16 }}>Are you sure you want to end this test? Your progress will be saved.</p>
+                        <div style={{ display: 'flex', gap: 15, justifyContent: 'center' }}>
+                            <button 
+                                onClick={() => setShowEndConfirm(false)}
+                                className="modern-btn btn-secondary"
+                            >
+                                No, Continue
+                            </button>
+                            <button 
+                                onClick={confirmEndTest}
+                                className="modern-btn btn-danger"
+                            >
+                                Yes, End Test
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showCongrats && (
+                <div className="congrats-modal">
+                    <div className="congrats-content">
+                        <div style={{ fontSize: 60, marginBottom: 20 }}>🎉</div>
+                        <h2 style={{ color: '#333', marginBottom: 15, fontSize: 28, fontWeight: 700 }}>Congratulations!</h2>
+                        <p style={{ color: '#666', fontSize: 18, marginBottom: 20 }}>You have successfully completed the {testTitle} - {actualTestLevel} Level</p>
+                        <div style={{ color: '#667eea', fontSize: 16, fontWeight: 600 }}>Redirecting in a moment...</div>
                     </div>
                 </div>
             )}
