@@ -137,22 +137,36 @@ function Dashboard() {
 
     const getTestStats = (activityId) => {
         const testMap = {
-            'jam': 'jam',
-            'pronunciation': 'pronunciation', 
-            'listening': 'listening',
-            'situational': 'situation',
+            'jam': 'jam_test',
+            'pronunciation': 'pronu_test', 
+            'listening': 'listen_test',
+            'situational': 'situation_test',
             'image-speak': 'image_speak'
         };
         
         const testData = apiData[testMap[activityId]];
-        if (!testData) {
-            return { avgScore: '0', testCount: 0, trend: [] };
+        if (!testData || !testData.levels) {
+            return { 
+                basicAvgScore: '0', basicTestCount: 0,
+                intermediateAvgScore: '0', intermediateTestCount: 0,
+                advancedAvgScore: '0', advancedTestCount: 0,
+                trend: [] 
+            };
         }
 
+        const basicLevel = testData.levels.basic || { avgScore: 0, attempts: 0 };
+        const intermediateLevel = testData.levels.intermediate || { avgScore: 0, attempts: 0 };
+        const advancedLevel = testData.levels.advanced || { avgScore: 0, attempts: 0 };
+        const trendScores = testData.trend ? testData.trend.map(item => item.score) : [];
+        
         return {
-            avgScore: testData.avgScore?.toFixed(1) || '0',
-            testCount: testData.tests || 0,
-            trend: testData.trend || []
+            basicAvgScore: basicLevel.avgScore?.toFixed(1) || '0',
+            basicTestCount: basicLevel.attempts || 0,
+            intermediateAvgScore: intermediateLevel.avgScore?.toFixed(1) || '0',
+            intermediateTestCount: intermediateLevel.attempts || 0,
+            advancedAvgScore: advancedLevel.avgScore?.toFixed(1) || '0',
+            advancedTestCount: advancedLevel.attempts || 0,
+            trend: trendScores
         };
     };
 
@@ -221,19 +235,13 @@ function Dashboard() {
                                 </div>
                                 
                                 <div className="dashboard-activity-stats">
-                                    <div className="dashboard-stats-container">
-                                        <div className="dashboard-stat-item">
-                                            <div className="dashboard-stat-value">
-                                                {loading ? '...' : stats.avgScore}
-                                            </div>
-                                            <div className="dashboard-stat-label">Avg Score</div>
-                                        </div>
-                                        <div className="dashboard-stat-item">
-                                            <div className="dashboard-stat-value">
-                                                {loading ? '...' : stats.testCount}
-                                            </div>
-                                            <div className="dashboard-stat-label">Tests</div>
-                                        </div>
+                                    <div className="dashboard-stats-text">
+                                        <div style={{fontSize: '13px', marginBottom: '4px', color: '#333'}}>Basic-Avg Score: {loading ? '...' : stats.basicAvgScore}</div>
+                                        <div style={{fontSize: '13px', marginBottom: '4px', color: '#333'}}>Intermed-Avg Score: {loading ? '...' : stats.intermediateAvgScore}</div>
+                                        <div style={{fontSize: '13px', marginBottom: '4px', color: '#333'}}>Advance-Avg Score: {loading ? '...' : stats.advancedAvgScore}</div>
+                                        <div style={{fontSize: '13px', marginBottom: '4px', color: '#666'}}>Basic Test Count: {loading ? '...' : stats.basicTestCount}</div>
+                                        <div style={{fontSize: '13px', marginBottom: '4px', color: '#666'}}>Intermed Test Count: {loading ? '...' : stats.intermediateTestCount}</div>
+                                        <div style={{fontSize: '13px', marginBottom: '4px', color: '#666'}}>Advance Test Count: {loading ? '...' : stats.advancedTestCount}</div>
                                     </div>
                                     {stats.trend.length > 0 && (
                                         <div className="dashboard-mini-chart">

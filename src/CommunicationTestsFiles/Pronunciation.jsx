@@ -4,7 +4,7 @@ import BaseComponent from './BaseComponent';
 export default function Pronunciation() {
     return (
         <BaseComponent
-            testType="pronu"
+            testType="pronunciation"
             testTitle="Pronunciation Test"
             testDescription="Test your pronunciation accuracy with 5 sentences"
             testLevel="basic"

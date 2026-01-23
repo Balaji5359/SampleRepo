@@ -73,21 +73,64 @@ function Test() {
 
     const getTestStats = (activityId) => {
         const testMap = {
-            'jam': 'jam',
-            'pronunciation': 'pronunciation', 
-            'listening': 'listening',
-            'situational': 'situation',
+            'jam': 'jam_test',
+            'pronunciation': 'pronu_test', 
+            'listening': 'listen_test',
+            'situational': 'situation_test',
             'image-speak': 'image_speak'
         };
         
         const testData = apiData[testMap[activityId]];
-        if (!testData) {
+        if (!testData || !testData.levels) {
             return { avgScore: '0', testCount: 0 };
         }
 
+        const basicLevel = testData.levels.basic || { avgScore: 0, attempts: 0 };
         return {
-            avgScore: testData.avgScore?.toFixed(1) || '0',
-            testCount: testData.tests || 0
+            avgScore: basicLevel.avgScore?.toFixed(1) || '0',
+            testCount: basicLevel.attempts || 0
+        };
+    };
+
+    const getIntermediateStats = (activityId) => {
+        const testMap = {
+            'jam': 'jam_test',
+            'pronunciation': 'pronu_test', 
+            'listening': 'listen_test',
+            'situational': 'situation_test',
+            'image-speak': 'image_speak'
+        };
+        
+        const testData = apiData[testMap[activityId]];
+        if (!testData || !testData.levels) {
+            return { avgScore: '0', testCount: 0 };
+        }
+
+        const intermediateLevel = testData.levels.intermediate || { avgScore: 0, attempts: 0 };
+        return {
+            avgScore: intermediateLevel.avgScore?.toFixed(1) || '0',
+            testCount: intermediateLevel.attempts || 0
+        };
+    };
+
+    const getAdvancedStats = (activityId) => {
+        const testMap = {
+            'jam': 'jam_test',
+            'pronunciation': 'pronu_test', 
+            'listening': 'listen_test',
+            'situational': 'situation_test',
+            'image-speak': 'image_speak'
+        };
+        
+        const testData = apiData[testMap[activityId]];
+        if (!testData || !testData.levels) {
+            return { avgScore: '0', testCount: 0 };
+        }
+
+        const advancedLevel = testData.levels.advanced || { avgScore: 0, attempts: 0 };
+        return {
+            avgScore: advancedLevel.avgScore?.toFixed(1) || '0',
+            testCount: advancedLevel.attempts || 0
         };
     };
 
@@ -95,7 +138,6 @@ function Test() {
         const scores = JSON.parse(localStorage.getItem('testScores') || '{}');
         return scores[testType] || 0;
     };
-
     const isInterviewLevelUnlocked = (level) => {
         if (level === 1) return true;
         const prevLevel = level - 1;
@@ -483,23 +525,33 @@ const testInstructions = {
                             <div key={activity.id} className="test-activity-card">
                                 <h3 className="test-activity-title">{activity.title}</h3>
                                 <p className="test-activity-description">{activity.description}</p>
+                                <div style={{paddingBottom:"15px"}}>Remaining Chances: {activity.count}</div>
                                 <div className="test-card-content">
                                     <div className="test-activity-buttons">
-                                        <button 
-                                            onClick={() => activity.count > 0 ? handleStartChallenge(activity.id, 'basic') : null}
-                                            className={activity.count > 0 ? "test-level-button" : "app-btn-disabled"}
-                                            disabled={activity.count === 0}
-                                        >
-                                            Basic Level
-                                        </button>
-                                        {(activity.id === 'jam' || activity.id === 'situational') ? (
+                                        
+                                        {activity.id === 'image-speak' ? (
+                                            <button className="test-level-button-coming-soon" disabled>
+                                                <span>Basic</span>
+                                                <div className="test-level-button-shimmer"></div>
+                                                <span className="test-soon-badge">SOON</span>
+                                            </button>
+                                        ) : (
+                                            <button 
+                                                onClick={() => activity.count > 0 ? handleStartChallenge(activity.id, 'basic') : null}
+                                                className={activity.count > 0 ? "test-level-button" : "app-btn-disabled"}
+                                                disabled={activity.count === 0}
+                                            >
+                                                Basic
+                                            </button>
+                                        )}
+                                        {(activity.id === 'jam' || activity.id === 'situational' || activity.id === 'pronunciation' || activity.id === 'listening') ? (
                                             <>
                                                 <button 
                                                     onClick={() => userType === 'premium' && activity.count > 0 ? handleStartChallenge(activity.id, 'intermediate') : null}
-                                                    className={userType === 'premium' && activity.count > 0 ? "test-level-button" : "test-level-button-coming-soon"}
+                                                    className={userType === 'premium' && activity.count > 0 ? "test-level-button" : "app-btn-disabled"}
                                                     disabled={userType !== 'premium' || activity.count === 0}
                                                 >
-                                                    <span>Intermediate Level</span>
+                                                    <span>Intermediate</span>
                                                     {userType !== 'premium' && (
                                                         <>
                                                             <div className="test-level-button-shimmer"></div>
@@ -509,10 +561,10 @@ const testInstructions = {
                                                 </button>
                                                 <button 
                                                     onClick={() => userType === 'premium' && activity.count > 0 ? handleStartChallenge(activity.id, 'advanced') : null}
-                                                    className={userType === 'premium' && activity.count > 0 ? "test-level-button" : "test-level-button-coming-soon"}
+                                                    className={userType === 'premium' && activity.count > 0 ? "test-level-button" : "app-btn-disabled"}
                                                     disabled={userType !== 'premium' || activity.count === 0}
                                                 >
-                                                    <span>Advanced Level</span>
+                                                    <span>Advanced</span>
                                                     {userType !== 'premium' && (
                                                         <>
                                                             <div className="test-level-button-shimmer delayed"></div>
@@ -524,12 +576,12 @@ const testInstructions = {
                                         ) : (
                                             <>
                                                 <button className="test-level-button-coming-soon" disabled>
-                                                    <span>Intermediate Level</span>
+                                                    <span>Intermediate</span>
                                                     <div className="test-level-button-shimmer"></div>
                                                     <span className="test-soon-badge">SOON</span>
                                                 </button>
                                                 <button className="test-level-button-coming-soon" disabled>
-                                                    <span>Advanced Level</span>
+                                                    <span>Advanced</span>
                                                     <div className="test-level-button-shimmer delayed"></div>
                                                     <span className="test-soon-badge red">SOON</span>
                                                 </button>
@@ -538,9 +590,12 @@ const testInstructions = {
                                     </div>
                                     <div className="test-activity-stats">
                                         <div className="test-activity-stats-text">
-                                            <div>Remaining: {activity.count}</div>
-                                            <div>Avg Score: {loading ? '...' : stats.avgScore}</div>
-                                            <div>Test Count: {loading ? '...' : stats.testCount}</div>
+                                            <div>Basic-Avg Score: {loading ? '...' : stats.avgScore}</div>
+                                            <div>Intermed-Avg Score: {loading ? '...' : getIntermediateStats(activity.id).avgScore}</div>
+                                            <div>Advance-Avg Score: {loading ? '...' : getAdvancedStats(activity.id).avgScore}</div>
+                                            <div>Basic Test Count: {loading ? '...' : stats.testCount}</div>
+                                            <div>Intermed Test Count: {loading ? '...' : getIntermediateStats(activity.id).testCount}</div>
+                                            <div>Advance Test Count: {loading ? '...' : getAdvancedStats(activity.id).testCount}</div>
                                         </div>
                                     </div>
                                 </div>

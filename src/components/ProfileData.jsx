@@ -25,6 +25,18 @@ function ProfileData() {
         const fetchData = async () => {
             try {
                 const storedEmail = localStorage.getItem("email");
+                
+                // Update daily test count
+                await fetch('https://ntjkr8rnd6.execute-api.ap-south-1.amazonaws.com/dev/daily-testcount-update-api', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        body: {
+                            college_email: storedEmail
+                        }
+                    })
+                });
+                
                 const [profileResponse, streakResponse] = await Promise.all([
                     fetch(import.meta.env.VITE_STUDENT_PROFILE_API, {
                         method: 'POST',

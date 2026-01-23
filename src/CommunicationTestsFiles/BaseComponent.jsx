@@ -386,13 +386,17 @@ const BaseComponent = ({
 
     const [activeTab, setActiveTab] = useState(`${testTitle} Dashboard`);
     const [remainingTests, setRemainingTests] = useState(initialRemainingTests);
-    const [testId] = useState(`${testType}-test-${actualTestLevel}-${Math.floor(1000000 + Math.random() * 9000000)}`);
-    const [sessionId] = useState(`${testType}-test-${actualTestLevel}-${Math.floor(1000000 + Math.random() * 9000000)}`);
+    const sessionIdRef = useRef(null);
+    if (!sessionIdRef.current) {
+        sessionIdRef.current = `${testType}-test-${actualTestLevel}-${Math.floor(1000000 + Math.random() * 9000000)}`;
+        console.log('Generated Session ID:', sessionIdRef.current);
+    }
+    const sessionId = sessionIdRef.current;
     const [userEmail] = useState(localStorage.getItem("email"));
     const [chatMessages, setChatMessages] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [recording, setRecording] = useState(false);
-    const [timeLeft, setTimeLeft] = useState(recordingMode === 'short' ? 10 : 30);
+    const [timeLeft, setTimeLeft] = useState(10);
     const [showTestPopup, setShowTestPopup] = useState(false);
     const [theme, setTheme] = useState('light');
     const [userType, setUserType] = useState('free');
@@ -508,6 +512,7 @@ const BaseComponent = ({
                 const data = await response.json();
                 const parsedData = typeof data.body === 'string' ? JSON.parse(data.body) : data.body;
                 setRemainingTests(parsedData.tests?.[`${testType}_test`] || 0);
+                console.log(testType)
             } catch (error) {
                 console.error('Error fetching test counts:', error);
             }
@@ -583,11 +588,11 @@ const BaseComponent = ({
             reader.onloadend = async () => {
                 const base64Audio = reader.result.split(',')[1];
                 
+                console.log('Using sessionId for recording API:', sessionId);
                 const requestBody = {
                     body: JSON.stringify({
                         data: base64Audio,
                         sessionId: sessionId,
-                        testId: testId,
                         testType: testType,
                         testLevel: actualTestLevel
                     })
@@ -603,10 +608,11 @@ const BaseComponent = ({
                 const maxAttempts = 12;
                 const pollTranscript = async () => {
                     try {
+                        console.log('Using sessionId for transcribe API:', sessionId);
                         const response2 = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/studentcommunicationtests_transcribeapi', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ body: { sessionId: sessionId, testId: testId } })
+                            body: JSON.stringify({ body: { sessionId: sessionId } })
                         });
 
                         const data2 = await response2.json();
@@ -654,7 +660,9 @@ const BaseComponent = ({
     // Get recording duration based on test type
     const getRecordingDuration = () => {
         if (testType === 'jam' || testType === 'situation') return 60;
-        if (testType === 'listening' || testType === 'pronunciation') return 10;
+        if (testType === 'listening' || testType === 'pronunciation') {
+            return actualTestLevel === 'advanced' ? 15 : 10;
+        }
         return 30;
     };
 
@@ -692,7 +700,11 @@ const BaseComponent = ({
                     
                     // Wait 2-3 seconds for processing UI
                     setTimeout(async () => {
-                        await sendAudioToLongRecordingAPI(audioBlob);
+                        if (testType === 'pronunciation' || testType === 'listening') {
+                            await sendAudioToDirectAPI(audioBlob);
+                        } else {
+                            await sendAudioToLongRecordingAPI(audioBlob);
+                        }
                         setRecordingState('idle');
                         if (testType === 'jam' || testType === 'situation') {
                             setHasRecorded(true);
@@ -757,7 +769,103 @@ const BaseComponent = ({
             sendMessage(value);
         };
 
-        // Check for yes/no questions
+        // Check for start button
+        if (content.includes("Click 'start'") || content.includes("'start'")) {
+            const parts = content.split("Click 'start'");
+            const startButtonId = `start-${messageIndex}`;
+            
+            return (
+                <div>
+                    <div dangerouslySetInnerHTML={{ __html: formatMessageText(parts[0]) }} />
+                    <div style={{ marginTop: 15, display: 'flex', gap: 10, justifyContent: 'center' }}>
+                        <button 
+                            onClick={() => handleButtonClick('start', startButtonId)}
+                            disabled={clickedButtons.has(startButtonId)}
+                            style={{
+                                background: clickedButtons.has(startButtonId)
+                                    ? 'linear-gradient(135deg, #6c757d 0%, #495057 100%)'
+                                    : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                                color: 'white',
+                                border: 'none',
+                                padding: '12px 24px',
+                                borderRadius: '20px',
+                                fontWeight: '600',
+                                cursor: clickedButtons.has(startButtonId) ? 'not-allowed' : 'pointer',
+                                boxShadow: clickedButtons.has(startButtonId)
+                                    ? 'none' : '0 4px 15px rgba(16, 185, 129, 0.3)',
+                                transition: 'all 0.3s ease',
+                                opacity: clickedButtons.has(startButtonId) ? 0.6 : 1
+                            }}
+                        >
+                            START
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+        
+        // Check for next/done buttons
+        if (content.includes("Click 'next'") || content.includes("'next'") || content.includes("Click 'done'") || content.includes("'done'")) {
+            const hasNext = content.includes("next");
+            const hasDone = content.includes("done");
+            const parts = content.split(/Click '(next|done)'/)[0];
+            const nextButtonId = `next-${messageIndex}`;
+            const doneButtonId = `done-${messageIndex}`;
+            
+            return (
+                <div>
+                    <div dangerouslySetInnerHTML={{ __html: formatMessageText(parts) }} />
+                    <div style={{ marginTop: 15, display: 'flex', gap: 10, justifyContent: 'center' }}>
+                        {hasNext && (
+                            <button 
+                                onClick={() => handleButtonClick('next', nextButtonId)}
+                                disabled={clickedButtons.has(nextButtonId)}
+                                style={{
+                                    background: clickedButtons.has(nextButtonId)
+                                        ? 'linear-gradient(135deg, #6c757d 0%, #495057 100%)'
+                                        : 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                                    color: 'white',
+                                    border: 'none',
+                                    padding: '10px 20px',
+                                    borderRadius: '20px',
+                                    fontWeight: '600',
+                                    cursor: clickedButtons.has(nextButtonId) ? 'not-allowed' : 'pointer',
+                                    boxShadow: clickedButtons.has(nextButtonId)
+                                        ? 'none' : '0 4px 15px rgba(59, 130, 246, 0.3)',
+                                    transition: 'all 0.3s ease',
+                                    opacity: clickedButtons.has(nextButtonId) ? 0.6 : 1
+                                }}
+                            >
+                                NEXT
+                            </button>
+                        )}
+                        {hasDone && (
+                            <button 
+                                onClick={() => handleButtonClick('done', doneButtonId)}
+                                disabled={clickedButtons.has(doneButtonId)}
+                                style={{
+                                    background: clickedButtons.has(doneButtonId)
+                                        ? 'linear-gradient(135deg, #6c757d 0%, #495057 100%)'
+                                        : 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
+                                    color: 'white',
+                                    border: 'none',
+                                    padding: '10px 20px',
+                                    borderRadius: '20px',
+                                    fontWeight: '600',
+                                    cursor: clickedButtons.has(doneButtonId) ? 'not-allowed' : 'pointer',
+                                    boxShadow: clickedButtons.has(doneButtonId)
+                                        ? 'none' : '0 4px 15px rgba(220, 38, 38, 0.3)',
+                                    transition: 'all 0.3s ease',
+                                    opacity: clickedButtons.has(doneButtonId) ? 0.6 : 1
+                                }}
+                            >
+                                DONE
+                            </button>
+                        )}
+                    </div>
+                </div>
+            );
+        }
         if (content.includes("Click 'yes' or 'no'") || content.includes("'yes' or 'no'")) {
             const parts = content.split("Click 'yes' or 'no'.");
             const yesButtonId = `yes-${messageIndex}`;
@@ -877,6 +985,24 @@ const BaseComponent = ({
     // Format message text with proper styling
     const formatMessageText = (text) => {
         return text
+            // Final Assessment headers
+            .replace(/FINAL SPEAKING/g, '<div style="background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%); color: white; padding: 16px 20px; border-radius: 12px; font-weight: 700; font-size: 20px; margin: 15px 0; text-align: center; font-family: Inter, sans-serif; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);">🎤 FINAL SPEAKING</div>')
+            .replace(/OVERALL/g, '<div style="background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; padding: 14px 18px; border-radius: 10px; font-weight: 700; font-size: 16px; margin: 12px 0; font-family: Inter, sans-serif; border-left: 4px solid #059669;">📊 OVERALL</div>')
+            .replace(/COMPREHENSIVE SCORES:/g, '<div style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color: white; padding: 12px 16px; border-radius: 10px; font-weight: 700; margin: 12px 0; font-family: Inter, sans-serif; border-left: 4px solid #dc2626;">📋 COMPREHENSIVE SCORES:</div>')
+            .replace(/DETAILED ANALYSIS:/g, '<div style="background: linear-gradient(135deg, #7c2d12 0%, #92400e 100%); color: white; padding: 12px 16px; border-radius: 10px; font-weight: 700; margin: 12px 0; font-family: Inter, sans-serif; border-left: 4px solid #7c2d12;">🔍 DETAILED ANALYSIS:</div>')
+            .replace(/STRENGTHS IDENTIFIED:/g, '<div style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); color: white; padding: 12px 16px; border-radius: 10px; font-weight: 700; margin: 12px 0; font-family: Inter, sans-serif; border-left: 4px solid #16a34a;">💪 STRENGTHS IDENTIFIED:</div>')
+            .replace(/PROFESSIONAL RECOMMENDATIONS:/g, '<div style="background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%); color: white; padding: 12px 16px; border-radius: 10px; font-weight: 700; margin: 12px 0; font-family: Inter, sans-serif; border-left: 4px solid #1d4ed8;">🎯 PROFESSIONAL RECOMMENDATIONS:</div>')
+            .replace(/(Final Speaking Score:)\s*(\d+\.\d+)\s*\/\s*(\d+\.\d+)/g, '<div style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color: white; padding: 10px 16px; border-radius: 20px; display: inline-block; font-weight: 700; margin: 8px 0; font-family: Inter, sans-serif; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);">🏆 $1 $2/$3</div>')
+            
+            // Pronunciation Test specific headers
+            .replace(/SPEAKING ASSESSMENT - SENTENCE \((\d+\/\d+)\):/g, '<div style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; padding: 16px 20px; border-radius: 12px; font-weight: 700; font-size: 18px; margin: 15px 0; text-align: center; font-family: Inter, sans-serif; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);">🎤 SPEAKING ASSESSMENT - SENTENCE ($1):</div>')
+            .replace(/PRONUNCIATION ANALYSIS REPORT/g, '<div style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); color: white; padding: 16px 20px; border-radius: 12px; font-weight: 700; font-size: 18px; margin: 15px 0; text-align: center; font-family: Inter, sans-serif; box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);">📊 PRONUNCIATION ANALYSIS REPORT</div>')
+            .replace(/YOUR SPEECH:/g, '<div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 12px 16px; border-radius: 10px; font-weight: 700; margin: 12px 0; font-family: Inter, sans-serif; border-left: 4px solid #f59e0b;">🗣️ YOUR SPEECH:</div>')
+            .replace(/ACCURACY ANALYSIS:/g, '<div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 12px 16px; border-radius: 10px; font-weight: 700; margin: 12px 0; font-family: Inter, sans-serif; border-left: 4px solid #10b981;">🎯 ACCURACY ANALYSIS:</div>')
+            .replace(/PERFORMANCE METRICS:/g, '<div style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; padding: 12px 16px; border-radius: 10px; font-weight: 700; margin: 12px 0; font-family: Inter, sans-serif; border-left: 4px solid #3b82f6;">📈 PERFORMANCE METRICS:</div>')
+            .replace(/PRONUNCIATION FOCUS:/g, '<div style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; padding: 12px 16px; border-radius: 10px; font-weight: 700; margin: 12px 0; font-family: Inter, sans-serif; border-left: 4px solid #ef4444;">🎯 PRONUNCIATION FOCUS:</div>')
+            .replace(/(SENTENCE SCORE:)\s*(\d+\.\d+)\s*\/\s*(\d+\.\d+)/g, '<div style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); color: white; padding: 8px 14px; border-radius: 20px; display: inline-block; font-weight: 700; margin: 6px 0; font-family: Inter, sans-serif; box-shadow: 0 3px 10px rgba(255, 152, 0, 0.4);">⭐ $1 $2/$3</div>')
+            
             // Assessment Report Headers
             .replace(/ASSESSMENT REPORT/g, '<div style="background: linear-gradient(135deg, #b4beafff 0%, #b2e357ff 100%); color: black; padding: 16px 20px; border-radius: 12px; font-weight: 700; font-size: 18px; margin: 15px 0; text-align: center; font-family: Inter, sans-serif; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">📊 ASSESSMENT REPORT</div>')
             .replace(/SITUATIONAL ASSESSMENT REPORT/g, '<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 16px 20px; border-radius: 12px; font-weight: 700; font-size: 18px; margin: 15px 0; text-align: center; font-family: Inter, sans-serif; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">📊 SITUATIONAL ASSESSMENT REPORT</div>')
@@ -914,10 +1040,11 @@ const BaseComponent = ({
         setIsLoading(true);
         
         try {
+            console.log('Using sessionId for AI agent:', sessionId);
             const requestBody = {
                 body: {
                     message: message,
-                    sessionId: `${testType}-test-${actualTestLevel.slice(0,2)}-${sessionId.split('-').pop()}`,
+                    sessionId: sessionId,
                     email: userEmail,
                     level: actualTestLevel
                 }
@@ -1205,7 +1332,9 @@ const BaseComponent = ({
                                     </button>
 
                                     <p style={{ color: 'var(--muted)', fontSize: '14px', textAlign: 'center', marginTop: 20 }}>
-                                        {recordingMode === 'long'
+                                        {hasRecorded && (testType === 'jam' || testType === 'situation') ? (
+                                            "⏳ Please wait 10-15 seconds for AI feedback and score"
+                                        ) : recordingMode === 'long'
                                             ? "Click to start/stop recording (one-time recording)"
                                             : `Click to record for ${recordingMode === 'short' ? '10' : '30'} seconds`
                                         }
