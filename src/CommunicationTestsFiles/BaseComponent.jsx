@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import TestCompletionHandler from './TestCompletionHandler';
 
 const styles = `
     .base-root {
@@ -407,6 +408,8 @@ const BaseComponent = ({
     const [hasRecorded, setHasRecorded] = useState(false);
     const [clickedButtons, setClickedButtons] = useState(new Set());
     const [testTimeLeft, setTestTimeLeft] = useState(testDuration);
+    const [finalReport, setFinalReport] = useState(null);
+    const [testCompleted, setTestCompleted] = useState(false);
     const testTimerRef = useRef(null);
     
     const chatRef = useRef(null);
@@ -511,8 +514,11 @@ const BaseComponent = ({
                 });
                 const data = await response.json();
                 const parsedData = typeof data.body === 'string' ? JSON.parse(data.body) : data.body;
-                setRemainingTests(parsedData.tests?.[`${testType}_test`] || 0);
-                console.log(testType)
+                const testKey = testType === 'pronunciation' ? 'pronu_test' : 
+                                testType === 'listening' ? 'listen_test' : 
+                                testType === 'situation' ? 'situation_test' : 
+                                `${testType}_test`;
+                setRemainingTests(parsedData.tests?.[testKey] || 0);
             } catch (error) {
                 console.error('Error fetching test counts:', error);
             }
@@ -752,14 +758,14 @@ const BaseComponent = ({
         setShowEndConfirm(true);
     };
 
-    const confirmEndTest = () => {
-        if (testTimerRef.current) {
-            clearInterval(testTimerRef.current);
-        }
-        setShowCongrats(true);
-        setTimeout(() => {
-            window.location.reload();
-        }, 4000);
+    const handleTestCompletion = (formattedReport, finalScore) => {
+        setFinalReport(formattedReport);
+        setTestCompleted(true);
+        setChatMessages(prev => [...prev, {
+            type: 'ai',
+            content: formattedReport,
+            timestamp: Date.now()
+        }]);
     };
 
     // Format AI message content with proper styling and interactive buttons
@@ -1243,7 +1249,14 @@ const BaseComponent = ({
                                 </h2>
                                 
                                 <div className="base-chat-container" ref={chatRef} style={{ height: '450px' }}>
-                                    {chatMessages.map((msg, index) => (
+                                    <TestCompletionHandler
+                            aiResponse={chatMessages[chatMessages.length - 1]?.content}
+                            sessionId={sessionId}
+                            testType={testType}
+                            testLevel={actualTestLevel}
+                            onComplete={handleTestCompletion}
+                        />
+                        {chatMessages.map((msg, index) => (
                                         <div key={index} className={`base-chat-message ${msg.type}`}>
                                             <div className={`base-message-bubble ${msg.type}`} style={{
                                                 background: msg.type === 'user' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : '#f8f9fa',
@@ -1382,7 +1395,7 @@ const BaseComponent = ({
                     <div className="congrats-content">
                         <div style={{ fontSize: 60, marginBottom: 20 }}>🎉</div>
                         <h2 style={{ color: '#333', marginBottom: 15, fontSize: 28, fontWeight: 700 }}>Congratulations!</h2>
-                        <p style={{ color: '#666', fontSize: 18, marginBottom: 20 }}>You have successfully completed the {testTitle} - {actualTestLevel} Level</p>
+                        <p style={{ color: '#666', fontSize: 18, marginBottom: 20 }}>You have successfully completed the <br></br>{testTitle} - {actualTestLevel} Level</p>
                         <div style={{ color: '#667eea', fontSize: 16, fontWeight: 600 }}>Redirecting in a moment...</div>
                     </div>
                 </div>
