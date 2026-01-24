@@ -1,10 +1,10 @@
 import React from 'react';
-import BaseComponent from './BaseComponent';
+import BaseComponent2 from './BaseComponent2';
 
 export default function Listening() {
     return (
-        <BaseComponent
-            testType="listen"
+        <BaseComponent2
+            testType="listening"
             testTitle="Listening Test"
             testDescription="Test your listening skills by listen and speaking of 5 sentences"
             testLevel="basic"

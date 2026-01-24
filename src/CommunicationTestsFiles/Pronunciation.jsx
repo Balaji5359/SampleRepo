@@ -1,9 +1,9 @@
 import React from 'react';
-import BaseComponent from './BaseComponent';
+import BaseComponent2 from './BaseComponent2';
 
 export default function Pronunciation() {
     return (
-        <BaseComponent
+        <BaseComponent2
             testType="pronunciation"
             testTitle="Pronunciation Test"
             testDescription="Test your pronunciation accuracy with 5 sentences"
