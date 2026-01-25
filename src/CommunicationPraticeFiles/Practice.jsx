@@ -5,10 +5,13 @@ import "./practice-styles.css";
 import Header from '../components/Header';
 
 function Practice() {
+    const [practices, setPractices] = useState({});
     const [loading, setLoading] = useState(true);
     const [activeChallenge, setActiveChallenge] = useState(null);
+    const [selectedLevel, setSelectedLevel] = useState('basic');
     const [instructionIndex, setInstructionIndex] = useState(0);
     const [userName, setUserName] = useState("");
+    const [apiData, setApiData] = useState({});
     const [userType, setUserType] = useState('free');
     const [streakData, setStreakData] = useState({ current_streak: 0 });
     const navigate = useNavigate();
@@ -20,6 +23,7 @@ function Practice() {
             return;
         }  
         
+        // Fetch user profile and practice data
         Promise.all([
             fetch('https://ntjkr8rnd6.execute-api.ap-south-1.amazonaws.com/dev/student_profilecreate/student_profile_senddata', {
                 method: 'POST',
@@ -35,14 +39,21 @@ function Practice() {
                         get_streak_data: true
                     })
                 })
+            }),
+            fetch('https://piw6c7f4sf.execute-api.ap-south-1.amazonaws.com/dev/comm-practice-send-results', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ college_email: storedEmail })
             })
         ])
-        .then(async ([profileResponse, streakResponse]) => {
+        .then(async ([profileResponse, streakResponse, dashboardResponse]) => {
             const profileData = await profileResponse.json();
             const streakDataResult = await streakResponse.json();
+            const dashboardData = await dashboardResponse.json();
             
             if (profileData?.body) {
                 const parsedProfileData = typeof profileData.body === "string" ? JSON.parse(profileData.body) : profileData.body;
+                setPractices(parsedProfileData.practices || {});
                 setUserType(parsedProfileData.user_type === 'premium' && parsedProfileData.premium_status === 'active' ? 'premium' : 'free');
             }
             
@@ -51,122 +62,284 @@ function Practice() {
                 setStreakData(parsedStreakData);
             }
             
+            if (dashboardData?.body) {
+                const parsedDashboardData = JSON.parse(dashboardData.body).dashboard;
+                setApiData(parsedDashboardData);
+            }
+            
             setLoading(false);
         })
         .catch(() => setLoading(false));
     }, []);
 
-    const getScoreFromStorage = (testType) => {
-        const scores = JSON.parse(localStorage.getItem('testScores') || '{}');
-        return scores[testType] || 0;
-    };
 
-    const isInterviewLevelUnlocked = (level) => {
-        if (level === 1) return true;
-        const prevLevel = level - 1;
-        const prevScore = getScoreFromStorage(`interview_level_${prevLevel}`);
-        return prevScore >= 70;
-    };
-
-    const interviewLevels = [
-        {
-            level: 1,
-            title: 'Basic Interview Practice',
-            steps: [
-                { id: 1, title: 'JD-Based Self Introduction', activities: '' },
-                { id: 2, title: 'Programming Knowledge', activities: '' },
-                { id: 3, title: 'Worked Domain', activities: '' },
-                { id: 4, title: 'Project Discussion', activities: '' },
-                { id: 5, title: 'Future Career Planning', activities: '' },
-                { id: 6, title: 'Hobbies & Interests', activities: '' },
-                { id: 7, title: 'Certifications & Internships', activities: '' }
-            ]
-        },
-        {
-            level: 2,
-            title: 'Advanced Interview Practice',
-            steps: [
-                { id: 8, title: 'Role-Based Interview', activities: '' },
-                { id: 9, title: 'Resume-Based Interview', activities: '' },
-                { id: 10, title: 'Technical Interview', activities: '' },
-                { id: 11, title: 'Follow-Up Questioning', activities: '' },
-                { id: 12, title: 'Stress/Pressure Questions', activities: '' },
-                { id: 13, title: 'Logical Puzzles', activities: '' }
-            ]
+    const getPracticeStats = (activityId) => {
+        const practiceMap = {
+            'jam_practice': 'jam_practice',
+            'pronu_practice': 'pronu_practice', 
+            'listen_practice': 'listen_practice',
+            'situation_practice': 'situation_practice',
+            'image_speak_practice': 'image_speak_practice'
+        };
+        
+        const practiceData = apiData[practiceMap[activityId]];
+        if (!practiceData || !practiceData.levels) {
+            return { avgScore: '0', practiceCount: 0 };
         }
-    ];
+
+        const basicLevel = practiceData.levels.basic || { avgScore: 0, attempts: 0 };
+        return {
+            avgScore: basicLevel.avgScore?.toFixed(1) || '0',
+            practiceCount: basicLevel.attempts || 0
+        };
+    };
+
+    const getIntermediateStats = (activityId) => {
+        const practiceMap = {
+            'jam_practice': 'jam_practice',
+            'pronu_practice': 'pronu_practice', 
+            'listen_practice': 'listen_practice',
+            'situation_practice': 'situation_practice',
+            'image_speak_practice': 'image_speak_practice'
+        };
+        
+        const practiceData = apiData[practiceMap[activityId]];
+        if (!practiceData || !practiceData.levels) {
+            return { avgScore: '0', practiceCount: 0 };
+        }
+
+        const intermediateLevel = practiceData.levels.intermediate || { avgScore: 0, attempts: 0 };
+        return {
+            avgScore: intermediateLevel.avgScore?.toFixed(1) || '0',
+            practiceCount: intermediateLevel.attempts || 0
+        };
+    };
+
+    const getAdvancedStats = (activityId) => {
+        const practiceMap = {
+            'jam_practice': 'jam_practice',
+            'pronu_practice': 'pronu_practice', 
+            'listen_practice': 'listen_practice',
+            'situation_practice': 'situation_practice',
+            'image_speak_practice': 'image_speak_practice'
+        };
+        
+        const practiceData = apiData[practiceMap[activityId]];
+        if (!practiceData || !practiceData.levels) {
+            return { avgScore: '0', practiceCount: 0 };
+        }
+
+        const advancedLevel = practiceData.levels.advanced || { avgScore: 0, attempts: 0 };
+        return {
+            avgScore: advancedLevel.avgScore?.toFixed(1) || '0',
+            practiceCount: advancedLevel.attempts || 0
+        };
+    };
 
     const activities = [
         {
-            id: 'jam',
-            title: 'JAM Sessions Practice',
+            id: 'jam_practice',
+            title: 'JAM Practice',
             description: 'JAM speaking sessions to improve spontaneous communication',
-            route: '/test/jam'
+            count: practices.jam_practice || 0
         },
         {
-            id: 'pronunciation',
+            id: 'pronu_practice',
             title: 'Pronunciation Practice',
             description: 'Perfect your pronunciation with AI-powered feedback',
-            route: '/test/pronunciation'
+            count: practices.pronu_practice || 0
         },
         {
-            id: 'listening',
+            id: 'listen_practice',
             title: 'Listening Practice',
             description: 'Enhance comprehension with interactive listening exercises',
-            route: '/test/listening'
+            count: practices.listen_practice || 0
         },
         {
-            id: 'situational',
-            title: 'Situational Speaking Practice',
+            id: 'situation_practice',
+            title: 'Situational Speaking',
             description: 'Practice real-life scenarios to build confidence',
-            route: '/test/situation-speak'
+            count: practices.situation_practice || 0
         },
         {
-            id: 'image-speak',
-            title: 'Image-Based Speaking Practice',
+            id: 'image_speak_practice',
+            title: 'Image-Based Speaking',
             description: 'Describe images to enhance vocabulary and fluency',
-            route: '/test/image-speak'
+            count: practices.image_speak_practice || 0
         }
     ];
 
-    const instructions = {
-        jam: [
-            { title: "Instructions", content: "You've been given a random topic! You will have 1 minute to speak. Focus on fluency, clarity, and confidence." },
-            { title: "Fluency", content: "Maintain a smooth and uninterrupted flow of speech." },
-            { title: "Grammar", content: "Use correct sentence structures and grammatical conventions." },
-            { title: "Confidence", content: "Speak with assurance and composure." },
-            { title: "How to Practice", content: <iframe width="100%" height="250" src="https://www.youtube.com/embed/ReZgqLI3Hq0" title="JAM Practice" frameBorder="0" allowFullScreen></iframe> }
+    const practiceInstructions = {
+        jam_practice: [
+            {
+                title: "Instructions for JAM Practice",
+                content: (
+                    <strong>
+                    - You will be given a <b>random topic</b> by <b style={{ fontFamily: "Arial", fontSize: "22px" }}>Tara AI</b>.<br />
+                    - You will have <b>1 minute</b> to speak continuously.<br />
+                    - Focus on <b>content relevance, clarity, fluency, confidence</b>.
+                    </strong>
+                )
+            },
+            {
+                title: "Microphone Rules",
+                content: (
+                    <strong>
+                    - Microphone access is provided continuously.<br />
+                    - Take a few seconds to think before you start speaking.
+                    </strong>
+                )
+            },
+            {
+                title: "Grammar & Vocabulary",
+                content: (
+                    <strong>
+                    - Use correct sentence structures.<br />
+                    - Avoid fillers like <i>um, uh, so</i>.<br />
+                    - <b style={{ fontSize: "21px" }}>Tara AI</b> rewards strong grammar and vocabulary with higher scores.
+                    </strong>
+                )
+            },
+            {
+                title: "Confidence & Delivery",
+                content: (
+                    <strong>
+                    - Speak clearly with a steady pace.<br />
+                    - Sit in a quiet place and speak confidently with <b>Tara AI</b>.
+                    </strong>
+                )
+            }
         ],
-        pronunciation: [
-            { title: "Instructions", content: "Improve your pronunciation by practicing words and sentences. Focus on clarity and accuracy." },
-            { title: "Clarity", content: "Speak clearly, enunciating each sound." },
-            { title: "Accuracy", content: "Pronounce words correctly." },
-            { title: "How to Practice", content: <iframe width="100%" height="250" src="https://www.youtube.com/embed/ReZgqLI3Hq0" title="Pronunciation Practice" frameBorder="0" allowFullScreen></iframe> }
+
+        pronu_practice: [
+            {
+                title: "Pronunciation Practice Overview",
+                content: (
+                    <strong>
+                    - You will be given <b>words or sentences</b> to pronounce.<br />
+                    - Focus on <b>clarity, accuracy, and correct sounds</b>.
+                    </strong>
+                )
+            },
+            {
+                title: "Clarity & Articulation",
+                content: (
+                    <strong>
+                    - Pronounce each sound clearly.<br />
+                    - Avoid rushing through words.
+                    </strong>
+                )
+            },
+            {
+                title: "Accuracy Matters",
+                content: (
+                    <strong>
+                    - Incorrect pronunciation affects your score.<br />
+                    - <b style={{ fontSize: "21px" }}>Tara AI</b> analyzes sound accuracy precisely.
+                    </strong>
+                )
+            }
         ],
-        listening: [
-            { title: "Instructions", content: "Enhance your listening comprehension with interactive exercises." },
-            { title: "Focus", content: "Listen carefully to audio clips and answer questions." },
-            { title: "How to Practice", content: <iframe width="100%" height="250" src="https://www.youtube.com/embed/ReZgqLI3Hq0" title="Listening Practice" frameBorder="0" allowFullScreen></iframe> }
+
+        listen_practice: [
+            {
+                title: "Listening Practice Instructions",
+                content: (
+                    <strong>
+                    - You will hear <b>audio clips</b> carefully curated by <b>Tara AI</b>.<br />
+                    - Listen attentively before responding.
+                    </strong>
+                )
+            },
+            {
+                title: "Focus & Attention",
+                content: (
+                    <strong>
+                    - Use headphones for better clarity.<br />
+                    - Avoid distractions while listening.
+                    </strong>
+                )
+            },
+            {
+                title: "Response Carefully",
+                content: (
+                    <strong>
+                    - Respond based on <b>details and understanding</b>.<br />
+                    - Tara AI evaluates comprehension accuracy.
+                    </strong>
+                )
+            }
         ],
-        situational: [
-            { title: "Instructions", content: "Respond to real-life situations with appropriate communication." },
-            { title: "Context", content: "Analyze the situation and respond appropriately." },
-            { title: "How to Practice", content: <iframe width="100%" height="250" src="https://www.youtube.com/embed/ReZgqLI3Hq0" title="Situational Practice" frameBorder="0" allowFullScreen></iframe> }
+
+        situation_practice: [
+            {
+                title: "Situational Speaking Overview",
+                content: (
+                    <strong>
+                    - You will be given a <b>real-life situation</b>.<br />
+                    - Respond as you would in an interview or workplace.
+                    </strong>
+                )
+            },
+            {
+                title: "Think Before You Speak",
+                content: (
+                    <strong>
+                    - Analyze the problem logically.<br />
+                    - Structure your response clearly.
+                    </strong>
+                )
+            },
+            {
+                title: "Professional Communication",
+                content: (
+                    <strong>
+                    - Maintain a professional tone.<br />
+                    - <b style={{ fontSize: "21px" }}>Tara AI</b> evaluates reasoning, clarity, and confidence.
+                    </strong>
+                )
+            }
         ],
-        "image-speak": [
-            { title: "Instructions", content: "Describe the given image in detail." },
-            { title: "Observation", content: "Note key elements in the image." },
-            { title: "How to Practice", content: <iframe width="100%" height="250" src="https://www.youtube.com/embed/ReZgqLI3Hq0" title="Image Speaking Practice" frameBorder="0" allowFullScreen></iframe> }
+
+        image_speak_practice: [
+            {
+                title: "Image Speaking Instructions",
+                content: (
+                    <strong>
+                    - You will be shown an <b>image</b>.<br />
+                    - Describe what you observe clearly and confidently.
+                    </strong>
+                )
+            },
+            {
+                title: "Observation Skills",
+                content: (
+                    <strong>
+                    - Focus on key elements in the image.<br />
+                    - Organize your description logically.
+                    </strong>
+                )
+            },
+            {
+                title: "Fluency & Structure",
+                content: (
+                    <strong>
+                    - Avoid long pauses.<br />
+                    - Tara AI evaluates clarity, structure, and fluency.
+                    </strong>
+                )
+            }
         ]
     };
 
-    const handleStartChallenge = (id) => {
+    const handleStartChallenge = (id, level = 'basic') => {
         setActiveChallenge(id);
+        setSelectedLevel(level);
         setInstructionIndex(0);
     };
 
     const handleNext = () => {
-        const currentInstructions = instructions[activeChallenge];
+        const currentInstructions = practiceInstructions[activeChallenge];
         if (instructionIndex < currentInstructions.length - 1) {
             setInstructionIndex(instructionIndex + 1);
         }
@@ -180,11 +353,20 @@ function Practice() {
 
     const handleLaunchChallenge = () => {
         const activity = activities.find(a => a.id === activeChallenge);
-        if (activity?.route) {
-            navigate(activity.route, {
+        if (activity) {
+            const routeMap = {
+                'jam_practice': 'jam',
+                'pronu_practice': 'pronunciation',
+                'listen_practice': 'listening',
+                'situation_practice': 'situation',
+                'image_speak_practice': 'image-speak'
+            };
+
+            navigate(`/practice/${routeMap[activeChallenge]}`, {
                 state: {
-                    remainingTests: activity.count || 0,
-                    testKey: activeChallenge
+                    remainingPractices: activity.count || 0,
+                    practiceType: activeChallenge,
+                    practiceLevel: selectedLevel
                 }
             });
         }
@@ -192,114 +374,119 @@ function Practice() {
 
     if (loading) {
         return (
-            <div className="loading-container free-bg">
-                <div className="loading-spinner"></div>
-                <p>Loading tests...</p>
+            <div className="app-loading-container app-bg-free">
+                <div className="app-loading-spinner"></div>
+                <p>Loading practices...</p>
             </div>
         );
     }
 
     return (
-        <div className="practice-container">
+        <div className="practice-container app-bg-free">
             <Header />
-
-            <div className="practice-content">
+            <div className="practice-div">
                 <center>
-                    <h1 className="practice-title">Communication Practice Activities</h1>
+                    <h2 className="practice-title">Practice and Improve Your Communication & Interview Skills<br></br>with TaraAI... now</h2>
+                    <p className="test-activity-des">Practice your communication skills through guided speaking, listening, pronunciation, and real-life scenario exercises. <br></br>TaraAI helps you improve step by step with smart feedback and progress tracking.</p>
+                    <div className="practice-announcement-banner">
+                        <span className="practice-announcement-text">
+                            Intermediate and Advanced levels will be unlocked based on your average score from the latest 10 practices
+                        </span>
+                        <span className="practice-coming-soon-badge">will be be activated soon</span>
+                    </div><br></br>
+                    <div className="practice-announcement-banner delayed">
+                        <span className="practice-announcement-text">Image Based Speaking</span>
+                        <span className="practice-coming-soon-badge">Coming Soon</span>
+                    </div><br></br>
+                    <div className="practice-announcement-banner delayed">
+                        <span className="practice-announcement-text">Interview Module</span>
+                        <span className="practice-coming-soon-badge">Coming Soon</span>
+                    </div>
                 </center>
 
-                <div className={`practice-grid ${activeChallenge ? 'blurred' : ''}`}>
-                    {activities.map((activity) => (
-                        <div key={activity.id} className="practice-card">
-                            <h3 className="practice-card-title">{activity.title}</h3>
-                            <p className="practice-card-description">{activity.description}</p>
-                            <div className="practice-card-actions">
-                                <button className="practice-upcoming-button">
-                                    Up Coming in future
-                                </button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
-                <div className={`practice-interview-section ${activeChallenge ? 'blurred' : ''}`}>
-                    {interviewLevels.map((level, levelIndex) => {
-                        const unlocked = isInterviewLevelUnlocked(level.level);
-                        
+                <div className={`practice-activity-grid ${activeChallenge ? 'blurred' : ''}`}>
+                    {activities.map((activity) => {
+                        const stats = getPracticeStats(activity.id);
                         return (
-                            <div key={level.level} className="practice-interview-level">
-                                <h1 className="practice-interview-title">{level.title}</h1>
-                                
-                                <div className="roadmap-row">
-                                    {level.steps.map((step, stepIndex) => {
-                                        const stepUnlocked = unlocked && (stepIndex === 0 || getScoreFromStorage(`interview_step_${step.id - 1}`) >= 70);
-                                        
-                                        return (
-                                            <React.Fragment key={step.id}>
-                                                <div className={`roadmap-step ${stepUnlocked ? 'unlocked' : 'locked'}`}>
-                                                    <div className={`step-number ${stepUnlocked ? 'unlocked' : 'locked'}`}>
-                                                        {stepUnlocked ? step.id : '🔒'}
-                                                    </div>
-                                                    <div className="step-content">
-                                                        <h4 className={stepUnlocked ? 'unlocked' : 'locked'}>
-                                                            {step.title}
-                                                        </h4>
-                                                        <p className={stepUnlocked ? 'unlocked' : 'locked'}>
-                                                            {step.activities}
-                                                        </p>
-                                                    </div>
-                                                    {stepUnlocked && (
-                                                        <button className="step-start-button">
-                                                            START STEP
-                                                        </button>
-                                                    )}
-                                                </div>
-                                                {stepIndex < level.steps.length - 1 && (
-                                                    <div className="roadmap-connector horizontal"></div>
-                                                )}
-                                            </React.Fragment>
-                                        );
-                                    })}
+                            <div key={activity.id} className="practice-activity-card">
+                                <h3 className="practice-activity-title">{activity.title}</h3>
+                                <p className="practice-activity-description">{activity.description}</p>
+                                <div style={{paddingBottom:"15px"}}>Remaining Practices: {activity.count}</div>
+                                <div className="practice-card-content">
+                                    <div className="practice-activity-buttons">
+                                        <button 
+                                            onClick={() => activity.count > 0 ? handleStartChallenge(activity.id, 'basic') : null}
+                                            className={activity.count > 0 ? "practice-level-button" : "app-btn-disabled"}
+                                            disabled={activity.count === 0}
+                                        >
+                                            Basic
+                                        </button>
+
+                                        <button 
+                                            onClick={() => userType === 'premium' && activity.count > 0 ? handleStartChallenge(activity.id, 'intermediate') : null}
+                                            className={userType === 'premium' && activity.count > 0 ? "practice-level-button" : "app-btn-disabled"}
+                                            disabled={userType !== 'premium' || activity.count === 0}
+                                        >
+                                            <span>Intermediate</span>
+                                            {userType !== 'premium' && (
+                                                <>
+                                                    <div className="practice-level-button-shimmer"></div>
+                                                    <span className="practice-soon-badge">PREMIUM</span>
+                                                </>
+                                            )}
+                                        </button>
+
+                                        <button 
+                                            onClick={() => userType === 'premium' && activity.count > 0 ? handleStartChallenge(activity.id, 'advanced') : null}
+                                            className={userType === 'premium' && activity.count > 0 ? "practice-level-button" : "app-btn-disabled"}
+                                            disabled={userType !== 'premium' || activity.count === 0}
+                                        >
+                                            <span>Advanced</span>
+                                            {userType !== 'premium' && (
+                                                <>
+                                                    <div className="practice-level-button-shimmer delayed"></div>
+                                                    <span className="practice-soon-badge red">PREMIUM</span>
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
+                                    <div className="practice-activity-stats">
+                                        <div className="practice-activity-stats-text">
+                                            <div>Basic-Avg Score: {loading ? '...' : stats.avgScore}</div>
+                                            <div>Intermed-Avg Score: {loading ? '...' : getIntermediateStats(activity.id).avgScore}</div>
+                                            <div>Advance-Avg Score: {loading ? '...' : getAdvancedStats(activity.id).avgScore}</div>
+                                            <div>Basic Practice Count: {loading ? '...' : stats.practiceCount}</div>
+                                            <div>Intermed Practice Count: {loading ? '...' : getIntermediateStats(activity.id).practiceCount}</div>
+                                            <div>Advance Practice Count: {loading ? '...' : getAdvancedStats(activity.id).practiceCount}</div>
+                                        </div>
+                                    </div>
                                 </div>
-                                
-                                {levelIndex < interviewLevels.length - 1 && (
-                                    <div className="roadmap-connector vertical-center"></div>
-                                )}
                             </div>
                         );
                     })}
-                    
-                    <div className="progress-section">
-                        <div className="progress-card">
-                            <div className="progress-bar">
-                                <div className="progress-fill"></div>
-                            </div>
-                            <div className="progress-text">Complete Your Interview Journey</div>
-                        </div>
-                    </div>
                 </div>
 
                 {activeChallenge && (
-                    <div className="modal-overlay">
+                    <div className="app-modal-overlay">
                         <div className="practice-modal">
                             <button 
                                 onClick={() => setActiveChallenge(null)}
-                                className="modal-close"
+                                className="app-modal-close"
                             >
                                 ×
                             </button>
                             
                             <h2 className="practice-modal-title">
-                                {instructions[activeChallenge]?.[instructionIndex]?.title}
+                                {practiceInstructions[activeChallenge]?.[instructionIndex]?.title}
                             </h2>
                             
                             <div className="practice-modal-content">
-                                {typeof instructions[activeChallenge]?.[instructionIndex]?.content === 'string' ? (
+                                {typeof practiceInstructions[activeChallenge]?.[instructionIndex]?.content === 'string' ? (
                                     <p className="practice-modal-text">
-                                        {instructions[activeChallenge][instructionIndex].content}
+                                        {practiceInstructions[activeChallenge][instructionIndex].content}
                                     </p>
                                 ) : (
-                                    instructions[activeChallenge]?.[instructionIndex]?.content
+                                    practiceInstructions[activeChallenge]?.[instructionIndex]?.content
                                 )}
                             </div>
                             
@@ -307,24 +494,24 @@ function Practice() {
                                 {instructionIndex > 0 && (
                                     <button 
                                         onClick={handlePrev}
-                                        className="btn-secondary"
+                                        className="app-btn-secondary"
                                     >
                                         ← Previous
                                     </button>
                                 )}
                                 
                                 <div className="practice-modal-nav">
-                                    {instructionIndex < instructions[activeChallenge]?.length - 1 ? (
+                                    {instructionIndex < practiceInstructions[activeChallenge]?.length - 1 ? (
                                         <>
                                             <button 
                                                 onClick={handleNext}
-                                                className="btn-primary"
+                                                className="app-btn-primary"
                                             >
                                                 Next →
                                             </button>
                                             <button 
-                                                onClick={() => setInstructionIndex(instructions[activeChallenge].length - 1)}
-                                                className="btn-success"
+                                                onClick={() => setInstructionIndex(practiceInstructions[activeChallenge].length - 1)}
+                                                className="app-btn-success"
                                             >
                                                 Skip
                                             </button>
@@ -332,9 +519,9 @@ function Practice() {
                                     ) : (
                                         <button 
                                             onClick={handleLaunchChallenge}
-                                            className="btn-danger"
+                                            className="app-btn-danger"
                                         >
-                                            START TEST
+                                            START PRACTICE
                                         </button>
                                     )}
                                 </div>

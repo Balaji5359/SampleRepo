@@ -1,0 +1,413 @@
+/* ============================================
+   UNIFIED THEME STYLES FOR PRACTICE MODULE
+   Dark, Light, Premium Themes
+   ============================================ */
+
+:root {
+    /* Default Dark Theme Variables */
+    --theme-bg: linear-gradient(180deg, #0f172a 0%, #071129 100%);
+    --theme-card-bg: rgba(255,255,255,0.04);
+    --theme-text: #e6eef8;
+    --theme-muted: rgba(255,255,255,0.75);
+    --theme-border: rgba(255,255,255,0.1);
+    --theme-accent: #3B9797;
+    --theme-accent-dark: #2c7a7a;
+    --theme-success: #10b981;
+    --theme-warning: #fbbf24;
+    --theme-danger: #ff6b6b;
+    --theme-info: #3b82f6;
+    --theme-purple: #a855f7;
+    
+    /* Shadows */
+    --theme-shadow-sm: 0 4px 12px rgba(59, 151, 151, 0.2);
+    --theme-shadow-md: 0 8px 25px rgba(59, 151, 151, 0.3);
+    --theme-shadow-lg: 0 15px 40px rgba(59, 151, 151, 0.4);
+    
+    /* Spacing */
+    --spacing: 8px;
+}
+
+/* ============================================
+   LIGHT THEME
+   ============================================ */
+
+body.theme-light {
+    --theme-bg: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+    --theme-card-bg: #ffffff;
+    --theme-text: #0b1220;
+    --theme-muted: #6b7280;
+    --theme-border: #e5e7eb;
+    --theme-accent: #0ea5a4;
+    --theme-accent-dark: #0d9488;
+    --theme-success: #059669;
+    --theme-warning: #d97706;
+    --theme-danger: #dc2626;
+    --theme-info: #0284c7;
+    --theme-purple: #7c3aed;
+    
+    --theme-shadow-sm: 0 4px 12px rgba(14, 165, 164, 0.15);
+    --theme-shadow-md: 0 8px 25px rgba(14, 165, 164, 0.25);
+    --theme-shadow-lg: 0 15px 40px rgba(14, 165, 164, 0.35);
+}
+
+/* ============================================
+   PREMIUM THEME
+   ============================================ */
+
+body.theme-premium {
+    --theme-bg: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    --theme-card-bg: linear-gradient(135deg, rgba(125, 211, 211, 0.15) 0%, rgba(52, 211, 153, 0.1) 100%);
+    --theme-text: #e6f7f7;
+    --theme-muted: rgba(255,255,255,0.85);
+    --theme-border: rgba(125, 211, 211, 0.3);
+    --theme-accent: #7dd3d3;
+    --theme-accent-dark: #5bbbb8;
+    --theme-success: #34d399;
+    --theme-warning: #fbbf24;
+    --theme-danger: #f87171;
+    --theme-info: #60a5fa;
+    --theme-purple: #d8b4fe;
+    
+    --theme-shadow-sm: 0 4px 12px rgba(125, 211, 211, 0.25);
+    --theme-shadow-md: 0 8px 25px rgba(125, 211, 211, 0.35);
+    --theme-shadow-lg: 0 15px 40px rgba(125, 211, 211, 0.45);
+}
+
+/* ============================================
+   UNIVERSAL COMPONENT STYLES
+   ============================================ */
+
+.practice-root,
+.practice-dashboard-root,
+.practice-feedback-root {
+    background: var(--theme-bg);
+    color: var(--theme-text);
+    transition: all 300ms ease;
+}
+
+/* Cards */
+.card,
+.metric-card,
+.analytics-card,
+.insight-card,
+.feedback-card,
+.test-list-panel,
+.trend-section {
+    background: var(--theme-card-bg);
+    border: 1px solid var(--theme-border);
+    border-radius: 12px;
+    transition: all 300ms ease;
+}
+
+.card:hover,
+.metric-card:hover,
+.analytics-card:hover,
+.insight-card:hover,
+.feedback-card:hover {
+    border-color: var(--theme-accent);
+    box-shadow: var(--theme-shadow-lg);
+}
+
+/* Buttons */
+.btn-primary,
+.practice-start-btn,
+.cta-button.primary {
+    background: linear-gradient(135deg, var(--theme-accent) 0%, var(--theme-accent-dark) 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 24px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 300ms ease;
+    box-shadow: var(--theme-shadow-md);
+}
+
+.btn-primary:hover,
+.practice-start-btn:hover,
+.cta-button.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--theme-shadow-lg);
+}
+
+.btn-secondary {
+    background: var(--theme-card-bg);
+    color: var(--theme-text);
+    border: 1px solid var(--theme-border);
+    border-radius: 12px;
+    padding: 12px 24px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 300ms ease;
+}
+
+.btn-secondary:hover {
+    border-color: var(--theme-accent);
+    background: linear-gradient(135deg, rgba(59, 151, 151, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, var(--theme-danger) 0%, #ee5a52 100%);
+    color: white;
+    border: none;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, var(--theme-success) 0%, #059669 100%);
+    color: white;
+    border: none;
+}
+
+/* Text Styles */
+.text-primary {
+    color: var(--theme-accent);
+}
+
+.text-muted {
+    color: var(--theme-muted);
+}
+
+.text-success {
+    color: var(--theme-success);
+}
+
+.text-danger {
+    color: var(--theme-danger);
+}
+
+.text-info {
+    color: var(--theme-info);
+}
+
+/* Badges */
+.badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.badge-success {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--theme-success);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.badge-warning {
+    background: rgba(251, 191, 36, 0.15);
+    color: var(--theme-warning);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.badge-danger {
+    background: rgba(255, 107, 107, 0.15);
+    color: var(--theme-danger);
+    border: 1px solid rgba(255, 107, 107, 0.3);
+}
+
+.badge-info {
+    background: rgba(59, 130, 246, 0.15);
+    color: var(--theme-info);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+/* Progress Bars */
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--theme-accent) 0%, var(--theme-success) 100%);
+    border-radius: 4px;
+    transition: width 400ms ease;
+}
+
+/* Input & Select */
+input,
+select,
+textarea {
+    background: var(--theme-card-bg);
+    color: var(--theme-text);
+    border: 1px solid var(--theme-border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-family: inherit;
+    transition: all 300ms ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--theme-accent);
+    box-shadow: 0 0 0 3px rgba(59, 151, 151, 0.1);
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(59, 151, 151, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, var(--theme-accent) 0%, var(--theme-accent-dark) 100%);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, var(--theme-accent-dark) 0%, var(--theme-accent) 100%);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+@keyframes glow {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(59, 151, 151, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(59, 151, 151, 0.5);
+    }
+}
+
+/* ============================================
+   RESPONSIVE DESIGN & ANIMATIONS
+   ============================================ */
+
+@media (max-width: 1024px) {
+    :root {
+        --spacing: 6px;
+    }
+    
+    .remaining-practices-section {
+        min-width: 260px;
+    }
+    
+    .remaining-practices-number {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    :root {
+        --spacing: 4px;
+    }
+    
+    .practice-dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-lg);
+    }
+    
+    .remaining-practices-section {
+        width: 100%;
+        justify-content: space-between;
+        min-width: unset;
+    }
+    
+    .remaining-practices-number {
+        font-size: 1.8rem;
+    }
+    
+    .remaining-practices-total {
+        font-size: 1rem;
+    }
+}
+
+/* ============================================
+   ADDITIONAL ANIMATIONS
+   ============================================ */
+
+@keyframes slideInNumber {
+    from {
+        opacity: 0;
+        transform: translateX(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes pulse-bg {
+    0%, 100% { 
+        transform: scale(1);
+        opacity: 0.8;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.6;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

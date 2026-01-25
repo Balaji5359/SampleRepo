@@ -47,7 +47,7 @@
 
 .nav-links {
   display: flex;
-  gap: 2rem;
+  gap: 3rem;
   margin-left: 3rem;
   height: 100%;
   align-items: center;
@@ -55,7 +55,7 @@
 
 .nav-links a {
   text-decoration: none;
-  color: #000000;
+  color: #064541;
   font-weight: 500;
   font-size: 1rem;
   transition: all 0.3s ease;
@@ -65,15 +65,14 @@
 }
 
 .nav-links a:hover {
-  color: #3B9797;
+  color: #191a1a;
 }
 
 .nav-links .active-nav {
   color: #3B9797 !important;
-  font-weight: 600 !important;
-  text-decoration: none !important;
-  padding-bottom: 6px !important;
-  border-bottom: 2.5px solid #3B9797 !important;
+  font-weight: 800 !important;
+  padding-bottom: 2px !important;
+  font-size: large;
   cursor: pointer !important;
 }
 
@@ -88,7 +87,7 @@
   font-weight: 600;
   background: linear-gradient(135deg, #3B9797, #2c7a7a);
   color: white;
-  padding: 8px 16px;
+  padding: 16px 2px;
   border-radius: 20px;
   font-size: 0.9rem;
   line-height: 1;
@@ -99,7 +98,7 @@
 
 .user-type-badge {
   font-weight: 600;
-  padding: 8px 16px;
+  padding: 16px 16px;
   border-radius: 20px;
   font-size: 0.9rem;
   border: 2px solid;
@@ -125,7 +124,7 @@
   color: #2c3e50;
   font-weight: 600;
   background: #f8f9fa;
-  padding: 8px 16px;
+  padding: 16px 16px;
   border-radius: 20px;
   border: 2px solid #3B9797;
   font-size: 0.9rem;
@@ -139,7 +138,7 @@
   background: #3B9797;
   color: white;
   border: none;
-  padding: 0.75rem 1.5rem;
+  padding: 1rem 1.5rem;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
@@ -152,7 +151,8 @@
 
 .btn-signup:hover {
   transform: translateY(-2px);
-  background: #2d6a6a;
+  background: #626c6c;
+  color: white;
   box-shadow: 0 8px 25px rgba(59, 151, 151, 0.4);
 }
 

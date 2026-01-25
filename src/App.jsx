@@ -25,6 +25,9 @@ const Pronunciation1 = lazy(() => import("./CommunicationTestsFiles/Pronunciatio
 const Listening = lazy(() => import("./CommunicationTestsFiles/Listening.jsx"));
 const SituationSpeak = lazy(() => import("./CommunicationTestsFiles/SituationSpeak.jsx"));
 
+// Practice Components - Base
+const BaseComponentPractice = lazy(() => import("./CommunicationPraticeFiles/BaseComponentPractice.jsx"));
+
 // Student Dashboard and Leaderboard files
 const Dashboard = lazy(() => import("./Dashboard_LeaderboardFiles/Dashboard.jsx"));
 const JAMDashboard = lazy(() => import("./Dashboard_LeaderboardFiles/JAMDashboard.jsx"));
@@ -182,6 +185,53 @@ function App() {
           <Route path="test/situation-speak" element={
             <ProtectedRoute>
               <SituationSpeak />
+            </ProtectedRoute>
+          } />
+
+          {/* Communication practice routes */}
+          <Route path="practice/jam" element={
+            <ProtectedRoute>
+              <BaseComponentPractice 
+                practiceType="jam_practice"
+                practiceTitle="JAM Practice"
+                practiceDescription="JAM speaking sessions to improve spontaneous communication"
+              />
+            </ProtectedRoute>
+          } />
+          <Route path="practice/pronunciation" element={
+            <ProtectedRoute>
+              <BaseComponentPractice 
+                practiceType="pronu_practice"
+                practiceTitle="Pronunciation Practice"
+                practiceDescription="Perfect your pronunciation with AI-powered feedback"
+              />
+            </ProtectedRoute>
+          } />
+          <Route path="practice/listening" element={
+            <ProtectedRoute>
+              <BaseComponentPractice 
+                practiceType="listen_practice"
+                practiceTitle="Listening Practice"
+                practiceDescription="Enhance comprehension with interactive listening exercises"
+              />
+            </ProtectedRoute>
+          } />
+          <Route path="practice/situation" element={
+            <ProtectedRoute>
+              <BaseComponentPractice 
+                practiceType="situation_practice"
+                practiceTitle="Situational Speaking Practice"
+                practiceDescription="Practice real-life scenarios to build confidence"
+              />
+            </ProtectedRoute>
+          } />
+          <Route path="practice/image-speak" element={
+            <ProtectedRoute>
+              <BaseComponentPractice 
+                practiceType="image_speak_practice"
+                practiceTitle="Image-Based Speaking Practice"
+                practiceDescription="Describe images to enhance vocabulary and fluency"
+              />
             </ProtectedRoute>
           } />
 
