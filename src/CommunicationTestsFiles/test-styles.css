@@ -134,8 +134,11 @@
 .test-level-button:disabled {
   background: #ccc;
   cursor: not-allowed;
+  
 }
-
+.app-btn-disabled{
+  width: 70%;
+}
 .test-level-button-coming-soon {
   background: linear-gradient(135deg, #3B9797, #2c7a7a);
   color: white;
