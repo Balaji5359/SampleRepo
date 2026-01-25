@@ -529,7 +529,8 @@ const BaseComponent = ({
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     college_email: email,
-                    test_key: `${testType}_test`
+                    type:"test",
+                    key: `${testType}_test`
                 })
             });
             

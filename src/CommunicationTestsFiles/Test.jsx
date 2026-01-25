@@ -504,16 +504,14 @@ const testInstructions = {
         <div className="test-container app-bg-free">
             <div className="test-div">
                 <center>
-                    <h2 className="test-title">Communication Tests</h2>
-                    <div className="test-announcement-banner">
-                        <span className="test-announcement-text">
-                            Intermediate and Advanced levels will be unlocked based on your average score from the latest 10 tests
-                        </span>
-                        <span className="test-coming-soon-badge">Coming Soon</span>
-                    </div>
-                    <br/>
+                    <h1 className="test-title">Communication & Interview Assessments with TaraAI</h1>
+                    <p className="test-activity-des">From everyday speaking activities to interview-level assessments,<br></br> TaraAI helps you practice, evaluate, and improve your communication skills with smart feedback and progress tracking.</p>
                     <div className="test-announcement-banner delayed">
                         <span className="test-announcement-text">Image-Based Speaking</span>
+                        <span className="test-coming-soon-badge">Coming Soon</span>
+                    </div><br></br>
+                    <div className="test-announcement-banner delayed">
+                        <span className="test-announcement-text">Interview Module</span>
                         <span className="test-coming-soon-badge">Coming Soon</span>
                     </div>
                 </center>
