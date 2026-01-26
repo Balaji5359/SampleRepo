@@ -697,7 +697,7 @@ function LandingPage() {
                 </div>
                 <div className="method-details">
                   <h4>Phone</h4>
-                  <span>+91 9398350211</span>
+                  <span>+91 9398350217</span>
                 </div>
               </div>
             </div>
