@@ -450,7 +450,7 @@ function Practice() {
                                             )}
                                         </button>
                                     </div>
-                                    <div className="practice-activity-stats">
+                                    {/* <div className="practice-activity-stats">
                                         <div className="practice-activity-stats-text">
                                             <div>Basic-Avg Score: {loading ? '...' : stats.avgScore}</div>
                                             <div>Intermed-Avg Score: {loading ? '...' : getIntermediateStats(activity.id).avgScore}</div>
@@ -459,7 +459,7 @@ function Practice() {
                                             <div>Intermed Practice Count: {loading ? '...' : getIntermediateStats(activity.id).practiceCount}</div>
                                             <div>Advance Practice Count: {loading ? '...' : getAdvancedStats(activity.id).practiceCount}</div>
                                         </div>
-                                    </div>
+                                    </div> */}
                                 </div>
                             </div>
                         );
