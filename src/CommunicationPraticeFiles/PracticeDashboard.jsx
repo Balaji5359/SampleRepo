@@ -22,6 +22,51 @@ const PracticeDashboard = ({
     const [profileData, setProfileData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+
+    // Fetch API data on component mount
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            const storedEmail = localStorage.getItem('email');
+            if (!storedEmail) return;
+
+            setLoading(true);
+            try {
+                const [profileResponse, dashboardResponse] = await Promise.all([
+                    fetch('https://ntjkr8rnd6.execute-api.ap-south-1.amazonaws.com/dev/student_profilecreate/student_profile_senddata', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ college_email: storedEmail })
+                    }),
+                    fetch('https://piw6c7f4sf.execute-api.ap-south-1.amazonaws.com/dev/comm-practice-send-results', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ college_email: storedEmail })
+                    })
+                ]);
+
+                const profileData = await profileResponse.json();
+                const dashboardData = await dashboardResponse.json();
+                
+                if (profileData?.body) {
+                    const parsedProfileData = typeof profileData.body === 'string' ? JSON.parse(profileData.body) : profileData.body;
+                    setProfileData(parsedProfileData);
+                }
+                
+                if (dashboardData?.body) {
+                    const parsedDashboardData = JSON.parse(dashboardData.body).dashboard;
+                    setDashboardApiData(parsedDashboardData);
+                }
+            } catch (error) {
+                console.error('Error fetching dashboard data:', error);
+                setError(error.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchDashboardData();
+    }, [practiceType]);
+    
     const stats = useMemo(() => {
         if (!dashboardApiData || !practiceType) {
             return {
@@ -36,7 +81,7 @@ const PracticeDashboard = ({
         }
 
         // Get practice type key (convert to snake_case)
-        const practiceTypeKey = practiceType.toLowerCase().replace(/\s+/g, '_') + '_practice';
+        const practiceTypeKey = practiceType.includes('_practice') ? practiceType : practiceType + '_practice';
         const practiceTypeData = dashboardApiData[practiceTypeKey];
 
         if (!practiceTypeData || !practiceTypeData.levels) {
@@ -57,9 +102,12 @@ const PracticeDashboard = ({
         const avgScore = parseFloat(levelData.avgScore) || 0;
         const bestScore = Math.ceil(avgScore) || attempts;
 
-        // Calculate remaining practices
-        const totalPracticesPerLevel = 10;
-        const remainingPractices = Math.max(0, totalPracticesPerLevel - attempts);
+        // Calculate remaining practices from profile data
+        let remainingPracticesFromProfile = remainingPractices;
+        if (profileData?.practices) {
+            const practiceKey = practiceType.includes('_practice') ? practiceType : practiceType + '_practice';
+            remainingPracticesFromProfile = profileData.practices[practiceKey] || 0;
+        }
 
         return {
             totalAttempts: attempts,
@@ -68,9 +116,9 @@ const PracticeDashboard = ({
             currentStreak: streakData.current_streak || 0,
             bestStreak: streakData.best_streak || 0,
             practicesThisWeek: attempts,
-            remainingPractices: remainingPractices
+            remainingPractices: remainingPracticesFromProfile
         };
-    }, [dashboardApiData, practiceType, practiceLevel, streakData]);
+    }, [dashboardApiData, practiceType, practiceLevel, streakData, profileData, remainingPractices]);
 
     // Generate mock trend data for visualization
     const generateTrendData = () => {
@@ -105,8 +153,24 @@ const PracticeDashboard = ({
 
     return (
         <div className="practice-dashboard-root">
-            {/* Enhanced Header */}
-            <div className="practice-dashboard-header">
+            {loading && (
+                <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+                    <div style={{ fontSize: '18px', marginBottom: '10px' }}>Loading dashboard data...</div>
+                    <div style={{ fontSize: '14px' }}>Please wait while we fetch your practice statistics</div>
+                </div>
+            )}
+            
+            {error && (
+                <div style={{ textAlign: 'center', padding: '40px', color: '#e74c3c' }}>
+                    <div style={{ fontSize: '18px', marginBottom: '10px' }}>Error loading data</div>
+                    <div style={{ fontSize: '14px' }}>{error}</div>
+                </div>
+            )}
+            
+            {!loading && !error && (
+                <>
+                    {/* Enhanced Header */}
+                    <div className="practice-dashboard-header">
                 <div className="dashboard-header-left">
                     <h1 className="dashboard-title">{practiceTitle} Dashboard</h1>
                     <p className="dashboard-subtitle">
@@ -125,13 +189,13 @@ const PracticeDashboard = ({
                         Quick Start Practice Now
                     </button>
                 </div>
-                <div className="remaining-practices-section">
-                    <div className="remaining-practices-content">
-                        <p className="remaining-practices-label">Remaining Practices Left</p>
-                        <div className="remaining-practices-display">
-                            <span className="remaining-practices-number">{remainingPractices}</span>
-                        </div>
+                <div className="metric-card remaining-practices">
+                    <div className="metric-content">
+                        <h3 className="metric-label">Remaining Practices</h3>
+                        <p className="metric-value">{stats.remainingPractices}</p>
+                        <p className="metric-change">practices left today</p>
                     </div>
+                    <div className="metric-badge available">✨ Available</div>
                 </div>
             </div>
 
@@ -483,6 +547,8 @@ const PracticeDashboard = ({
                         </div>
                     </div>
                 </div>
+            )}
+                </>
             )}
         </div>
     );

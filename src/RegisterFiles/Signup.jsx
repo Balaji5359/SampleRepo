@@ -66,7 +66,7 @@ function SignUp() {
 
         if (isLogin) {
             // Login API call
-            const url = "https://ntjkr8rnd6.execute-api.ap-south-1.amazonaws.com/dev/student_login";
+            const url = import.meta.env.VITE_STUDENT_LOGIN_API;
             const userdata = {
                 college_email: formData.email,
                 password: formData.password,
@@ -134,7 +134,7 @@ function SignUp() {
                 college_name: formData.collegeName
             };
             
-            const url = "https://ntjkr8rnd6.execute-api.ap-south-1.amazonaws.com/dev/student_signup";
+            const url = import.meta.env.VITE_STUDENT_SIGNUP_API;
             const headers = {
                 'Content-Type': 'application/json'
             };

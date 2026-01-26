@@ -27,7 +27,7 @@ function ProfileData() {
                 const storedEmail = localStorage.getItem("email");
                 
                 // Update daily test count
-                await fetch('https://ntjkr8rnd6.execute-api.ap-south-1.amazonaws.com/dev/daily-testcount-update-api', {
+                await fetch(import.meta.env.VITE_DAILY_TEST_COUNT_UPDATE_API, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

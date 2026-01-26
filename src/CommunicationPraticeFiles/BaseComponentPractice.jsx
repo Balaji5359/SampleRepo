@@ -66,30 +66,45 @@ const BaseComponentPractice = ({
     useEffect(() => {
         const fetchProfileData = async () => {
             try {
-                const userEmail = localStorage.getItem('email') || localStorage.getItem('userEmail') || '22691A2828@mits.ac.in';
+                const storedEmail = localStorage.getItem('email');
+                if (!storedEmail) return;
 
-                const profileResponse = await fetch(
-                    'https://ntjkr8rnd6.execute-api.ap-south-1.amazonaws.com/dev/student_profilecreate/student_profile_senddata',
-                    {
+                const [profileResponse, streakResponse] = await Promise.all([
+                    fetch(import.meta.env.VITE_STUDENT_PROFILE_API, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ college_email: userEmail })
-                    }
-                );
+                        body: JSON.stringify({ college_email: storedEmail })
+                    }),
+                    fetch(import.meta.env.VITE_UPDATE_USER_STREAK_API, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            body: JSON.stringify({
+                                college_email: storedEmail,
+                                get_streak_data: true
+                            })
+                        })
+                    })
+                ]);
 
-                if (profileResponse.ok) {
-                    const pData = await profileResponse.json();
-                    const parsedProfile = typeof pData.body === 'string' ? JSON.parse(pData.body) : pData.body;
-                    setProfileData(parsedProfile);
-
-                    // Update user type and streak data from profile
-                    if (parsedProfile) {
-                        setUserType(parsedProfile.user_type || 'free');
-                        setStreakData({
-                            current_streak: parsedProfile.current_streak || 0,
-                            best_streak: parsedProfile.best_streak || 0
-                        });
-                    }
+                const profile = await profileResponse.json();
+                const streak = await streakResponse.json();
+                
+                if (profile?.body) {
+                    const parsedProfileData = typeof profile.body === 'string' ? JSON.parse(profile.body) : profile.body;
+                    setProfileData(parsedProfileData);
+                    const isPremium = parsedProfileData?.user_type === 'premium' && parsedProfileData?.premium_status === 'active';
+                    setUserType(isPremium ? 'premium' : 'free');
+                    
+                    // Update remaining practices from profile
+                    const practiceKey = practiceType.replace('_practice', '');
+                    const practiceCount = parsedProfileData.practices?.[practiceType] || 0;
+                    setRemainingPractices(practiceCount);
+                }
+                
+                if (streak?.body) {
+                    const parsedStreakData = typeof streak.body === 'string' ? JSON.parse(streak.body) : streak.body;
+                    setStreakData(parsedStreakData);
                 }
             } catch (error) {
                 console.error('Error fetching profile data:', error);
@@ -97,7 +112,7 @@ const BaseComponentPractice = ({
         };
 
         fetchProfileData();
-    }, []);
+    }, [practiceType]);
 
     useEffect(() => {
         const root = document.documentElement;
@@ -129,7 +144,7 @@ const BaseComponentPractice = ({
         try {
             const email = localStorage.getItem('email');
             console.log(practiceType)
-            const response = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/comm-test-decrement', {
+            const response = await fetch(import.meta.env.VITE_TEST_DECREMENT_API, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -484,7 +499,7 @@ const BaseComponentPractice = ({
             await decrementPracticeCount();
             setChatMessages([]);
 
-            const response = await fetch('https://piw6c7f4sf.execute-api.ap-south-1.amazonaws.com/dev/comm-practice-ai-agent', {
+            const response = await fetch(import.meta.env.VITE_PRACTICE_AI_AGENT_API, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -682,22 +697,18 @@ const BaseComponentPractice = ({
     };
 
     const handleEndPractice = () => {
-        if (hasRecorded || chatMessages.length > 1) {
-            setShowEndConfirm(true);
-        } else {
-            window.location.reload();
-        }
+        setShowEndConfirm(true);
     };
 
-    const confirmEndPractice = () => {
+    const confirmEndPractice = (shouldRefresh) => {
         setShowEndConfirm(false);
-        setShowCongrats(true);
-        
-        // Show congrats for 2 seconds then refresh
-        setTimeout(() => {
-            setShowCongrats(false);
-            window.location.reload();
-        }, 2000);
+        if (shouldRefresh) {
+            setShowCongrats(true);
+            setTimeout(() => {
+                setShowCongrats(false);
+                window.location.reload();
+            }, 2000);
+        }
     };
 
     const handleStartPractice = () => {
@@ -904,13 +915,13 @@ const BaseComponentPractice = ({
                         <p style={{ color: '#666', marginBottom: 30, fontSize: 16 }}>Are you sure you want to end this practice session?</p>
                         <div style={{ display: 'flex', gap: 15, justifyContent: 'center' }}>
                             <button 
-                                onClick={() => setShowEndConfirm(false)}
+                                onClick={() => confirmEndPractice(false)}
                                 className="modern-btn btn-secondary"
                             >
                                 No, Continue
                             </button>
                             <button 
-                                onClick={confirmEndPractice}
+                                onClick={() => confirmEndPractice(true)}
                                 className="modern-btn btn-danger"
                             >
                                 Yes, End
