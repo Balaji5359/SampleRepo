@@ -252,7 +252,7 @@ const TestModal = ({ test, onClose, testType, userEmail }) => {
                                     <div key={index} className="file-item">
                                         <span className="file-icon">🎧</span>
                                         <span className="file-name">{file.filename || `Audio ${index + 1}`}</span>
-                                        <audio controls className="audio-player">
+                                        <audio controls className="audio-player" controlsList="nodownload">
                                             <source src={file.url} type="audio/mpeg" />
                                             Your browser does not support audio playback.
                                         </audio>

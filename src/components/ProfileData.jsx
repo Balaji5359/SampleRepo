@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './profile.css';
+import './profile-payment.css';
 
 function ProfileData() {
     const navigate = useNavigate();
@@ -12,6 +13,7 @@ function ProfileData() {
     const [showPricingModal, setShowPricingModal] = useState(false);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [selectedPlan, setSelectedPlan] = useState(null);
+    const [currentCalendarDate, setCurrentCalendarDate] = useState(new Date());
 
     const quotes = [
         "The limits of my language mean the limits of my world. - Ludwig Wittgenstein",
@@ -27,7 +29,7 @@ function ProfileData() {
                 const storedEmail = localStorage.getItem("email");
                 
                 // Update daily test count
-                await fetch('https://ntjkr8rnd6.execute-api.ap-south-1.amazonaws.com/dev/daily-testcount-update-api', {
+                await fetch(import.meta.env.VITE_DAILY_TEST_COUNT_UPDATE_API, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -150,7 +152,11 @@ function ProfileData() {
                 </div>
 
                 <div className="profile-dashboard-bottom">
-                    <ActivityCalendar activeDates={streakData?.active_dates} />
+                    <ActivityCalendar 
+                        activeDates={streakData?.active_dates} 
+                        currentDate={currentCalendarDate}
+                        onDateChange={setCurrentCalendarDate}
+                    />
                     <QuickActions navigate={navigate} />
                 </div>
             </div>
@@ -212,30 +218,47 @@ const DaysLeftCard = ({ daysLeft, expiryDate }) => (
 
 const FreeVsPremiumCard = ({ onUpgrade }) => (
     <div className="profile-free-vs-premium-card">
-        <h3>Free vs Premium</h3>
-        <div className="profile-comparison-grid">
-            <div className="profile-free-features">
-                <h4>Free Plan</h4>
-                <ul>
-                    <li>• 2 tests - for trial</li>
-                    <li>• Basic tests only</li>
-                    <li>• Simple AI feedback</li>
-                    <li>• Basic streak tracking</li>
-                    <li>• No advanced analytics</li>
-                </ul>
+        <div className="profile-card-header">
+            <h3>Free vs Premium</h3>
+            <div className="profile-premium-badge">🌟</div>
+        </div>
+        
+        <div className="profile-comparison-container">
+            <div className="profile-plan-box profile-free-box">
+                <div className="profile-plan-header">
+                    <h4>Free Plan</h4>
+                    <span className="profile-plan-price">₹0</span>
+                </div>
+                <div className="profile-features-list">
+                    <div className="profile-feature-item">✓ 2 tests - for trial</div>
+                    <div className="profile-feature-item">✓ Basic tests only</div>
+                    <div className="profile-feature-item">✓ Simple AI feedback</div>
+                    <div className="profile-feature-item">✓ Basic streak tracking</div>
+                    <div className="profile-feature-item limited">✗ No advanced analytics</div>
+                </div>
             </div>
-            <div className="profile-premium-features">
-                <h4>🌟 Premium Plan</h4>
-                <ul>
-                    <li>• Daily 2 tests of all Levels</li>
-                    <li>• Advanced test types</li>
-                    <li>• Detailed AI analysis, and audio feedback</li>
-                    <li>• Advanced analytics & Badges</li>
-                    <li>• All Levels Access</li>
-                </ul>
+            
+            <div className="profile-plan-box profile-premium-box">
+                <div className="profile-plan-header">
+                    <h4>Premium Plan</h4>
+                    <span className="profile-plan-price">₹99+</span>
+                </div>
+                <div className="profile-features-list">
+                    <div className="profile-feature-item">✓ Daily 2 tests of all Levels</div>
+                    <div className="profile-feature-item">✓ Advanced test types</div>
+                    <div className="profile-feature-item">✓ Detailed AI analysis & audio feedback</div>
+                    <div className="profile-feature-item">✓ Advanced analytics & Badges</div>
+                    <div className="profile-feature-item">✓ All Levels Access</div>
+                </div>
             </div>
         </div>
-        <button className="profile-upgrade-btn" onClick={onUpgrade}>Upgrade to Premium</button>
+        
+        <center>
+        <button className="profile-upgrade-btn" onClick={onUpgrade}>
+                <span>Upgrade to Premium</span>
+            <span className="profile-btn-arrow">→</span>
+        </button>
+        </center>
     </div>
 );
 
@@ -255,8 +278,8 @@ const StreakCard = ({ currentStreak, longestStreak }) => (
     </div>
 );
 
-const ActivityCalendar = ({ activeDates }) => {
-    const currentDate = new Date();
+const ActivityCalendar = ({ activeDates, currentDate, onDateChange }) => {
+    const today = new Date();
     const currentMonth = currentDate.getMonth();
     const currentYear = currentDate.getFullYear();
     
@@ -272,6 +295,24 @@ const ActivityCalendar = ({ activeDates }) => {
         return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
     }).length || 0;
     
+    const navigateMonth = (direction) => {
+        const newDate = new Date(currentYear, currentMonth + direction, 1);
+        const today = new Date();
+        
+        // Don't allow navigation to future months
+        if (direction > 0 && newDate > today) {
+            return;
+        }
+        
+        onDateChange(newDate);
+    };
+    
+    const canNavigateNext = () => {
+        const nextMonth = new Date(currentYear, currentMonth + 1, 1);
+        const today = new Date();
+        return nextMonth <= today;
+    };
+    
     const calendarDays = [];
     
     for (let i = 0; i < startingDayOfWeek; i++) {
@@ -281,7 +322,7 @@ const ActivityCalendar = ({ activeDates }) => {
     for (let day = 1; day <= daysInMonth; day++) {
         const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         const isActive = activeDates?.includes(dateStr);
-        const isToday = day === currentDate.getDate();
+        const isToday = day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear();
         
         calendarDays.push(
             <div
@@ -298,9 +339,26 @@ const ActivityCalendar = ({ activeDates }) => {
         <div className="profile-activity-calendar">
             <div className="profile-calendar-header">
                 <h3>Activity Calendar</h3>
-                <div className="profile-calendar-stats">
-                    <span className="profile-month-name">{monthName}</span>
-                    <span className="profile-active-count">{activeDaysCount} active days</span>
+                <div className="profile-calendar-navigation">
+                    <button 
+                        className="profile-nav-btn" 
+                        onClick={() => navigateMonth(-1)}
+                        title="Previous month"
+                    >
+                        ←
+                    </button>
+                    <div className="profile-calendar-stats">
+                        <span className="profile-month-name">{monthName}</span>
+                        <span className="profile-active-count">{activeDaysCount} active days</span>
+                    </div>
+                    <button 
+                        className={`profile-nav-btn ${!canNavigateNext() ? 'disabled' : ''}`}
+                        onClick={() => navigateMonth(1)}
+                        disabled={!canNavigateNext()}
+                        title="Next month"
+                    >
+                        →
+                    </button>
                 </div>
             </div>
             
@@ -324,22 +382,22 @@ const QuickActions = ({ navigate }) => (
             <button className="profile-action-btn" onClick={() => navigate('/test')}>
                 <div className="profile-action-icon">🎤</div>
                 <div className="profile-action-text">
-                    <div className="profile-action-title">Start JAM Session</div>
-                    <div className="profile-action-desc">Practice speaking skills</div>
+                    <div className="profile-action-title">Quick Start Tests Now</div>
+                    <div className="profile-action-desc">Test your Communication skills now</div>
                 </div>
             </button>
             <button className="profile-action-btn" onClick={() => navigate('/test')}>
                 <div className="profile-action-icon">🗣️</div>
                 <div className="profile-action-text">
-                    <div className="profile-action-title">Pronunciation Test</div>
-                    <div className="profile-action-desc">Improve pronunciation</div>
+                    <div className="profile-action-title">Start Practice Now</div>
+                    <div className="profile-action-desc">Daily practices makes you perfect</div>
                 </div>
             </button>
             <button className="profile-action-btn" onClick={() => navigate('/student-dashboard')}>
                 <div className="profile-action-icon">📊</div>
                 <div className="profile-action-text">
                     <div className="profile-action-title">View Progress</div>
-                    <div className="profile-action-desc">Check analytics</div>
+                    <div className="profile-action-desc">Check AI-Feedback and analytics dashboard</div>
                 </div>
             </button>
         </div>
@@ -434,8 +492,19 @@ const PricingModal = ({ onClose, onSelectPlan }) => {
 
 const PaymentModal = ({ plan, onClose, profileData }) => {
     const [loading, setLoading] = useState(false);
+    const [agreeToTerms, setAgreeToTerms] = useState(false);
+    const [showTerms, setShowTerms] = useState(false);
+    
+    const basePrice = parseFloat(plan.price.replace('₹', ''));
+    const taxAmount = Math.round(basePrice * 0.02);
+    const totalAmount = basePrice + taxAmount;
 
     const handlePayment = async () => {
+        if (!agreeToTerms) {
+            alert('Please agree to the Terms & Conditions to proceed.');
+            return;
+        }
+        
         if (!window.Razorpay) {
             alert('Payment gateway not loaded. Please refresh the page and try again.');
             return;
@@ -543,22 +612,105 @@ const PaymentModal = ({ plan, onClose, profileData }) => {
             <div className="profile-payment-modal" onClick={(e) => e.stopPropagation()}>
                 <button className="app-modal-close" onClick={onClose}>×</button>
                 <h2>Complete Your Purchase</h2>
+                
                 <div className="profile-payment-details">
-                    <h3>{plan.title}</h3>
-                    <div className="profile-payment-price">{plan.price}</div>
-                    <p>You will be redirected to our secure payment gateway to complete your purchase.</p>
+                    <div className="profile-payment-plan">
+                        <h3>{plan.title}</h3>
+                        <div className="profile-payment-breakdown">
+                            <div className="profile-price-row">
+                                <span>Plan Price:</span>
+                                <span>₹{basePrice}</span>
+                            </div>
+                            <div className="profile-price-row">
+                                <span>Tax (2%):</span>
+                                <span>₹{taxAmount}</span>
+                            </div>
+                            <div className="profile-price-row profile-total">
+                                <span>Total Amount:</span>
+                                <span>₹{totalAmount}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div className="profile-payment-terms">
+                        <label className="profile-checkbox-container">
+                            <input 
+                                type="checkbox" 
+                                checked={agreeToTerms}
+                                onChange={(e) => setAgreeToTerms(e.target.checked)}
+                            />
+                            <span className="profile-checkmark"></span>
+                            <span className="profile-terms-text">
+                                T&C - I understand that this is a one-time, 
+                                non-refundable payment and the total amount includes 2% applicable tax.
+                            </span>
+                        </label>
+                        
+                        <button 
+                            className="profile-terms-link"
+                            onClick={() => setShowTerms(true)}
+                        >
+                            Terms & Conditions apply - click here to know more
+                        </button>
+                    </div>
+                    
+                    <p className="profile-payment-note">
+                        You will be redirected to our secure payment gateway to complete your purchase.
+                    </p>
                 </div>
+                
                 <div className="profile-payment-actions">
                     <button className="profile-cancel-btn" onClick={onClose}>Cancel</button>
                     <button 
-                        className="profile-proceed-btn" 
+                        className={`profile-proceed-btn ${!agreeToTerms ? 'disabled' : ''}`}
                         onClick={handlePayment}
-                        disabled={loading}
+                        disabled={loading || !agreeToTerms}
                     >
-                        {loading ? 'Processing...' : 'Proceed to Payment'}
+                        {loading ? 'Processing...' : `Pay Now ₹${totalAmount}`}
                     </button>
                 </div>
             </div>
+            
+            {showTerms && (
+                <div className="app-modal-overlay" onClick={() => setShowTerms(false)}>
+                    <div className="profile-terms-modal" onClick={(e) => e.stopPropagation()}>
+                        <button className="app-modal-close" onClick={() => setShowTerms(false)}>×</button>
+                        <h2>Premium Subscription – Terms & Conditions</h2>
+                        <div className="profile-terms-content">
+                            <div className="profile-terms-section">
+                                <h3>One-Time Payment</h3>
+                                <p>The Premium subscription is available through a one-time payment only. No recurring charges are involved.</p>
+                            </div>
+                            
+                            <div className="profile-terms-section">
+                                <h3>No Refund Policy</h3>
+                                <p>All payments made for the Premium plan are final and non-refundable. Refunds will not be provided for partial usage, non-usage, dissatisfaction, accidental purchases, or change of mind.</p>
+                            </div>
+                            
+                            <div className="profile-terms-section">
+                                <h3>Pricing & Tax</h3>
+                                <p>The total amount displayed at checkout includes a 2% applicable tax. No additional charges will be applied beyond the displayed price.</p>
+                            </div>
+                            
+                            <div className="profile-terms-section">
+                                <h3>User Responsibility</h3>
+                                <p>Users are advised to review all Premium features, limitations, and Terms & Conditions carefully before proceeding with the payment. By making the payment, the user confirms full understanding and acceptance.</p>
+                            </div>
+                            
+                            <div className="profile-terms-section">
+                                <h3>Payment Confirmation</h3>
+                                <p>Premium access will be activated only after successful payment verification through the payment gateway. Frontend payment success alone does not guarantee activation.</p>
+                            </div>
+                            
+                            <div className="profile-terms-section">
+                                <h3>Misuse & Access Termination</h3>
+                                <p>Any misuse of the platform, violation of policies, or unethical activity may result in termination of Premium access without refund.</p>
+                            </div>
+                        </div>
+                        <button className="profile-terms-close-btn" onClick={() => setShowTerms(false)}>Close</button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

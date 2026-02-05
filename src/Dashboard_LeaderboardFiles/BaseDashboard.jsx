@@ -16,6 +16,12 @@ const BaseDashboard = ({
     const [streakData, setStreakData] = useState({ current_streak: 0 });
     const [userEmail] = useState(localStorage.getItem('email'));
 
+
+    useEffect(() => {
+    window.scrollTo(0, 0);
+    }, []);
+
+
     useEffect(() => {
         const fetchUserData = async () => {
             try {

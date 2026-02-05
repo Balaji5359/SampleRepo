@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './landing.css';
+import './landing-responsive.css';
 import logo from '../assets/logo.png';
 
 function LandingPage() {
@@ -8,6 +9,21 @@ function LandingPage() {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
+
+  // Add responsive styles
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      @media (max-width: 768px) {
+        .contact-content {
+          grid-template-columns: 1fr !important;
+          gap: 2rem !important;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => document.head.removeChild(style);
+  }, []);
 
   useEffect(() => {
     const observerOptions = {
@@ -224,12 +240,6 @@ function LandingPage() {
       title: 'Image-Based Speaking',
       description: 'Describe images to enhance vocabulary and fluency',
       icon: <img src="https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-image-128.png" alt="image" style={{ width: 50, height: 50 }} />
-    },
-    {
-      id: 'image-story',
-      title: 'Image-Based Story Telling',
-      description: 'Expand your vocabulary with interactive learning exercises',
-      icon: <img src="https://cdn1.iconfinder.com/data/icons/language-courses-3/504/vocabulary-language-translate-studying-learn-128.png" alt="vocabulary" style={{ width: 50, height: 50 }} />
     }
   ];
 
@@ -242,6 +252,13 @@ function LandingPage() {
             <img src={logo} alt="Skill Route logo" className="logo-img" style={{ width: 65, height: 60, borderRadius: '50%', border: 'none' }} />
             <span className="logo-text">Skill Route</span>
           </div>
+          
+          <div className="hamburger-menu" onClick={() => setActiveModal('menu')}>
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          
           <div className="nav-links">
             <a href="#home" onClick={(e) => handleNavClick(e, 'home')}>Home</a>
             <a href="#features" onClick={(e) => handleNavClick(e, 'features')}>Features</a>
@@ -259,7 +276,7 @@ function LandingPage() {
       <section id="home" className="hero">
         <div className="hero-content">
           <div className="hero-text">
-            <h1>Speak with TaraAI, Speak with Confidence</h1>
+            <h1>Speak with TaraAI, <br></br>Speak with Confidence</h1>
             <p>Enhance your communication skills with AI-driven practice, personalized feedback, and engaging learning experiences for students and professionals.</p>
             <div className="hero-buttons">
               <button className="btn-start"
@@ -369,7 +386,7 @@ function LandingPage() {
       </section>
 
       {/* Interview Activities Roadmap Section */}
-      <section id="interview-activities" className="interview-roadmap">
+      <section id="interview-activities" className="interview-roadmap" style={{ marginBottom: '4rem' }}>
         <div className="section-header">
           <h2>Interview Activities Path</h2>
           <p>Master your interview skills step by step with our structured learning path</p>
@@ -516,11 +533,12 @@ function LandingPage() {
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="pricing" style={{ background: 'rgb(247, 247, 247)', padding: '6rem 2rem', top: '-220px' }}>
+      <section id="pricing" className="pricing">
         <div className="section-header">
           <h2>Choose Your Learning Path</h2>
           <p>Flexible plans designed for every learner's needs</p>
         </div>
+        
 
         <div className="pricing-container" style={{ 
           maxWidth: '1400px', 
@@ -655,12 +673,39 @@ function LandingPage() {
             </div>
           ))}
         </div>
-      </section>
+        <div className="pricing-terms-checklist">
+          <h4>Before Proceeding, Please Confirm:</h4>
+          <div className="pricing-terms-note">
+            Payments once made are final and non-refundable.
+          </div>
+          <center>
+            <button 
+              className="submit-message"
+              style={{ textAlign: 'center', cursor: 'pointer' }}
+              onClick={() => setActiveModal('terms')}
+            >
+            Terms & Conditions apply - click here to know more
+          </button>
+        </center>
+      </div>
+    </section>
 
       {/* Contact Section */}
-      <section id="contact" className="contact">
-        <div className="contact-content">
-          <div className="contact-info">
+      <section id="contact" className="contact" style={{ paddingTop: '6rem', paddingBottom: '4rem' }}>
+        <div className="contact-content" style={{ 
+          display: 'grid', 
+          gridTemplateColumns: '1fr 1fr', 
+          gap: '3rem', 
+          maxWidth: '1200px', 
+          margin: '0 auto',
+        }}>
+          <div className="contact-info" style={{
+            background: 'rgba(255, 255, 255, 0.95)',
+            padding: '2rem',
+            borderRadius: '16px',
+            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
+            border: '1px solid rgba(59, 151, 151, 0.1)'
+          }}>
             <h2>Get in Touch</h2>
             <p>Connect with us through our professional channels. We're here to help you on your learning journey.</p>
             <div className="contact-methods">
@@ -686,7 +731,7 @@ function LandingPage() {
                 </div>
                 <div className="method-details">
                   <h4>Email</h4>
-                  <span>skillrouteai@gmail.com</span>
+                  <span>support@skillrouteai.com</span>
                 </div>
               </div>
               <div className="contact-method">
@@ -697,12 +742,19 @@ function LandingPage() {
                 </div>
                 <div className="method-details">
                   <h4>Phone</h4>
-                  <span>+91 9398350211</span>
+                  <span>+91 9398350217</span>
                 </div>
               </div>
             </div>
           </div>
-          <div className="contact-form">
+          <div className="contact-form" style={{
+            background: 'rgba(255, 255, 255, 0.95)',
+            padding: '2rem',
+            borderRadius: '16px',
+            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
+            border: '1px solid rgba(59, 151, 151, 0.1)'
+          }}>
+            <h3 style={{ marginBottom: '1.5rem', color: '#3B9797' }}>Send us a Message</h3>
             <form onSubmit={handleSubmit}>
               <input 
                 type="text" 
@@ -728,14 +780,14 @@ function LandingPage() {
               <button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? 'Sending...' : 'Send Message'}
               </button>
-              {submitMessage && <p className="submit-message">{submitMessage}</p>}
+              {submitMessage && <p className="submit-message" style={{ marginTop: '1rem' }}>{submitMessage}</p>}
             </form>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="footer">
+      <footer className="footer" style={{ marginTop: '2rem' }}>
         <div className="footer-content">
           <div className="footer-brand">
             <div className="logo">
@@ -750,7 +802,81 @@ function LandingPage() {
       </footer>
 
       {/* Activity Modals */}
-      {activeModal && (
+      {activeModal === 'menu' && (
+        <div className="modal-overlay" onClick={() => setActiveModal(null)}>
+          <div className="modal-content mobile-menu" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setActiveModal(null)}>×</button>
+            <div className="mobile-nav-links">
+              <a href="#home" onClick={(e) => { handleNavClick(e, 'home'); setActiveModal(null); }}>Home</a>
+              <a href="#features" onClick={(e) => { handleNavClick(e, 'features'); setActiveModal(null); }}>Features</a>
+              <a href="#activities" onClick={(e) => { handleNavClick(e, 'activities'); setActiveModal(null); }}>Activities</a>
+              <a href="#pricing" onClick={(e) => { handleNavClick(e, 'pricing'); setActiveModal(null); }}>Pricing</a>
+              <a href="#contact" onClick={(e) => { handleNavClick(e, 'contact'); setActiveModal(null); }}>Contact</a>
+              <button className="btn-signup mobile-signup" onClick={() => { window.location.href = '/signup'; }}>Get started now !</button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {activeModal === 'terms' && (
+        <div className="modal-overlay" onClick={() => setActiveModal(null)}>
+          <div className="modal-content terms-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setActiveModal(null)}>×</button>
+            <div className="modal-body">
+              <h2>Premium Subscription – Terms & Conditions</h2>
+              <div className="terms-content">
+                <div className="terms-section">
+                  <h3>One-Time Payment</h3>
+                  <p>The Premium subscription is available through a one-time payment only. No recurring charges are involved.</p>
+                </div>
+                
+                <div className="terms-section">
+                  <h3>No Refund Policy</h3>
+                  <p>All payments made for the Premium plan are final and non-refundable. Refunds will not be provided for partial usage, non-usage, dissatisfaction, accidental purchases, or change of mind.</p>
+                </div>
+                
+                <div className="terms-section">
+                  <h3>Pricing & Tax</h3>
+                  <p>The total amount displayed at checkout includes a 2% applicable tax. No additional charges will be applied beyond the displayed price.</p>
+                </div>
+                
+                <div className="terms-section">
+                  <h3>User Responsibility</h3>
+                  <p>Users are advised to review all Premium features, limitations, and Terms & Conditions carefully before proceeding with the payment. By making the payment, the user confirms full understanding and acceptance.</p>
+                </div>
+                
+                <div className="terms-section">
+                  <h3>Payment Confirmation</h3>
+                  <p>Premium access will be activated only after successful payment verification through the payment gateway. Frontend payment success alone does not guarantee activation.</p>
+                </div>
+                
+                <div className="terms-section">
+                  <h3>Service Availability</h3>
+                  <p>Premium features are provided on a best-effort basis. Temporary service interruptions due to maintenance, updates, or technical issues may occur and do not qualify for refunds.</p>
+                </div>
+                
+                <div className="terms-section">
+                  <h3>Misuse & Access Termination</h3>
+                  <p>Any misuse of the platform, violation of policies, or unethical activity may result in termination of Premium access without refund.</p>
+                </div>
+                
+                <div className="terms-section">
+                  <h3>Changes to Services</h3>
+                  <p>The platform reserves the right to modify, update, or discontinue any Premium feature at its discretion without prior notice.</p>
+                </div>
+                
+                <div className="terms-section">
+                  <h3>Agreement</h3>
+                  <p>By clicking "Pay Now" and completing the payment, the user confirms that they have read, understood, and agreed to all the above Terms & Conditions.</p>
+                </div>
+              </div>
+              <button className="modal-btn" onClick={() => setActiveModal(null)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {activeModal && activeModal !== 'menu' && activeModal !== 'terms' && (
         <div className="modal-overlay" onClick={() => setActiveModal(null)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close" onClick={() => setActiveModal(null)}>×</button>
@@ -773,7 +899,7 @@ function LandingPage() {
               <p>To access premium features and unlock your full learning potential, please follow our simple payment flow:</p>
               <div className="premium-steps">
                 <div className="step">
-                  <div className="step-number">1</div>
+                  {/* <div className="step-number">1</div> */}
                   <div className="step-content">
                     <h4>New User?</h4>
                     <p>Sign up → Create Profile → Login → Access Profile & Buy Premium</p>
@@ -781,7 +907,7 @@ function LandingPage() {
                 </div>
                 
                 <div className="step">
-                  <div className="step-number">2</div>
+                  {/* <div className="step-number">2</div> */}
                   <div className="step-content">
                     <h4>Existing User?</h4>
                     <p>Login → Access Profile Page → Buy Premium</p>

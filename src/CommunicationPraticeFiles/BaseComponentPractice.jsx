@@ -66,30 +66,43 @@ const BaseComponentPractice = ({
     useEffect(() => {
         const fetchProfileData = async () => {
             try {
-                const userEmail = localStorage.getItem('email') || localStorage.getItem('userEmail') || '22691A2828@mits.ac.in';
+                const userEmail = localStorage.getItem('email');
 
-                const profileResponse = await fetch(
-                    'https://ntjkr8rnd6.execute-api.ap-south-1.amazonaws.com/dev/student_profilecreate/student_profile_senddata',
-                    {
+                const [profileResponse, streakResponse] = await Promise.all([
+                    fetch(import.meta.env.VITE_STUDENT_PROFILE_API, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ college_email: userEmail })
-                    }
-                );
+                    }),
+                    fetch(import.meta.env.VITE_UPDATE_USER_STREAK_API, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            body: JSON.stringify({
+                                college_email: userEmail,
+                                get_streak_data: true
+                            })
+                        })
+                    })
+                ]);
 
                 if (profileResponse.ok) {
                     const pData = await profileResponse.json();
                     const parsedProfile = typeof pData.body === 'string' ? JSON.parse(pData.body) : pData.body;
                     setProfileData(parsedProfile);
 
-                    // Update user type and streak data from profile
                     if (parsedProfile) {
                         setUserType(parsedProfile.user_type || 'free');
-                        setStreakData({
-                            current_streak: parsedProfile.current_streak || 0,
-                            best_streak: parsedProfile.best_streak || 0
-                        });
                     }
+                }
+
+                if (streakResponse.ok) {
+                    const sData = await streakResponse.json();
+                    const parsedStreak = typeof sData.body === 'string' ? JSON.parse(sData.body) : sData.body;
+                    setStreakData({
+                        current_streak: parsedStreak.current_streak || 0,
+                        longest_streak: parsedStreak.longest_streak || 0
+                    });
                 }
             } catch (error) {
                 console.error('Error fetching profile data:', error);
