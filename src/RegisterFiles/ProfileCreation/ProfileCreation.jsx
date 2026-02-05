@@ -86,7 +86,7 @@ const ProfileCreation = () => {
     setUsernameAvailable(null);
     
     try {
-      const response = await fetch('https://ntjkr8rnd6.execute-api.ap-south-1.amazonaws.com/dev/checkusername-availability', {
+      const response = await fetch(import.meta.env.VITE_USERNAME_CHECK_API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: username.trim() })
@@ -290,7 +290,7 @@ const ProfileCreation = () => {
         sem: formData.sem
       };
 
-      const response = await fetch('https://ntjkr8rnd6.execute-api.ap-south-1.amazonaws.com/dev/student_profilecreate', {
+      const response = await fetch(import.meta.env.VITE_STUDENT_PROFILE_CREATE_API, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -321,7 +321,7 @@ const ProfileCreation = () => {
         Reason_Why_not_Speaking_English: formData.speakingFrequency === 'no' ? (formData.notSpeakingReasons.length > 0 ? formData.notSpeakingReasons.join(', ') : (formData.otherReasons || 'not specified')) : 'null'
       };
 
-      const response = await fetch('https://ntjkr8rnd6.execute-api.ap-south-1.amazonaws.com/dev/student_surveydata', {
+      const response = await fetch(import.meta.env.VITE_STUDENT_SURVEY_API, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

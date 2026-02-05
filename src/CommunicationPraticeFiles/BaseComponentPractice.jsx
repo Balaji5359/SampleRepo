@@ -66,7 +66,7 @@ const BaseComponentPractice = ({
     useEffect(() => {
         const fetchProfileData = async () => {
             try {
-                const userEmail = localStorage.getItem('email');
+                const userEmail = localStorage.getItem('email') || localStorage.getItem('userEmail');
 
                 const [profileResponse, streakResponse] = await Promise.all([
                     fetch(import.meta.env.VITE_STUDENT_PROFILE_API, {
@@ -91,6 +91,7 @@ const BaseComponentPractice = ({
                     const parsedProfile = typeof pData.body === 'string' ? JSON.parse(pData.body) : pData.body;
                     setProfileData(parsedProfile);
 
+                    // Update user type from profile
                     if (parsedProfile) {
                         setUserType(parsedProfile.user_type || 'free');
                     }
@@ -99,10 +100,12 @@ const BaseComponentPractice = ({
                 if (streakResponse.ok) {
                     const sData = await streakResponse.json();
                     const parsedStreak = typeof sData.body === 'string' ? JSON.parse(sData.body) : sData.body;
-                    setStreakData({
-                        current_streak: parsedStreak.current_streak || 0,
-                        longest_streak: parsedStreak.longest_streak || 0
-                    });
+                    if (parsedStreak) {
+                        setStreakData({
+                            current_streak: parsedStreak.current_streak || 0,
+                            best_streak: parsedStreak.longest_streak || 0
+                        });
+                    }
                 }
             } catch (error) {
                 console.error('Error fetching profile data:', error);
@@ -110,7 +113,7 @@ const BaseComponentPractice = ({
         };
 
         fetchProfileData();
-    }, []);
+    }, [practiceType]);
 
     useEffect(() => {
         const root = document.documentElement;
@@ -142,7 +145,7 @@ const BaseComponentPractice = ({
         try {
             const email = localStorage.getItem('email');
             console.log(practiceType)
-            const response = await fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/comm-test-decrement', {
+            const response = await fetch(import.meta.env.VITE_TEST_DECREMENT_API, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -170,7 +173,7 @@ const BaseComponentPractice = ({
             .replace(/COMPREHENSION ANALYSIS:/g, '<div style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; padding: 12px 16px; border-radius: 10px; font-weight: 700; margin: 12px 0; font-family: Inter, sans-serif; border-left: 4px solid #ef4444;">📊 COMPREHENSION ANALYSIS:</div>')
             .replace(/LISTENING PERFORMANCE:/g, '<div style="background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%); color: white; padding: 12px 16px; border-radius: 10px; font-weight: 700; margin: 12px 0; font-family: Inter, sans-serif; border-left: 4px solid #a855f7;">📈 LISTENING PERFORMANCE:</div>')
             .replace(/LISTENING FOCUS:/g, '<div style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 12px 16px; border-radius: 10px; font-weight: 700; margin: 12px 0; font-family: Inter, sans-serif; border-left: 4px solid #3b82f6;">🎯 LISTENING FOCUS:</div>')
-            .replace(/(⭐ SENTENCE SCORE:)\s*(\d+\.\d+)\s*\/\s*(\d+\.\d+)/g, '<div style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: white; padding: 12px 20px; border-radius: 20px; display: inline-block; font-weight: 700; margin: 10px 0; font-family: Inter, sans-serif; box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);">⭐ SENTENCE SCORE: $2/$3</div>')
+            .replace(/(⭐ SENTENCE SCORE:)\s*(\d+\.\d+)\s*\/\s*(\d+\.\d+)/g, '<div style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: white; padding: 12px 20px; border-radius: 20px; display: inline-block; font-weight: 700; margin: 10px 0; font-family: Inter, sans-serif; box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);">⭐ SENTENCE SCORE: $2/$3</div>')div style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: white; padding: 12px 20px; border-radius: 20px; display: inline-block; font-weight: 700; margin: 10px 0; font-family: Inter, sans-serif; box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);">⭐ SENTENCE SCORE: $2/$3</div>')
             .replace(/• Words Heard Correctly:/g, '<div style="color: #10b981; font-weight: 600; margin: 8px 0;">✓ WORDS HEARD CORRECTLY:</div>')
             .replace(/• Missing Words:/g, '<div style="color: #ef4444; font-weight: 600; margin: 8px 0;">✗ MISSING WORDS:</div>')
             .replace(/• Incorrect Words:/g, '<div style="color: #f59e0b; font-weight: 600; margin: 8px 0;">⚠ INCORRECT WORDS:</div>')
@@ -497,7 +500,7 @@ const BaseComponentPractice = ({
             await decrementPracticeCount();
             setChatMessages([]);
 
-            const response = await fetch('https://piw6c7f4sf.execute-api.ap-south-1.amazonaws.com/dev/comm-practice-ai-agent', {
+            const response = await fetch(import.meta.env.VITE_PRACTICE_AI_AGENT_API, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -695,22 +698,18 @@ const BaseComponentPractice = ({
     };
 
     const handleEndPractice = () => {
-        if (hasRecorded || chatMessages.length > 1) {
-            setShowEndConfirm(true);
-        } else {
-            window.location.reload();
-        }
+        setShowEndConfirm(true);
     };
 
-    const confirmEndPractice = () => {
+    const confirmEndPractice = (shouldRefresh) => {
         setShowEndConfirm(false);
-        setShowCongrats(true);
-        
-        // Show congrats for 2 seconds then refresh
-        setTimeout(() => {
-            setShowCongrats(false);
-            window.location.reload();
-        }, 2000);
+        if (shouldRefresh) {
+            setShowCongrats(true);
+            setTimeout(() => {
+                setShowCongrats(false);
+                window.location.reload();
+            }, 2000);
+        }
     };
 
     const handleStartPractice = () => {
@@ -917,13 +916,13 @@ const BaseComponentPractice = ({
                         <p style={{ color: '#666', marginBottom: 30, fontSize: 16 }}>Are you sure you want to end this practice session?</p>
                         <div style={{ display: 'flex', gap: 15, justifyContent: 'center' }}>
                             <button 
-                                onClick={() => setShowEndConfirm(false)}
+                                onClick={() => confirmEndPractice(false)}
                                 className="modern-btn btn-secondary"
                             >
                                 No, Continue
                             </button>
                             <button 
-                                onClick={confirmEndPractice}
+                                onClick={() => confirmEndPractice(true)}
                                 className="modern-btn btn-danger"
                             >
                                 Yes, End

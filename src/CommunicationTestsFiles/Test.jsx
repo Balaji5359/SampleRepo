@@ -24,12 +24,12 @@ function Test() {
         
         // Fetch user profile and streak data
         Promise.all([
-            fetch('https://ntjkr8rnd6.execute-api.ap-south-1.amazonaws.com/dev/student_profilecreate/student_profile_senddata', {
+            fetch(import.meta.env.VITE_STUDENT_PROFILE_API, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ college_email: storedEmail }),
             }),
-            fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/update-user-streak', {
+            fetch(import.meta.env.VITE_UPDATE_USER_STREAK_API, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -39,7 +39,7 @@ function Test() {
                     })
                 })
             }),
-            fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/comm-test-send-results', {
+            fetch(import.meta.env.VITE_TEST_RESULTS_API, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ college_email: storedEmail })
@@ -266,7 +266,7 @@ const testInstructions = {
             <iframe
             width="100%"
             height="250"
-            src="https://www.youtube.com/embed/ReZgqLI3Hq0"
+            src="https://www.youtube.com/embed/0pNcWTG9Y8M"
             title="JAM Practice"
             frameBorder="0"
             allowFullScreen
@@ -313,7 +313,7 @@ const testInstructions = {
             <iframe
             width="100%"
             height="250"
-            src="https://www.youtube.com/embed/ReZgqLI3Hq0"
+            src="https://www.youtube.com/embed/0pNcWTG9Y8M"
             title="Pronunciation Practice"
             frameBorder="0"
             allowFullScreen
@@ -357,7 +357,7 @@ const testInstructions = {
             <iframe
             width="100%"
             height="250"
-            src="https://www.youtube.com/embed/ReZgqLI3Hq0"
+            src="https://www.youtube.com/embed/0pNcWTG9Y8M"
             title="Listening Practice"
             frameBorder="0"
             allowFullScreen
@@ -404,7 +404,7 @@ const testInstructions = {
             <iframe
             width="100%"
             height="250"
-            src="https://www.youtube.com/embed/ReZgqLI3Hq0"
+            src="https://www.youtube.com/embed/0pNcWTG9Y8M"
             title="Situational Practice"
             frameBorder="0"
             allowFullScreen
@@ -530,8 +530,7 @@ const testInstructions = {
                                         {activity.id === 'image-speak' ? (
                                             <button className="test-level-button-coming-soon" disabled>
                                                 <span>Basic</span>
-                                                <div className="test-level-button-shimmer"></div>
-                                                <span className="test-soon-badge">SOON</span>
+                                                <span className="test-coming-soon-indicator">SOON</span>
                                             </button>
                                         ) : (
                                             <button 
@@ -551,10 +550,7 @@ const testInstructions = {
                                                 >
                                                     <span>Intermediate</span>
                                                     {userType !== 'premium' && (
-                                                        <>
-                                                            <div className="test-level-button-shimmer"></div>
-                                                            <span className="test-soon-badge">PREMIUM</span>
-                                                        </>
+                                                        <span className="test-premium-indicator">- BUY PREMIUM</span>
                                                     )}
                                                 </button>
                                                 <button 
@@ -564,10 +560,7 @@ const testInstructions = {
                                                 >
                                                     <span>Advanced</span>
                                                     {userType !== 'premium' && (
-                                                        <>
-                                                            <div className="test-level-button-shimmer delayed"></div>
-                                                            <span className="test-soon-badge red">PREMIUM</span>
-                                                        </>
+                                                        <span className="test-premium-indicator">- BUY PREMIUM</span>
                                                     )}
                                                 </button>
                                             </>
@@ -575,13 +568,11 @@ const testInstructions = {
                                             <>
                                                 <button className="test-level-button-coming-soon" disabled>
                                                     <span>Intermediate</span>
-                                                    <div className="test-level-button-shimmer"></div>
-                                                    <span className="test-soon-badge">SOON</span>
+                                                    <span className="test-coming-soon-indicator">SOON</span>
                                                 </button>
                                                 <button className="test-level-button-coming-soon" disabled>
                                                     <span>Advanced</span>
-                                                    <div className="test-level-button-shimmer delayed"></div>
-                                                    <span className="test-soon-badge red">SOON</span>
+                                                    <span className="test-coming-soon-indicator">SOON</span>
                                                 </button>
                                             </>
                                         )}

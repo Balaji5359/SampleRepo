@@ -25,12 +25,12 @@ function Practice() {
         
         // Fetch user profile and practice data
         Promise.all([
-            fetch('https://ntjkr8rnd6.execute-api.ap-south-1.amazonaws.com/dev/student_profilecreate/student_profile_senddata', {
+            fetch(import.meta.env.VITE_STUDENT_PROFILE_API, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ college_email: storedEmail }),
             }),
-            fetch('https://ibxdsy0e40.execute-api.ap-south-1.amazonaws.com/dev/update-user-streak', {
+            fetch(import.meta.env.VITE_UPDATE_USER_STREAK_API, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -40,7 +40,7 @@ function Practice() {
                     })
                 })
             }),
-            fetch('https://piw6c7f4sf.execute-api.ap-south-1.amazonaws.com/dev/comm-practice-send-results', {
+            fetch(import.meta.env.VITE_PRACTICE_RESULTS_API, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ college_email: storedEmail })
@@ -429,10 +429,7 @@ function Practice() {
                                         >
                                             <span>Intermediate</span>
                                             {userType !== 'premium' && (
-                                                <>
-                                                    <div className="practice-level-button-shimmer"></div>
-                                                    <span className="practice-soon-badge">PREMIUM</span>
-                                                </>
+                                                <span className="practice-premium-indicator">- BUY PREMIUM</span>
                                             )}
                                         </button>
 
@@ -443,10 +440,7 @@ function Practice() {
                                         >
                                             <span>Advanced</span>
                                             {userType !== 'premium' && (
-                                                <>
-                                                    <div className="practice-level-button-shimmer delayed"></div>
-                                                    <span className="practice-soon-badge red">PREMIUM</span>
-                                                </>
+                                                <span className="practice-premium-indicator">- BUY PREMIUM</span>
                                             )}
                                         </button>
                                     </div>

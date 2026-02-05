@@ -558,10 +558,29 @@ body {
     border: 1px solid rgba(255,107,107,0.3);
 }
 
-.metric-badge.info {
-    background: rgba(59,130,246,0.15);
-    color: var(--info-blue);
-    border: 1px solid rgba(59,130,246,0.3);
+.metric-badge.available {
+    background: rgba(59,151,151,0.15);
+    color: var(--accent-teal);
+    border: 1px solid rgba(59,151,151,0.3);
+}
+
+.metric-card.remaining-practices {
+    border-left: 4px solid var(--accent-teal);
+}
+
+.metric-card.remaining-practices:hover {
+    border-left-color: var(--success-green);
+}
+
+.metric-card.remaining-practices .metric-icon {
+    color: var(--accent-teal);
+}
+
+.metric-card.remaining-practices .metric-value {
+    background: linear-gradient(135deg, var(--accent-teal) 0%, var(--success-green) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 /* ============================================

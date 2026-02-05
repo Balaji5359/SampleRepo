@@ -124,66 +124,62 @@
   font-size: 0.9rem;
   width: 50%;
   position: relative;
-  overflow: hidden;
+  transition: all 0.2s ease;
 }
 
 .practice-level-button:hover {
   background: #2c7a7a;
-  transition: all 0.3s ease;
 }
 
 .practice-level-button:disabled {
-  background: #ccc;
+  background: #e8e8e8;
+  color: #999;
   cursor: not-allowed;
 }
 
-.practice-level-button-coming-soon {
-  background: linear-gradient(135deg, #3B9797, #2c7a7a);
+.practice-level-button:disabled span {
+  opacity: 0.6;
+}
+
+.practice-level-button:disabled .practice-premium-indicator {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  background: #3B9797;
   color: white;
+  font-size: 0.6rem;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-weight: bold;
+  opacity: 1;
+}
+
+.practice-level-button-coming-soon {
+  background: #e8e8e8;
+  color: #999;
   border: none;
   padding: 8px 16px;
   border-radius: 6px;
   cursor: not-allowed;
   font-weight: 500;
   font-size: 0.9rem;
-  opacity: 0.7;
-  width: 70%;
+  width: 50%;
   position: relative;
-  overflow: hidden;
 }
+
 .app-btn-disabled{
   width: 50%;
-}
-.practice-level-button-shimmer {
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  animation: shimmer 2s infinite;
-}
-
-.practice-level-button-shimmer.delayed {
-  animation: shimmer 2s infinite 0.5s;
+  background: #e8e8e8;
+  color: #999;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: not-allowed;
+  font-weight: 500;
+  font-size: 0.9rem;
+  position: relative;
 }
 
-.practice-soon-badge {
-  position: absolute;
-  top: 2px;
-  right: 4px;
-  background: #fc0a0aff;
-  color: white;
-  border: 1px solid black;
-  font-size: 0.6rem;
-  padding: 2px 6px;
-  border-radius: 8px;
-  font-weight: bold;
-}
-
-.practice-soon-badge.red {
-  background: #f60909ff;
-}
 
 .practice-modal {
   background: white;
@@ -220,7 +216,9 @@
 .practice-modal-nav {
   margin-left: auto;
 }
-
+.app-btn-disabled{
+  width: 50%;
+}
 .practice-modal-nav button {
   margin-right: 10px;
 }
@@ -232,11 +230,6 @@
 @keyframes pulse {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.05); }
-}
-
-@keyframes shimmer {
-  0% { left: -100%; }
-  100% { left: 100%; }
 }
 
 /* Modal Overlay Styles */
