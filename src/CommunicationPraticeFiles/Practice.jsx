@@ -386,7 +386,7 @@ function Practice() {
             <Header />
             <div className="practice-div">
                 <center>
-                    <h2 className="practice-title">Practice and Improve Your Communication & Interview Skills<br></br>with TaraAI... now</h2>
+                    <h2 className="practice-title">Practice and Improve Your Communication Skills with TaraAI... now</h2>
                     <p className="test-activity-des">Practice your communication skills through guided speaking, listening, pronunciation, and real-life scenario exercises. <br></br>TaraAI helps you improve step by step with smart feedback and progress tracking.</p>
                     <div className="practice-announcement-banner">
                         <span className="practice-announcement-text">
@@ -396,10 +396,6 @@ function Practice() {
                     </div><br></br>
                     <div className="practice-announcement-banner delayed">
                         <span className="practice-announcement-text">Image Based Speaking</span>
-                        <span className="practice-coming-soon-badge">Coming Soon</span>
-                    </div><br></br>
-                    <div className="practice-announcement-banner delayed">
-                        <span className="practice-announcement-text">Interview Module</span>
                         <span className="practice-coming-soon-badge">Coming Soon</span>
                     </div>
                 </center>
@@ -414,35 +410,57 @@ function Practice() {
                                 <div style={{paddingBottom:"15px"}}>Remaining Practices: {activity.count}</div>
                                 <div className="practice-card-content">
                                     <div className="practice-activity-buttons">
-                                        <button 
-                                            onClick={() => activity.count > 0 ? handleStartChallenge(activity.id, 'basic') : null}
-                                            className={activity.count > 0 ? "practice-level-button" : "app-btn-disabled"}
-                                            disabled={activity.count === 0}
-                                        >
-                                            Basic
-                                        </button>
+                                        {activity.id === 'image_speak_practice' ? (
+                                            <button className="practice-level-button-coming-soon" disabled>
+                                                <span>Basic</span>
+                                                <span className="practice-coming-soon-indicator"> - SOON</span>
+                                            </button>
+                                        ) : (
+                                            <button 
+                                                onClick={() => activity.count > 0 ? handleStartChallenge(activity.id, 'basic') : null}
+                                                className={activity.count > 0 ? "practice-level-button" : "app-btn-disabled"}
+                                                disabled={activity.count === 0}
+                                            >
+                                                Basic
+                                            </button>
+                                        )}
 
-                                        <button 
-                                            onClick={() => userType === 'premium' && activity.count > 0 ? handleStartChallenge(activity.id, 'intermediate') : null}
-                                            className={userType === 'premium' && activity.count > 0 ? "practice-level-button" : "app-btn-disabled"}
-                                            disabled={userType !== 'premium' || activity.count === 0}
-                                        >
-                                            <span>Intermediate</span>
-                                            {userType !== 'premium' && (
-                                                <span className="practice-premium-indicator">- BUY PREMIUM</span>
-                                            )}
-                                        </button>
+                                        {activity.id === 'image_speak_practice' ? (
+                                            <>
+                                                <button className="practice-level-button-coming-soon" disabled>
+                                                    <span>Intermediate</span>
+                                                    <span className="practice-coming-soon-indicator"> - SOON</span>
+                                                </button>
+                                                <button className="practice-level-button-coming-soon" disabled>
+                                                    <span>Advanced</span>
+                                                    <span className="practice-coming-soon-indicator"> - SOON</span>
+                                                </button>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <button 
+                                                    onClick={() => userType === 'premium' && activity.count > 0 ? handleStartChallenge(activity.id, 'intermediate') : null}
+                                                    className={userType === 'premium' && activity.count > 0 ? "practice-level-button" : "app-btn-disabled"}
+                                                    disabled={userType !== 'premium' || activity.count === 0}
+                                                >
+                                                    <span>Intermediate</span>
+                                                    {userType !== 'premium' && (
+                                                        <span className="practice-premium-indicator">- BUY PREMIUM</span>
+                                                    )}
+                                                </button>
 
-                                        <button 
-                                            onClick={() => userType === 'premium' && activity.count > 0 ? handleStartChallenge(activity.id, 'advanced') : null}
-                                            className={userType === 'premium' && activity.count > 0 ? "practice-level-button" : "app-btn-disabled"}
-                                            disabled={userType !== 'premium' || activity.count === 0}
-                                        >
-                                            <span>Advanced</span>
-                                            {userType !== 'premium' && (
-                                                <span className="practice-premium-indicator">- BUY PREMIUM</span>
-                                            )}
-                                        </button>
+                                                <button 
+                                                    onClick={() => userType === 'premium' && activity.count > 0 ? handleStartChallenge(activity.id, 'advanced') : null}
+                                                    className={userType === 'premium' && activity.count > 0 ? "practice-level-button" : "app-btn-disabled"}
+                                                    disabled={userType !== 'premium' || activity.count === 0}
+                                                >
+                                                    <span>Advanced</span>
+                                                    {userType !== 'premium' && (
+                                                        <span className="practice-premium-indicator">- BUY PREMIUM</span>
+                                                    )}
+                                                </button>
+                                            </>
+                                        )}
                                     </div>
                                     {/* <div className="practice-activity-stats">
                                         <div className="practice-activity-stats-text">

@@ -1,0 +1,202 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap");
+
+.interview-theme {
+  --background: 210 20% 98%;
+  --foreground: 215 28% 17%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 215 28% 17%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 215 28% 17%;
+
+  --primary: 172 66% 32%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 210 20% 95%;
+  --secondary-foreground: 215 28% 17%;
+
+  --muted: 210 16% 93%;
+  --muted-foreground: 215 14% 46%;
+
+  --accent: 37 92% 55%;
+  --accent-foreground: 0 0% 100%;
+
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+
+  --success: 152 60% 40%;
+  --success-foreground: 0 0% 100%;
+
+  --border: 214 20% 90%;
+  --input: 214 20% 90%;
+  --ring: 172 66% 32%;
+
+  --radius: 0.75rem;
+
+  --font-heading: "Space Grotesk", sans-serif;
+  --font-body: "Inter", sans-serif;
+
+  --gradient-primary: linear-gradient(135deg, hsl(172 66% 32%), hsl(172 66% 42%));
+  --gradient-accent: linear-gradient(135deg, hsl(37 92% 55%), hsl(28 87% 52%));
+  --gradient-dark: linear-gradient(135deg, hsl(215 28% 12%), hsl(220 26% 18%));
+  --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  --gradient-hero: linear-gradient(160deg, hsl(210 20% 98%) 0%, hsl(172 30% 95%) 50%, hsl(37 40% 96%) 100%);
+
+  --shadow-sm: 0 1px 3px hsl(215 28% 17% / 0.06);
+  --shadow-md: 0 4px 16px hsl(215 28% 17% / 0.08);
+  --shadow-lg: 0 12px 40px hsl(215 28% 17% / 0.1);
+  --shadow-glow: 0 0 30px hsl(172 66% 32% / 0.15);
+
+  font-family: var(--font-body);
+  color: hsl(var(--foreground));
+  background-color: hsl(var(--background));
+}
+
+.interview-theme,
+.interview-theme * {
+  font-family: var(--font-body);
+  border-color: hsl(var(--border));
+}
+
+.interview-theme h1,
+.interview-theme h2,
+.interview-theme h3,
+.interview-theme h4,
+.interview-theme h5,
+.interview-theme h6 {
+  font-family: var(--font-heading);
+}
+
+.interview-theme .font-heading {
+  font-family: var(--font-heading);
+}
+
+.interview-theme .font-body {
+  font-family: var(--font-body);
+}
+
+.interview-theme .glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.interview-theme .glass-dark {
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.interview-theme .text-gradient-primary {
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  background-image: var(--gradient-primary);
+}
+
+.interview-theme .text-gradient-accent {
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  background-image: var(--gradient-accent);
+}
+
+.interview-theme .shadow-glow {
+  box-shadow: var(--shadow-glow);
+}
+
+.interview-warning-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+}
+
+.interview-warning-content {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px 20px;
+  max-width: 360px;
+  text-align: center;
+  box-shadow: var(--shadow-md);
+}
+
+.interview-warning-content h3 {
+  margin: 0 0 6px 0;
+  font-size: 16px;
+}
+
+.interview-warning-content p {
+  margin: 0;
+  font-size: 13px;
+  color: #475569;
+}
+
+.interview-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+  padding: 16px;
+}
+
+.interview-modal-content {
+  width: min(520px, 92vw);
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid hsl(var(--border));
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+.interview-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid hsl(var(--border));
+  font-weight: 600;
+}
+
+.interview-modal-body {
+  padding: 18px;
+  color: hsl(var(--foreground));
+}
+
+.interview-modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding: 0 18px 18px;
+}
+
+.interview-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  background: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+}
+
+.interview-badge.primary {
+  background: hsl(var(--primary) / 0.12);
+  color: hsl(var(--primary));
+}
+
+.interview-badge.accent {
+  background: hsl(var(--accent) / 0.16);
+  color: hsl(var(--accent));
+}

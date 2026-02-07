@@ -145,35 +145,35 @@ function Test() {
         return prevScore >= 70;
     };
 
-    const interviewLevels = [
-        {
-            level: 1,
-            title: 'Basic Interview Tests',
-            color: '#28a745',
-            steps: [
-                { id: 1, title: 'JD-Based Self Introduction', activities: '' },
-                { id: 2, title: 'Programming Knowledge', activities: '' },
-                { id: 3, title: 'Worked Domain', activities: '' },
-                { id: 4, title: 'Project Discussion', activities: '' },
-                { id: 5, title: 'Future Career Planning', activities: '' },
-                { id: 6, title: 'Hobbies & Interests', activities: '' },
-                { id: 7, title: 'Certifications & Internships', activities: '' }
-            ]
-        },
-        {
-            level: 2,
-            title: 'Advanced Interview Tests',
-            color: '#007bff',
-            steps: [
-                { id: 8, title: 'Role-Based Interview', activities: '' },
-                { id: 9, title: 'Resume-Based Interview', activities: '' },
-                { id: 10, title: 'Technical Interview', activities: '' },
-                { id: 11, title: 'Follow-Up Questioning', activities: '' },
-                { id: 12, title: 'Stress/Pressure Questions', activities: '' },
-                { id: 13, title: 'Logical Puzzles', activities: '' }
-            ]
-        }
-    ];
+    // const interviewLevels = [
+    //     {
+    //         level: 1,
+    //         title: 'Basic Interview Tests',
+    //         color: '#28a745',
+    //         steps: [
+    //             { id: 1, title: 'JD-Based Self Introduction', activities: '' },
+    //             { id: 2, title: 'Programming Knowledge', activities: '' },
+    //             { id: 3, title: 'Worked Domain', activities: '' },
+    //             { id: 4, title: 'Project Discussion', activities: '' },
+    //             { id: 5, title: 'Future Career Planning', activities: '' },
+    //             { id: 6, title: 'Hobbies & Interests', activities: '' },
+    //             { id: 7, title: 'Certifications & Internships', activities: '' }
+    //         ]
+    //     },
+    //     {
+    //         level: 2,
+    //         title: 'Advanced Interview Tests',
+    //         color: '#007bff',
+    //         steps: [
+    //             { id: 8, title: 'Role-Based Interview', activities: '' },
+    //             { id: 9, title: 'Resume-Based Interview', activities: '' },
+    //             { id: 10, title: 'Technical Interview', activities: '' },
+    //             { id: 11, title: 'Follow-Up Questioning', activities: '' },
+    //             { id: 12, title: 'Stress/Pressure Questions', activities: '' },
+    //             { id: 13, title: 'Logical Puzzles', activities: '' }
+    //         ]
+    //     }
+    // ];
 
     const activities = [
         {
@@ -504,16 +504,12 @@ const testInstructions = {
         <div className="test-container app-bg-free">
             <div className="test-div">
                 <center>
-                    <h1 className="test-title">Communication & Interview Assessments with TaraAI</h1>
+                    <h1 className="test-title">Communication Assessments with TaraAI</h1>
                     <p className="test-activity-des">From everyday speaking activities to interview-level assessments,<br></br> TaraAI helps you practice, evaluate, and improve your communication skills with smart feedback and progress tracking.</p>
                     <div className="test-announcement-banner delayed">
                         <span className="test-announcement-text">Image-Based Speaking</span>
                         <span className="test-coming-soon-badge">Coming Soon</span>
                     </div><br></br>
-                    <div className="test-announcement-banner delayed">
-                        <span className="test-announcement-text">Interview Module</span>
-                        <span className="test-coming-soon-badge">Coming Soon</span>
-                    </div>
                 </center>
 
                 <div className={`test-activity-grid ${activeChallenge ? 'blurred' : ''}`}>
@@ -593,7 +589,7 @@ const testInstructions = {
                     })}
                 </div>
 
-                <div className={`test-interview-section ${activeChallenge ? 'blurred' : ''}`}>
+                {/* <div className={`test-interview-section ${activeChallenge ? 'blurred' : ''}`}>
                     {interviewLevels.map((level, levelIndex) => {
                         const unlocked = isInterviewLevelUnlocked(level.level);
                         
@@ -648,7 +644,7 @@ const testInstructions = {
                             <div className="test-progress-text">Complete Your Interview Journey</div>
                         </div>
                     </div>
-                </div>
+                </div> */}
 
                 {activeChallenge && (
                     <div className="app-modal-overlay">

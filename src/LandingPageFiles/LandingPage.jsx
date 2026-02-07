@@ -276,40 +276,47 @@ function LandingPage() {
       <section id="home" className="hero">
         <div className="hero-content">
           <div className="hero-text">
-            <h1>Speak with TaraAI, <br></br>Speak with Confidence</h1>
+            <h1>Speak with TaraAI, <br />Speak with Confidence</h1>
             <p>Enhance your communication skills with AI-driven practice, personalized feedback, and engaging learning experiences for students and professionals.</p>
             <div className="hero-buttons">
-              <button className="btn-start"
-                      onClick={() => { window.location.href = '/signup'; }}
-                      >Get Started
+              <button className="btn-start" onClick={() => { window.location.href = '/signup'; }}>
+                Get Started
               </button>
-              <h2 style={{color:"#392103ff", fontWeight: "bold", textShadow: "2px 2px 4px rgba(0,0,0,0.3)"}}>- Speak your first word now!</h2>
+              <h2 className="hero-subtitle">- Speak your first word now!</h2>
             </div>
           </div>
           <div className="hero-visual">
             <div className="floating-card">
-              <div className="card-icon"><img src="https://cdn0.iconfinder.com/data/icons/business-management-3-4/256/m-21-128.png" alt="progress" style={{ width: 40, height: 40 }} /></div>
+              <div className="card-icon">
+                <img src="https://cdn0.iconfinder.com/data/icons/business-management-3-4/256/m-21-128.png" alt="progress" style={{ width: 40, height: 40 }} />
+              </div>
               <div className="card-text">
                 <h4>Progress Tracking</h4>
                 <p>Visual insights</p>
               </div>
             </div>
             <div className="floating-card">
-              <div className="card-icon"><img src="https://cdn0.iconfinder.com/data/icons/business-startup-10/50/33-128.png" alt="achievements" style={{ width: 40, height: 40 }} /></div>
+              <div className="card-icon">
+                <img src="https://cdn0.iconfinder.com/data/icons/business-startup-10/50/33-128.png" alt="achievements" style={{ width: 40, height: 40 }} />
+              </div>
               <div className="card-text">
                 <h4>Achievements</h4>
                 <p>Milestone rewards</p>
               </div>
             </div>
             <div className="floating-card">
-              <div className="card-icon"><img src="https://cdn2.iconfinder.com/data/icons/artificial-intelligence-6/64/ArtificialIntelligence5-128.png" alt="speak with ai" style={{ width: 40, height: 40 }} /></div>
+              <div className="card-icon">
+                <img src="https://cdn2.iconfinder.com/data/icons/artificial-intelligence-6/64/ArtificialIntelligence5-128.png" alt="speak with ai" style={{ width: 40, height: 40 }} />
+              </div>
               <div className="card-text">
                 <h4>Speak with AI</h4>
                 <p>Voice interaction</p>
               </div>
             </div>
             <div className="floating-card">
-              <div className="card-icon"><img src="https://cdn2.iconfinder.com/data/icons/xomo-basics/128/document-05-128.png" alt="feedback" style={{ width: 40, height: 40 }} /></div>
+              <div className="card-icon">
+                <img src="https://cdn2.iconfinder.com/data/icons/xomo-basics/128/document-05-128.png" alt="feedback" style={{ width: 40, height: 40 }} />
+              </div>
               <div className="card-text">
                 <h4>AI Feedback</h4>
                 <p>Real-time analysis</p>
@@ -319,6 +326,17 @@ function LandingPage() {
         </div>
       </section>
 
+      {/* Mentor Section */}
+      <section className="mentor-section">
+        <h3>Get Started as a Mentor</h3>
+        <p>Monitor your Institute or university students, track their tests progress, practice and guide them in Communication and Interviews</p>
+        <button
+          className="mentor-btn"
+          onClick={() => window.open('https://mentorhub.skillrouteai.com', '_blank')}
+        >
+          Get Started
+        </button>
+      </section>
       {/* Features Section */}
       <section id="features" className="features">
         <div className="section-header">

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 
 function Header() {
     const navigate = useNavigate();
+    const location = useLocation();
     const [userType, setUserType] = useState('free');
     const [streakData, setStreakData] = useState({ current_streak: 0 });
-    const [profileData, setProfileData] = useState({ roll_no: 'Loading...' });
+    const [profileData, setProfileData] = useState({});
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -33,13 +35,13 @@ function Header() {
 
                 const profile = await profileResponse.json();
                 const streak = await streakResponse.json();
-                
+
                 if (profile?.body) {
                     const userData = typeof profile.body === "string" ? JSON.parse(profile.body) : profile.body;
                     setProfileData(userData);
                     setUserType(userData?.user_type === 'premium' && userData?.premium_status === 'active' ? 'premium' : 'free');
                 }
-                
+
                 if (streak?.body) {
                     const streakDataResult = typeof streak.body === "string" ? JSON.parse(streak.body) : streak.body;
                     setStreakData(streakDataResult);
@@ -52,31 +54,61 @@ function Header() {
         fetchUserData();
     }, []);
 
+    const email = profileData?.college_email || localStorage.getItem('email') || 'User';
+
+    const isActive = (path) => location.pathname === path || location.pathname.startsWith(`${path}/`);
+
+    const baseBtn =
+        "px-3 py-2 rounded-lg bg-muted text-foreground text-sm font-medium hover:bg-muted/80 transition-colors";
+
+    const activeClass = "font-bold";
+
     return (
         <header className="header">
             <div className="header-content">
-                <div className="logo">
-                    <span className="logo-text">Skill Route</span>
-                    <div className="nav-links">
-                        <NavLink to="/profiledata" className={({ isActive }) => isActive ? 'active-nav' : ''}>Home</NavLink>
-                        <NavLink to="/test" className={({ isActive }) => isActive ? 'active-nav' : ''}>Tests</NavLink>
-                        <NavLink to="/practice" className={({ isActive }) => isActive ? 'active-nav' : ''}>Practice</NavLink>
-                        <NavLink to="/student-dashboard" className={({ isActive }) => isActive ? 'active-nav' : ''}>Dashboard</NavLink>
-                        <NavLink to="/student-leaderboard" className={({ isActive }) => isActive ? 'active-nav' : ''}>Leaderboard</NavLink>
-                    </div>
+                <div className="header-left">
+                    <span className="font-heading text-lg font-bold text-foreground"
+                    style={{fontSize:"25px"}}
+                    >Skill Route</span>
+                    <button
+                        onClick={() => navigate("/profiledata")}
+                        className={`${baseBtn} ${isActive("/profiledata") ? activeClass : ""}`}
+                    >
+                        Home
+                    </button>
+                    <button
+                        onClick={() => navigate("/test")}
+                        className={`${baseBtn} ${isActive("/test") ? activeClass : ""}`}
+                    >
+                        Tests
+                    </button>
+                    <button
+                        onClick={() => navigate("/practice")}
+                        className={`${baseBtn} ${isActive("/practice") ? activeClass : ""}`}
+                    >
+                        Practices
+                    </button>
+                    <button
+                        onClick={() => navigate("/interview")}
+                        className={`${baseBtn} ${isActive("/interview") ? activeClass : ""}`}
+                    >
+                        Interview Hub
+                    </button>
+                    <button
+                        onClick={() => navigate("/student-dashboard")}
+                        className={`${baseBtn} ${isActive("/student-dashboard") ? activeClass : ""}`}
+                    >
+                        Dashboard
+                    </button>
                 </div>
                 <div className="auth-buttons">
-                    <span className="streak-badge">
-                        🔥{streakData.current_streak || 0}
+                    <span className="app-badge">🔥 {streakData.current_streak || 0}</span>
+                    <span className={`app-badge ${userType === 'premium' ? 'badge-premium' : 'badge-free'}`}>
+                        {userType === 'premium' ? '👑 Premium' : '🆓 Free'}
                     </span>
-                    <span className={`user-type-badge ${userType === 'premium' ? 'premium' : 'free'}`}>
-                        {userType === 'premium' ? '👑 Premium User' : '🆓 Free User'}
-                    </span>
-                    <span className="roll-badge">
-                        {profileData?.roll_no || localStorage.getItem('email')?.slice(0, 10) || 'User'}
-                    </span>
+                    <span className="app-badge">{email}</span>
                     <button 
-                        className="btn-signup"
+                        className="btn-logout"
                         onClick={() => {
                             localStorage.removeItem('email');
                             navigate('/signup');

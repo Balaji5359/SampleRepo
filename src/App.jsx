@@ -25,6 +25,14 @@ const Pronunciation1 = lazy(() => import("./CommunicationTestsFiles/Pronunciatio
 const Listening = lazy(() => import("./CommunicationTestsFiles/Listening.jsx"));
 const SituationSpeak = lazy(() => import("./CommunicationTestsFiles/SituationSpeak.jsx"));
 
+// Interview Components
+const Interview = lazy(() => import("./InterviewModule/Interview.jsx"));
+const InterviewPractice = lazy(() => import("./InterviewModule/InterviewPractice.jsx"));
+const InterviewTest = lazy(() => import("./InterviewModule/InterviewTest.jsx"));
+const BasicInterview = lazy(() => import("./InterviewModule/BasicInterview.jsx"));
+const InterviewSession = lazy(() => import("./InterviewModule/InterviewSession.jsx"));
+const InterviewFeedback = lazy(() => import("./InterviewModule/InterviewFeedback.jsx"));
+
 // Practice Components - Base
 const BaseComponentPractice = lazy(() => import("./CommunicationPraticeFiles/BaseComponentPractice.jsx"));
 
@@ -232,6 +240,38 @@ function App() {
                 practiceTitle="Image-Based Speaking Practice"
                 practiceDescription="Describe images to enhance vocabulary and fluency"
               />
+            </ProtectedRoute>
+          } />
+
+          {/* Interview routes (no global Header) */}
+          <Route path="interview" element={
+            <ProtectedRoute>
+              <Interview />
+            </ProtectedRoute>
+          } />
+          <Route path="interview/practice" element={
+            <ProtectedRoute>
+              <InterviewPractice />
+            </ProtectedRoute>
+          } />
+          <Route path="interview/test" element={
+            <ProtectedRoute>
+              <InterviewTest />
+            </ProtectedRoute>
+          } />
+          <Route path="interview/session" element={
+            <ProtectedRoute>
+              <InterviewSession />
+            </ProtectedRoute>
+          } />
+          <Route path="interview/feedback" element={
+            <ProtectedRoute>
+              <InterviewFeedback />
+            </ProtectedRoute>
+          } />
+          <Route path="interview/basic" element={
+            <ProtectedRoute>
+              <BasicInterview />
             </ProtectedRoute>
           } />
 

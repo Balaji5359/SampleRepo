@@ -9,6 +9,7 @@ function Navigation() {
         { path: '/dashboard', label: 'Home', icon: '🏠' },
         { path: '/test', label: 'Test', icon: '📝' },
         { path: '/practice', label: 'Practice', icon: '🎯' },
+        { path: '/interview', label: 'Interview', icon: '💼' },
         { path: '/profile', label: 'Dashboard', icon: '📊' }
     ];
 
