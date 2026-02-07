@@ -43,9 +43,12 @@ function InterviewPractice() {
     const [interviews, setInterviews] = useState({});
     const [loading, setLoading] = useState(true);
     const [activeChallenge, setActiveChallenge] = useState(null);
+    const [selectedLevel, setSelectedLevel] = useState(null);
+    const [selectedTitle, setSelectedTitle] = useState("");
     const [instructionIndex, setInstructionIndex] = useState(0);
     const [showPremiumModal, setShowPremiumModal] = useState(false);
     const [premiumModalMessage, setPremiumModalMessage] = useState("");
+    const [showLevelModal, setShowLevelModal] = useState(false);
     const navigate = useNavigate();
     const { userType, streakData, email, isPremium } = useInterviewUserInfo();
 
@@ -96,14 +99,37 @@ function InterviewPractice() {
 
     const instructions = buildInstructions();
 
+    const handleLevelSelect = (interviewId, title) => {
+        if (!isPremium && interviews[getInterviewKey(interviewId)] === 0) {
+            openPremiumModal("No remaining practice sessions. Upgrade to Premium to get more interview sessions.");
+            return;
+        }
+        setActiveChallenge(interviewId);
+        setSelectedTitle(title);
+        setShowLevelModal(true);
+    };
+
+    const handleLevelChoice = (level) => {
+        setSelectedLevel(level);
+        setShowLevelModal(false);
+        setInstructionIndex(0);
+    };
+
+    const getInterviewKey = (id) => {
+        const keyMap = {
+            1: "self_intro", 2: "programming", 3: "domain", 4: "project",
+            5: "career", 6: "hobbies", 7: "certifications", 8: "project_reviews"
+        };
+        return keyMap[id];
+    };
+
     const handleLaunch = () => {
-        const all = [...basicInterviews, ...advancedInterviews];
-        const item = all.find((i) => i.id === activeChallenge);
         navigate("/interview/session", {
             state: {
                 interviewId: activeChallenge,
-                interviewTitle: item?.title,
-                remainingTests: item?.count || 0,
+                interviewTitle: selectedTitle,
+                interviewLevel: selectedLevel,
+                remainingTests: interviews[getInterviewKey(activeChallenge)] || 0,
                 mode: "practice",
                 interviewType: "basic-interview",
             },
@@ -176,15 +202,7 @@ function InterviewPractice() {
                                 comingSoon={false}
                                 locked={!isPremium && item.count === 0}
                                 lockedLabel="BUY PREMIUM"
-                                onStart={() => {
-                                    if (!isPremium && item.count === 0) {
-                                        openPremiumModal("No remaining practice sessions. Upgrade to Premium to get more interview sessions.");
-                                        return;
-                                    }
-                                    if (item.count === 0) return;
-                                    setActiveChallenge(item.id);
-                                    setInstructionIndex(0);
-                                }}
+                                onLevelSelect={handleLevelSelect}
                             />
                         ))}
                     </div>
@@ -212,16 +230,48 @@ function InterviewPractice() {
             </div>
 
             <InstructionModal
-                isOpen={activeChallenge !== null}
+                isOpen={activeChallenge !== null && !showLevelModal}
                 instructions={instructions}
                 currentIndex={instructionIndex}
                 onNext={() => setInstructionIndex((i) => Math.min(i + 1, instructions.length - 1))}
                 onPrev={() => setInstructionIndex((i) => Math.max(i - 1, 0))}
                 onSkip={() => setInstructionIndex(instructions.length - 1)}
                 onLaunch={handleLaunch}
-                onClose={() => setActiveChallenge(null)}
+                onClose={() => {
+                    setActiveChallenge(null);
+                    setSelectedLevel(null);
+                }}
                 variant="practice"
             />
+
+            {showLevelModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-foreground/50 backdrop-blur-sm">
+                    <div className="relative w-full max-w-md bg-card rounded-2xl overflow-hidden shadow-lg p-6">
+                        <h3 className="font-heading text-xl font-bold text-foreground mb-4">Select Level</h3>
+                        <p className="text-sm text-muted-foreground mb-6">{selectedTitle}</p>
+                        <div className="space-y-3">
+                            {["Basic", "Intermediate", "Advanced"].map((level) => (
+                                <button
+                                    key={level}
+                                    onClick={() => handleLevelChoice(level)}
+                                    className="w-full py-3 px-4 rounded-xl bg-primary/10 hover:bg-primary/20 text-foreground font-medium transition-colors text-left"
+                                >
+                                    {level}
+                                </button>
+                            ))}
+                        </div>
+                        <button
+                            onClick={() => {
+                                setShowLevelModal(false);
+                                setActiveChallenge(null);
+                            }}
+                            className="mt-4 w-full py-2 text-sm text-muted-foreground hover:text-foreground"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {showPremiumModal && (
                 <div className="interview-modal-overlay" onClick={() => setShowPremiumModal(false)}>
