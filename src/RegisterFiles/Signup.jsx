@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "../theme-system.css";
 import "./login-custom.css";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Eye, EyeOff, CheckCircle2, XCircle } from "lucide-react";
 
 function SignUp() {
     const location = useLocation();
@@ -24,7 +25,27 @@ function SignUp() {
     const [errorMessage, setErrorMessage] = useState("");
     const [showForm, setShowForm] = useState(false);
     const [passwordMismatch, setPasswordMismatch] = useState(false);
+    const [showPasswordRules, setShowPasswordRules] = useState(false);
+    const [passwordChecks, setPasswordChecks] = useState({
+        minLength: false,
+        hasCapital: false,
+        hasNumber: false,
+        hasSpecial: false
+    });
     const navigate = useNavigate();
+
+    const validatePassword = (pwd) => {
+        return {
+            minLength: pwd.length >= 8,
+            hasCapital: /[A-Z]/.test(pwd),
+            hasNumber: /[0-9]/.test(pwd),
+            hasSpecial: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd)
+        };
+    };
+
+    const isPasswordValid = () => {
+        return Object.values(passwordChecks).every(check => check);
+    };
 
     useEffect(() => {
         document.body.style = "";
@@ -47,6 +68,12 @@ function SignUp() {
             [name]: value
         });
         
+        // Check password requirements in real-time
+        if (name === 'password') {
+            setPasswordChecks(validatePassword(value));
+            setShowPasswordRules(value.length > 0);
+        }
+        
         // Check password confirmation in real-time
         if (name === 'confirmPassword' || name === 'password') {
             const password = name === 'password' ? value : formData.password;
@@ -66,6 +93,14 @@ function SignUp() {
         setApiMessage("");
 
         if (isLogin) {
+            // Validate email format for login
+            if (!formData.email.endsWith("@mits.ac.in")) {
+                setErrorMessage("Please use your MITS college email (@mits.ac.in)");
+                setShowErrorCard(true);
+                setIsLoading(false);
+                return;
+            }
+
             // Login API call
             const url = import.meta.env.VITE_STUDENT_LOGIN_API;
             const userdata = {
@@ -77,48 +112,83 @@ function SignUp() {
                 "Content-Type": "application/json",
             };
 
-            // console.log('Login API URL:', url);
-            // console.log('Login Request Data:', userdata);
-
             try {
                 const response = await fetch(url, {
                     method: "POST",
                     headers: headers,
                     body: JSON.stringify(userdata),
                 });
-                // console.log('Login Response Status:', response.status);
                 const data = await response.json();
-                // console.log('Login Response Data:', data);
-                setStatusCode(data.statusCode);
-                setMessage(data.body);
-
-                // Parse the quoted string in data.body
+                
+                // Extract message from Lambda response
                 let errorMsg = "";
-                try {
-                    errorMsg = JSON.parse(data.body);
-                } catch (e) {
-                    errorMsg = data.body;
+                if (typeof data.body === 'string') {
+                    try {
+                        const parsed = JSON.parse(data.body);
+                        errorMsg = parsed.message || data.body;
+                    } catch (e) {
+                        errorMsg = data.body;
+                    }
+                } else if (data.body?.message) {
+                    errorMsg = data.body.message;
+                } else {
+                    errorMsg = data.message || "Login failed";
                 }
+
+                setStatusCode(data.statusCode);
                 setApiMessage(errorMsg);
 
                 if (data.statusCode === 200) {
                     localStorage.setItem("email", formData.email);
-                    // alert("Welcome back to Skill Route!");
-                    navigate("/profiledata");
+                    // Show success message briefly before navigation
+                    setShowErrorCard(false);
+                    setApiMessage(errorMsg || "Logged in successfully! Redirecting...");
+                    setTimeout(() => {
+                        navigate("/profiledata");
+                    }, 1500);
                 } else {
-                    // Show specific error message from API
-                    setErrorMessage(errorMsg || "Login failed. Please try again.");
+                    setErrorMessage(errorMsg);
                     setShowErrorCard(true);
                 }
             } catch (error) {
-                console.log('Login API Error:', error);
-                setError("Failed to connect to server. Please try again.");
+                console.error('Login API Error:', error);
                 setErrorMessage("Network error. Please check your connection.");
                 setShowErrorCard(true);
             } finally {
                 setIsLoading(false);
             }
         } else {
+            // Validate all required fields for signup
+            if (!formData.name.trim()) {
+                setErrorMessage("Please enter your full name");
+                setShowErrorCard(true);
+                setIsLoading(false);
+                return;
+            }
+
+            // Validate email format for signup
+            if (!formData.email.trim()) {
+                setErrorMessage("Please enter your college email");
+                setShowErrorCard(true);
+                setIsLoading(false);
+                return;
+            }
+
+            if (!formData.email.endsWith("@mits.ac.in")) {
+                setErrorMessage("Please use your MITS college email (@mits.ac.in)");
+                setShowErrorCard(true);
+                setIsLoading(false);
+                return;
+            }
+
+            // Validate password requirements
+            if (!isPasswordValid()) {
+                setErrorMessage("Password must have: 8+ chars, capital letter, number, and special character (!@#$%^&*)");
+                setShowErrorCard(true);
+                setIsLoading(false);
+                return;
+            }
+
             // Check password confirmation
             if (formData.password !== formData.confirmPassword) {
                 setErrorMessage("Passwords do not match.");
@@ -127,6 +197,14 @@ function SignUp() {
                 return;
             }
             
+            // Validate college selection
+            if (!formData.collegeName) {
+                setErrorMessage("Please select your college");
+                setShowErrorCard(true);
+                setIsLoading(false);
+                return;
+            }
+
             // Signup API call
             const userData = {
                 college_email: formData.email,
@@ -140,43 +218,47 @@ function SignUp() {
                 'Content-Type': 'application/json'
             };
 
-            // console.log('Signup API URL:', url);
-            // console.log('Signup Request Data:', userData);
-
             try {
                 const response = await fetch(url, {
                     method: "POST",
                     headers: headers,
                     body: JSON.stringify(userData),
                 });
-                // console.log('Signup Response Status:', response.status);
                 const data = await response.json();
-                // console.log('Signup Response Data:', data);
-                setStatusCode(data.statusCode);
-                setMessage(data.body);
                 
-                // Parse the quoted string in data.body
+                // Extract message from Lambda response
                 let errorMsg = "";
-                try {
-                    errorMsg = JSON.parse(data.body);
-                } catch (e) {
-                    errorMsg = data.body;
+                if (typeof data.body === 'string') {
+                    try {
+                        const parsed = JSON.parse(data.body);
+                        errorMsg = parsed.message || data.body;
+                    } catch (e) {
+                        errorMsg = data.body;
+                    }
+                } else if (data.body?.message) {
+                    errorMsg = data.body.message;
+                } else {
+                    errorMsg = data.message || "Signup failed";
                 }
+
+                setStatusCode(data.statusCode);
                 setApiMessage(errorMsg);
                 
                 if (data.statusCode === 200) {
                     localStorage.setItem("email", formData.email);
                     localStorage.setItem("fullName", formData.name);
-                    // alert("Welcome to Skill Route!");
-                    navigate("/profile-creation-survey");
+                    // Show success message briefly before navigation
+                    setShowErrorCard(false);
+                    setApiMessage(errorMsg || "Account created successfully! Redirecting...");
+                    setTimeout(() => {
+                        navigate("/profile-creation-survey");
+                    }, 1500);
                 } else {
-                    // Show specific error message from API
-                    setErrorMessage(errorMsg || "Signup failed. Please try again.");
+                    setErrorMessage(errorMsg);
                     setShowErrorCard(true);
                 }
             } catch (error) {
-                console.log('Signup API Error:', error);
-                setError("Failed to connect to server. Please try again.");
+                console.error('Signup API Error:', error);
                 setErrorMessage("Network error. Please check your connection.");
                 setShowErrorCard(true);
             } finally {
@@ -212,7 +294,12 @@ function SignUp() {
                         <div className="form-tabs">
                             <button
                                 className={!isLogin ? 'tab active' : 'tab'}
-                                onClick={() => setIsLogin(false)}
+                                onClick={() => {
+                                    setIsLogin(false);
+                                    setShowErrorCard(false);
+                                    setErrorMessage("");
+                                    setApiMessage("");
+                                }}
                                 type="button"
                             >
                                 Sign Up
@@ -220,7 +307,12 @@ function SignUp() {
                         
                             <button
                                 className={isLogin ? 'tab active' : 'tab'}
-                                onClick={() => setIsLogin(true)}
+                                onClick={() => {
+                                    setIsLogin(true);
+                                    setShowErrorCard(false);
+                                    setErrorMessage("");
+                                    setApiMessage("");
+                                }}
                                 type="button"
                             >
                                 Login
@@ -248,7 +340,7 @@ function SignUp() {
                                     value={formData.email}
                                     onChange={handleInputChange}
                                     onFocus={handleInputFocus}
-                                    placeholder="College Email"
+                                    placeholder="Enter College Email"
                                     required
                                 />
                             </div>
@@ -270,9 +362,35 @@ function SignUp() {
                                     className="eye-button"
                                     onClick={() => setShowPassword(!showPassword)}
                                 >
-                                    {/* {showPassword ? '👁️' : '🙈'} */}
+                                    {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
                                 </button>
                             </div>
+
+                            {showPasswordRules && !isLogin && (
+                                <div className="password-rules">
+                                    <div className="rules-header">
+                                        <span className="rules-label">Password Requirements</span>
+                                    </div>
+                                    <div className="rules-list">
+                                        <div className={`rule-item ${passwordChecks.minLength ? 'valid' : 'invalid'}`}>
+                                            {passwordChecks.minLength ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
+                                            <span>At least 8 characters</span>
+                                        </div>
+                                        <div className={`rule-item ${passwordChecks.hasCapital ? 'valid' : 'invalid'}`}>
+                                            {passwordChecks.hasCapital ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
+                                            <span>One capital letter (A-Z)</span>
+                                        </div>
+                                        <div className={`rule-item ${passwordChecks.hasNumber ? 'valid' : 'invalid'}`}>
+                                            {passwordChecks.hasNumber ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
+                                            <span>One number (0-9)</span>
+                                        </div>
+                                        <div className={`rule-item ${passwordChecks.hasSpecial ? 'valid' : 'invalid'}`}>
+                                            {passwordChecks.hasSpecial ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
+                                            <span>One special character (!@#$%^&*)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             {!isLogin && (
                                 <div className="input-group password-group">
@@ -285,31 +403,29 @@ function SignUp() {
                                         placeholder="Confirm Password"
                                         required
                                     />
-                                    <button
-                                        type="button"
-                                        className="eye-button"
-                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                    >
-                                        {/*showConfirmPassword ? '👁️' : '🙈'*/}
-                                    </button>
                                     {passwordMismatch && (
                                         <div className="error-text">Passwords do not match</div>
                                     )}
+                                    {formData.confirmPassword && !passwordMismatch && (
+                                        <div className="success-text">Passwords match ✓</div>
+                                    )}
                                 </div>
                             )}
-                            <div className="input-group"><div className="input-group">
+                            
+                            <div className="input-group">
                                 <select
                                     name="collegeName"
                                     value={formData.collegeName}
                                     onChange={handleInputChange}
                                     onFocus={handleInputFocus}
                                     required
+                                    className="college-select"
                                 >
                                     <option value="">Select College</option>
                                     <option value="MITS University">MITS University</option>
                                     <option value="ABCD University">ABCD University</option>
                                 </select>
-                            </div></div>
+                            </div>
 
 
                             <button
@@ -321,12 +437,25 @@ function SignUp() {
                             </button>
                         </form>
 
-                        {apiMessage && (
-                            <div className="message success">{apiMessage}</div>
+                        {showErrorCard && errorMessage && (
+                            <div className="message error-card">
+                                <div className="error-content">
+                                    <p className="error-message">{errorMessage}</p>
+                                </div>
+                                <button 
+                                    type="button" 
+                                    className="error-close"
+                                    onClick={() => setShowErrorCard(false)}
+                                >
+                                </button>
+                            </div>
                         )}
 
-                        {error && (
-                            <div className="message error">{error}</div>
+                        {apiMessage && !showErrorCard && (
+                            <div className="message success-card">
+                                <div className="success-icon">✓</div>
+                                <p>{apiMessage}</p>
+                            </div>
                         )}
                         
                         {/* switch controls placed inside the card and centered */}

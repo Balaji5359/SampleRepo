@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Header from './Header';
 import './profile.css';
 import './profile-payment.css';
 
@@ -121,43 +122,46 @@ function ProfileData() {
     }
 
     return (
-        <div className="profile-container app-bg-free">
-            <div className="profile-content">
-                <GreetingCard 
-                    greeting={greeting} 
-                    name={profileData?.full_name} 
-                    quote={motivationalQuote} 
-                />
-                
-                <div className="profile-dashboard-grid">
-                    {isPremium ? (
-                        <>
-                            <PremiumInfoCard 
-                                plan={profileData.premium_plan} 
-                                startDate={profileData.premium_start_date} 
-                            />
-                            <DaysLeftCard 
-                                daysLeft={profileData.premium_days_left}
-                                expiryDate={profileData.premium_expiry_date}
-                            />
-                        </>
-                    ) : (
-                        <FreeVsPremiumCard onUpgrade={() => setShowPricingModal(true)} />
-                    )}
+        <>
+            <Header />
+            <div className="profile-container app-bg-free">
+                <div className="profile-content">
+                    <GreetingCard 
+                        greeting={greeting} 
+                        name={profileData?.full_name} 
+                        quote={motivationalQuote} 
+                    />
                     
-                    <StreakCard 
-                        currentStreak={streakData?.current_streak}
-                        longestStreak={streakData?.longest_streak}
-                    />
-                </div>
+                    <div className="profile-dashboard-grid">
+                        {isPremium ? (
+                            <>
+                                <PremiumInfoCard 
+                                    plan={profileData.premium_plan} 
+                                    startDate={profileData.premium_start_date} 
+                                />
+                                <DaysLeftCard 
+                                    daysLeft={profileData.premium_days_left}
+                                    expiryDate={profileData.premium_expiry_date}
+                                />
+                            </>
+                        ) : (
+                            <FreeVsPremiumCard onUpgrade={() => setShowPricingModal(true)} />
+                        )}
+                        
+                        <StreakCard 
+                            currentStreak={streakData?.current_streak}
+                            longestStreak={streakData?.longest_streak}
+                        />
+                    </div>
 
-                <div className="profile-dashboard-bottom">
-                    <ActivityCalendar 
-                        activeDates={streakData?.active_dates} 
-                        currentDate={currentCalendarDate}
-                        onDateChange={setCurrentCalendarDate}
-                    />
-                    <QuickActions navigate={navigate} />
+                    <div className="profile-dashboard-bottom">
+                        <ActivityCalendar 
+                            activeDates={streakData?.active_dates} 
+                            currentDate={currentCalendarDate}
+                            onDateChange={setCurrentCalendarDate}
+                        />
+                        <QuickActions navigate={navigate} />
+                    </div>
                 </div>
             </div>
             
@@ -182,7 +186,7 @@ function ProfileData() {
                     profileData={profileData}
                 />
             )}
-        </div>
+        </>
     );
 }
 

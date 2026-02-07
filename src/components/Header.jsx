@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { MoreVertical, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import '../theme-system.css';
 
 function Header() {
@@ -69,38 +69,53 @@ function Header() {
                     </div>
                     <nav className={`nav-links ${mobileMenuOpen ? 'active' : ''}`}>
                         <button
-                            onClick={() => navigate("/profiledata")}
+                            onClick={() => {
+                                navigate("/profiledata");
+                                setMobileMenuOpen(false);
+                            }}
                             className={`nav-link ${isActive("/profiledata") ? 'active' : ''}`}
                         >
                             Home
                         </button>
                         <button
-                            onClick={() => navigate("/test")}
+                            onClick={() => {
+                                navigate("/test");
+                                setMobileMenuOpen(false);
+                            }}
                             className={`nav-link ${isActive("/test") ? 'active' : ''}`}
                         >
                             Tests
                         </button>
                         <button
-                            onClick={() => navigate("/practice")}
+                            onClick={() => {
+                                navigate("/practice");
+                                setMobileMenuOpen(false);
+                            }}
                             className={`nav-link ${isActive("/practice") ? 'active' : ''}`}
                         >
                             Practices
                         </button>
                         <button
-                            onClick={() => navigate("/interview")}
+                            onClick={() => {
+                                navigate("/interview");
+                                setMobileMenuOpen(false);
+                            }}
                             className={`nav-link ${isActive("/interview") ? 'active' : ''}`}
                         >
                             Interview Hub
                         </button>
                         <button
-                            onClick={() => navigate("/student-dashboard")}
+                            onClick={() => {
+                                navigate("/student-dashboard");
+                                setMobileMenuOpen(false);
+                            }}
                             className={`nav-link ${isActive("/student-dashboard") ? 'active' : ''}`}
                         >
                             Dashboard
                         </button>
                     </nav>
                 </div>
-                <div className="header-right" style={{ display: window.innerWidth > 820 ? 'flex' : 'none' }}>
+                <div className="header-right">
                     <span className="badge primary">🔥 {streakData.current_streak || 0}</span>
                     <span className={`badge ${userType === 'premium' ? 'badge-premium' : 'badge-free'}`}>
                         {userType === 'premium' ? '👑 Premium' : '🆓 Free'}
@@ -120,7 +135,7 @@ function Header() {
                     className="menu-toggle"
                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 >
-                    {mobileMenuOpen ? <X size={24} /> : <MoreVertical size={20} />}
+                    {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
                 </button>
             </div>
         </header>

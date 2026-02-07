@@ -1,8 +1,178 @@
 /* Profile page specific styles - all classes prefixed with 'profile-' */
 
+/* Header Styles */
+.profile-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(59, 151, 151, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    padding: 12px 0;
+}
+
+.profile-header-container {
+    max-width: 2000px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 70px;
+}
+
+.profile-header-left {
+    display: flex;
+    align-items: center;
+}
+
+.profile-logo-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.profile-logo {
+    font-size: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-brand-text {
+    font-size: 20px;
+    font-weight: 700;
+    color: hsl(172 66% 32%);
+    font-family: var(--font-heading);
+}
+
+.profile-header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Desktop Navigation */
+.profile-nav-desktop {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    margin: 0;
+    padding: 0;
+}
+
+.profile-nav-link {
+    background: none;
+    border: none;
+    color: #4a5568;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    font-family: var(--font-body);
+}
+
+.profile-nav-link:hover {
+    color: hsl(172 66% 32%);
+    background: rgba(59, 151, 151, 0.08);
+}
+
+.profile-logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: hsl(172 66% 32%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: var(--font-body);
+}
+
+.profile-logout-btn:hover {
+    background: #2d6a6a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 151, 151, 0.2);
+}
+
+/* Mobile Menu Toggle */
+.profile-menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: hsl(172 66% 32%);
+    font-size: 24px;
+    cursor: pointer;
+    padding: 8px;
+}
+
+/* Mobile Navigation */
+.profile-nav-mobile {
+    display: none;
+    position: fixed;
+    top: 70px;
+    right: 0;
+    left: 0;
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 30;
+}
+
+.profile-nav-mobile.active {
+    display: block;
+}
+
+.profile-mobile-link,
+.profile-mobile-logout {
+    display: block;
+    width: 100%;
+    padding: 14px 20px;
+    background: none;
+    border: none;
+    text-align: left;
+    font-size: 14px;
+    color: #4a5568;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: var(--font-body);
+}
+
+.profile-mobile-link:hover {
+    background: rgba(59, 151, 151, 0.08);
+    color: hsl(172 66% 32%);
+}
+
+.profile-mobile-logout {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #dc2626;
+    border-top: 1px solid #e5e7eb;
+}
+
+.profile-mobile-logout:hover {
+    background: rgba(220, 38, 38, 0.08);
+}
+
 .profile-container {
-    min-height: calc(100vh - var(--header-height));
+    min-height: calc(100vh - 70px);
     transition: background-color 0.3s ease;
+    flex: 1;
 }
 
 .profile-content {
@@ -632,5 +802,465 @@
         width: 40px;
         height: 40px;
         font-size: 1.3rem;
+    }
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 1024px) {
+    .profile-content {
+        padding: 20px 30px;
+    }
+
+    .profile-dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-greeting-card {
+        padding: 25px;
+        margin-bottom: 25px;
+    }
+
+    .profile-greeting-title {
+        font-size: 2rem;
+    }
+
+    .profile-dashboard-bottom {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Header Mobile */
+    .profile-nav-desktop {
+        display: none;
+    }
+
+    .profile-menu-toggle {
+        display: block;
+    }
+
+    .profile-nav-mobile.active {
+        display: block;
+    }
+
+    .profile-header-container {
+        height: 60px;
+        padding: 0 15px;
+    }
+
+    .profile-brand-text {
+        font-size: 18px;
+    }
+
+    /* Content */
+    .profile-content {
+        padding: 16px 15px;
+    }
+
+    .profile-greeting-card {
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 16px;
+    }
+
+    .profile-greeting-title {
+        font-size: 1.5rem;
+        margin-bottom: 12px;
+    }
+
+    .profile-motivational-quote {
+        font-size: 0.95rem;
+    }
+
+    /* Dashboard Grid */
+    .profile-dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    .profile-premium-info-card,
+    .profile-days-left-card,
+    .profile-streak-card {
+        padding: 20px;
+        border-radius: 16px;
+    }
+
+    .profile-free-vs-premium-card {
+        padding: 20px;
+        grid-column: 1;
+    }
+
+    .profile-comparison-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .profile-plan-box {
+        padding: 18px;
+    }
+
+    .profile-plan-header {
+        flex-direction: column;
+        margin-bottom: 16px;
+    }
+
+    .profile-plan-price {
+        font-size: 1.5rem;
+    }
+
+    .profile-features-list {
+        gap: 8px;
+    }
+
+    .profile-feature-item {
+        font-size: 0.9rem;
+    }
+
+    .profile-upgrade-btn {
+        padding: 12px 24px;
+        font-size: 1rem;
+    }
+
+    /* Streak Stats */
+    .profile-streak-stats {
+        flex-direction: row;
+        gap: 15px;
+    }
+
+    .profile-streak-number {
+        font-size: 2rem;
+    }
+
+    /* Calendar */
+    .profile-activity-calendar {
+        padding: 20px;
+        border-radius: 16px;
+    }
+
+    .profile-calendar-header {
+        flex-direction: column;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .profile-calendar-navigation {
+        gap: 10px;
+    }
+
+    .profile-calendar-weekdays {
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+
+    .profile-weekday-label {
+        width: 40px;
+        height: 40px;
+        font-size: 0.75rem;
+    }
+
+    .profile-calendar-grid-month {
+        gap: 8px;
+    }
+
+    .profile-calendar-day {
+        width: 38px;
+        height: 38px;
+        font-size: 0.85rem;
+        border-radius: 8px;
+    }
+
+    /* Quick Actions */
+    .profile-quick-actions {
+        padding: 20px;
+        border-radius: 16px;
+    }
+
+    .profile-quick-actions h3 {
+        font-size: 1.1rem;
+        margin-bottom: 16px;
+    }
+
+    .profile-actions-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .profile-action-btn {
+        padding: 14px;
+        gap: 12px;
+    }
+
+    .profile-action-icon {
+        width: 44px;
+        height: 44px;
+        font-size: 1.4rem;
+        flex-shrink: 0;
+    }
+
+    .profile-action-title {
+        font-size: 0.95rem;
+    }
+
+    .profile-action-desc {
+        font-size: 0.8rem;
+    }
+
+    /* Modals */
+    .profile-pricing-modal {
+        padding: 20px;
+        width: 90vw;
+    }
+
+    .profile-pricing-modal h2 {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+    }
+
+    .profile-pricing-plans {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .profile-pricing-plan {
+        padding: 18px;
+    }
+
+    .profile-payment-modal {
+        padding: 20px;
+        width: 90vw;
+    }
+
+    .profile-payment-modal h2 {
+        font-size: 1.3rem;
+    }
+
+    .profile-payment-details {
+        gap: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Header */
+    .profile-header {
+        padding: 8px 0;
+    }
+
+    .profile-header-container {
+        height: 56px;
+        padding: 0 12px;
+    }
+
+    .profile-logo {
+        font-size: 24px;
+    }
+
+    .profile-brand-text {
+        font-size: 16px;
+    }
+
+    /* Content */
+    .profile-content {
+        padding: 12px;
+    }
+
+    .profile-greeting-card {
+        padding: 16px;
+        margin-bottom: 16px;
+        border-radius: 12px;
+    }
+
+    .profile-greeting-title {
+        font-size: 1.3rem;
+        margin-bottom: 10px;
+    }
+
+    .profile-motivational-quote {
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+
+    /* Dashboard Grid */
+    .profile-dashboard-grid {
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .profile-premium-info-card,
+    .profile-days-left-card,
+    .profile-free-vs-premium-card,
+    .profile-streak-card {
+        padding: 16px;
+        border-radius: 12px;
+    }
+
+    .profile-premium-icon {
+        width: 44px;
+        height: 44px;
+        font-size: 1.5rem;
+    }
+
+    .profile-premium-header h3 {
+        font-size: 1.1rem;
+    }
+
+    .profile-days-number {
+        font-size: 2.5rem;
+    }
+
+    .profile-plan-box {
+        padding: 14px;
+    }
+
+    .profile-plan-header {
+        gap: 8px;
+    }
+
+    .profile-plan-header h4 {
+        font-size: 1rem;
+    }
+
+    .profile-plan-price {
+        font-size: 1.3rem;
+    }
+
+    .profile-features-list {
+        gap: 6px;
+    }
+
+    .profile-feature-item {
+        font-size: 0.85rem;
+        padding: 4px 0;
+    }
+
+    .profile-upgrade-btn {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+
+    /* Calendar */
+    .profile-activity-calendar {
+        padding: 16px;
+        border-radius: 12px;
+    }
+
+    .profile-calendar-header h3 {
+        font-size: 1rem;
+        margin-bottom: 12px;
+    }
+
+    .profile-calendar-navigation {
+        gap: 8px;
+        width: 100%;
+    }
+
+    .profile-nav-btn {
+        padding: 6px 10px;
+        font-size: 0.9rem;
+    }
+
+    .profile-month-name {
+        font-size: 0.95rem;
+    }
+
+    .profile-active-count {
+        font-size: 0.85rem;
+    }
+
+    .profile-calendar-grid-month {
+        gap: 6px;
+    }
+
+    .profile-calendar-day {
+        width: 34px;
+        height: 34px;
+        font-size: 0.8rem;
+        border-radius: 6px;
+    }
+
+    /* Quick Actions */
+    .profile-quick-actions {
+        padding: 16px;
+        border-radius: 12px;
+    }
+
+    .profile-quick-actions h3 {
+        font-size: 1rem;
+        margin-bottom: 12px;
+    }
+
+    .profile-actions-grid {
+        gap: 10px;
+    }
+
+    .profile-action-btn {
+        padding: 12px;
+        gap: 10px;
+        border-radius: 10px;
+    }
+
+    .profile-action-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+
+    .profile-action-title {
+        font-size: 0.9rem;
+    }
+
+    .profile-action-desc {
+        font-size: 0.75rem;
+    }
+
+    /* Modals */
+    .app-modal-overlay {
+        padding: 12px;
+    }
+
+    .profile-pricing-modal,
+    .profile-payment-modal,
+    .profile-terms-modal {
+        width: 95vw;
+        padding: 16px;
+        border-radius: 12px;
+    }
+
+    .profile-pricing-modal h2,
+    .profile-payment-modal h2,
+    .profile-terms-modal h2 {
+        font-size: 1.2rem;
+        margin-bottom: 16px;
+    }
+
+    .profile-pricing-plans {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .profile-pricing-plan {
+        padding: 14px;
+    }
+
+    .profile-payment-breakdown {
+        gap: 8px;
+    }
+
+    .profile-price-row {
+        font-size: 0.9rem;
+    }
+
+    .profile-terms-link {
+        font-size: 0.85rem;
+    }
+
+    .profile-payment-actions {
+        gap: 10px;
+    }
+
+    .profile-cancel-btn,
+    .profile-proceed-btn {
+        padding: 10px 16px;
+        font-size: 0.9rem;
     }
 }
