@@ -1,29 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import './landing.css';
-import './landing-responsive.css';
+import { useNavigate } from 'react-router-dom';
+import { Sparkles, BookOpen, Zap, BarChart3, Users, ArrowRight, Menu, X } from 'lucide-react';
+import './landing-theme.css';
 import logo from '../assets/logo.png';
 
 function LandingPage() {
+  const navigate = useNavigate();
   const [activeModal, setActiveModal] = useState(null);
-  const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
-
-  // Add responsive styles
-  useEffect(() => {
-    const style = document.createElement('style');
-    style.textContent = `
-      @media (max-width: 768px) {
-        .contact-content {
-          grid-template-columns: 1fr !important;
-          gap: 2rem !important;
-        }
-      }
-    `;
-    document.head.appendChild(style);
-    return () => document.head.removeChild(style);
-  }, []);
+  const [showTerms, setShowTerms] = useState(false);
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
 
   useEffect(() => {
     const observerOptions = {
@@ -39,129 +28,93 @@ function LandingPage() {
       });
     }, observerOptions);
 
-    const animateElements = document.querySelectorAll('.stats, .features, .activities, .pricing');
+    const animateElements = document.querySelectorAll('[data-animate]');
     animateElements.forEach(el => observer.observe(el));
 
     return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
-    if (showPremiumModal) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [showPremiumModal]);
+    document.body.style.overflow = activeModal || mobileMenuOpen ? 'hidden' : 'unset';
+    return () => { document.body.style.overflow = 'unset'; };
+  }, [activeModal, mobileMenuOpen]);
 
   const handleNavClick = (e, targetId) => {
     e.preventDefault();
+    setMobileMenuOpen(false);
     const element = document.getElementById(targetId);
     if (element) {
       const headerHeight = 80;
       const elementPosition = element.offsetTop - headerHeight;
-      window.scrollTo({
-        top: elementPosition,
-        behavior: 'smooth'
-      });
+      window.scrollTo({ top: elementPosition, behavior: 'smooth' });
     }
   };
 
-  const handleButtonClick = (planTag) => {
-    if (planTag === "Free") {
-      window.location.href = '/signup';
-    } else {
-      setShowPremiumModal(true);
-    }
-  };
+  const activities = [
+    { id: 'jam', title: 'JAM Sessions', description: 'Just A Minute speaking sessions', icon: Sparkles },
+    { id: 'pronunciation', title: 'Pronunciation Test', description: 'Perfect your pronunciation', icon: Zap },
+    { id: 'listening', title: 'Listening Test', description: 'Enhance comprehension', icon: BookOpen },
+    { id: 'situational', title: 'Situational Speaking', description: 'Practice real-life scenarios', icon: Users },
+    { id: 'image', title: 'Image-Based Speaking', description: 'Describe images fluently', icon: BarChart3 }
+  ];
+
+  const features = [
+    { number: '01', icon: BookOpen, title: 'ACCESS TARA', description: 'Sign up and get personalized feedback' },
+    { number: '02', icon: Zap, title: 'Practice Daily', description: 'Engage with interactive activities' },
+    { number: '03', icon: BarChart3, title: 'Track Progress', description: 'Monitor improvement with analytics' }
+  ];
+
+
+  // New hierarchical structure with levels
+  const interviewTopics = [
+    { topicId: 1, title: "Self Introduction", levels: ["Basic", "Intermediate", "Advanced"] },
+    { topicId: 2, title: "Programming Knowledge", levels: ["Basic", "Intermediate", "Advanced"] },
+    { topicId: 3, title: "Worked Domain", levels: ["Basic", "Intermediate", "Advanced"] },
+    { topicId: 4, title: "Project Discussion", levels: ["Basic", "Intermediate", "Advanced"] },
+    { topicId: 5, title: "Future Career Planning", levels: ["Basic", "Intermediate", "Advanced"] },
+    { topicId: 6, title: "Hobbies & Interests", levels: ["Basic", "Intermediate", "Advanced"] },
+    { topicId: 7, title: "Certifications Exploration", levels: ["Basic", "Intermediate", "Advanced"] },
+    { topicId: 8, title: "Project Reviews", levels: ["Basic", "Intermediate", "Advanced"] }
+  ];
+
+  const advancedTopics = [
+    { topicId: 9, title: "Role-Based Interview", levels: ["Basic", "Intermediate", "Advanced"] },
+    { topicId: 10, title: "Resume-Based Interview", levels: ["Basic", "Intermediate", "Advanced"] },
+    { topicId: 11, title: "Technical Interview", levels: ["Basic", "Intermediate", "Advanced"] },
+    { topicId: 12, title: "Follow-Up Questioning", levels: ["Basic", "Intermediate", "Advanced"] },
+    { topicId: 13, title: "Stress/Pressure Questions", levels: ["Basic", "Intermediate", "Advanced"] },
+    { topicId: 14, title: "Logical Puzzles", levels: ["Basic", "Intermediate", "Advanced"] }
+  ];
 
   const plans = [
     {
-      tag: "Free",
-      price: "₹0",
-      duration: "/Free Trail",
-      button: "Try Free",
-      highlight: false,
-      features: [
-        "✓ 2-Free Communication Tests - Basic Level",
-        "✓ 1-Free trial for Image-Based Speaking",
-        "✓ 1-Free trial for 3 Interview Modules - Basic",
-        "✓ Limited AI feedback and Speech Analytics",
-        "✗ Advanced interview & communication modules locked",
-        "✓ AI Feedback on Every Attempt",
-        "<h3>Your Progress tracking</h3>",
-        "✗ Advanced analytics, Confident scores",
-        "<h3>Premium Features</h3>",
-        "✗ Audio replay & AI pronunciation insights",
-        "✗ Advanced analytics dashboard",
-        "✗ Leaderboards & streak rewards",
-      ],
+      tag: 'Free',
+      price: '₹0',
+      duration: '/Free Trial',
+      button: 'Try Free',
+      highlight: false
     },
     {
-      tag: "1 Month",
-      price: "₹99",
-      duration: "/1 month",
-      button: "Start 1-Month Plan",
-      highlight: false,
-      features: [
-        "✓ 2 Communication Tests (Daily) - All Level",
-        "✓ 1 Image-Based Speaking (Daily) - All Level",
-        "✓ TaraAI-guided 2 practice modules daily",
-        "✓ 2-free trials for Image-Based Speaking",
-        "✓ Interview Modules Basic, Advance and communication all Levels - Unlock",
-        "✓ AI Feedback on Every Attempt",
-        "<h3>Your Progress tracking</h3>",
-        "✓ Advanced analytics, Confident scores",
-        "<h3>Premium Features</h3>",
-        "✓ Audio replay & AI pronunciation insights",
-        "✓ Advanced analytics dashboard",
-        "✓ Leaderboards & streak rewards",
-      ],
+      tag: '1 Month',
+      price: '₹99',
+      duration: '/month',
+      button: 'Start Plan',
+      highlight: false
     },
     {
-      tag: "Most Popular",
-      price: "₹249",
-      duration: "/3 months",
-      button: "Upgrade Now",
-      highlight: true,
-      features: [
-        "✓ 2 Communication Tests (Daily) - All Level",
-        "✓ 1 Image-Based Speaking (Daily) - All Level",
-        "✓ TaraAI-guided 2 practice modules daily",
-        "✓ 2-free trials for Image-Based Speaking",
-        "✓ Interview Modules Basic, Advance and communication all Levels - Unlock",
-        "✓ AI Feedback on Every Attempt",
-        "<h3>Your Progress tracking</h3>",
-        "✓ Advanced analytics, Confident scores",
-        "<h3>Premium Features</h3>",
-        "✓ Audio replay & AI pronunciation insights",
-        "✓ Advanced analytics dashboard",
-        "✓ Leaderboards & streak rewards",
-      ],
+      tag: 'Most Popular',
+      price: '₹249',
+      duration: '/3 months',
+      button: 'Upgrade Now',
+      highlight: true
     },
     {
-      tag: "Best Value",
-      price: "₹699",
-      duration: "/Year ✨",
-      button: "Go Premium",
-      highlight: false,
-      features: [
-        "✓ 2 Communication Tests (Daily) - All Level",
-        "✓ 1 Image-Based Speaking (Daily) - All Level",
-        "✓ TaraAI-guided 2 practice modules daily",
-        "✓ 2-free trials for Image-Based Speaking",
-        "✓ Interview Modules Basic, Advance and communication all Levels - Unlock",
-        "✓ AI Feedback on Every Attempt",
-        "<h3>Your Progress tracking</h3>",
-        "✓ Advanced analytics, Confident scores",
-        "<h3>Premium Features</h3>",
-        "✓ Audio replay & AI pronunciation insights",
-        "✓ Advanced analytics dashboard",
-        "✓ Leaderboards & streak rewards",
-      ],
-    },
+      tag: 'Best Value',
+      price: '₹699',
+      duration: '/Year ✨',
+      button: 'Go Premium',
+      highlight: false
+    }
   ];
 
   const handleSubmit = async (e) => {
@@ -170,22 +123,14 @@ function LandingPage() {
     setSubmitMessage('');
 
     try {
-      const apiUrl = import.meta.env.VITE_CONTACT_API_URL 
+      const apiUrl = import.meta.env.VITE_CONTACT_API_URL;
       const response = await fetch(apiUrl, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          message: formData.message
-        })
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ name: formData.name, email: formData.email, message: formData.message })
       });
 
       if (response.ok) {
-        const result = await response.json();
         setSubmitMessage('Your message has been received! Thank you from Skill-Route');
         setFormData({ name: '', email: '', message: '' });
       } else {
@@ -193,760 +138,465 @@ function LandingPage() {
       }
     } catch (error) {
       console.error('API Error:', error);
-      setSubmitMessage('Network error. Please check your connection and try again.');
+      setSubmitMessage('Network error. Please check your connection.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const activities = [
-    {
-      id: 'jam',
-      title: 'JAM Sessions',
-      description: 'Just A Minute speaking sessions to improve spontaneous communication',
-      icon: <img src="https://cdn2.iconfinder.com/data/icons/timer-flat/64/timer-11-512.png" alt="timer" style={{ width: 50, height: 50 }} />
-    },
-    {
-      id: 'pronunciation',
-      title: 'Pronunciation Test',
-      description: 'Perfect your pronunciation with AI-powered feedback',
-      icon: <img src="https://cdn1.iconfinder.com/data/icons/miscellaneous-306-solid/128/accent_pronunciation_talk_pronouncing_diction_parlance_language-128.png" alt="pronunciation" style={{ width: 50, height: 50 }} />
-    },
-    {
-      id: 'listening',
-      title: 'Listening Test',
-      description: 'Enhance comprehension with interactive listening exercises',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="50" height="50" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M3 13a9 9 0 0118 0v4a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3" />
-          <path d="M7 13v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4" opacity="0.9"/>
-          <path d="M21 10a7 7 0 00-18 0" />
-        </svg>
-      )
-    },
-    {
-      id : 'situational',
-      title: 'Situational Speaking',
-      description: 'Practice real-life scenarios to build confidence',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="50" height="50" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-label="situational speaking">
-          <path d="M21 15a2 2 0 0 1-2 2H8l-4 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-          <path d="M7 8h8M7 12h5" />
-        </svg>
-      )
-    },
-    {
-      id: 'image',
-      title: 'Image-Based Speaking',
-      description: 'Describe images to enhance vocabulary and fluency',
-      icon: <img src="https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-image-128.png" alt="image" style={{ width: 50, height: 50 }} />
+  const handleSelectPlan = (plan) => {
+    if (!agreeToTerms) {
+      alert('Please agree to Terms & Conditions to proceed');
+      return;
     }
-  ];
+    navigate('/signup', { state: { selectedPlan: plan } });
+  };
 
   return (
-    <div className="landing-container">
+    <div className="landing-theme min-h-screen">
       {/* Header */}
-      <header className="header">
-        <div className="header-content">
-          <div className="logo" style={{ display: 'flex', alignItems: 'center', gap: '20px', marginLeft: '-50px' }}>
-            <img src={logo} alt="Skill Route logo" className="logo-img" style={{ width: 65, height: 60, borderRadius: '50%', border: 'none' }} />
-            <span className="logo-text">Skill Route</span>
+      {/* make pt to -5 */}
+      <header className="sticky top-0 z-40 glass border-b border-border m-0 pt-3 pb-3">
+        <div className="container m-0">
+          <div className="flex items-center justify-between pt-0 pb-1 m-0">
+            <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
+              <img src={logo} alt="Skill Route" className="w-10 h-10 rounded-full" />
+              <span className="text-xl font-bold font-heading text-gradient-primary hidden sm:inline">Skill Route</span>
+            </div>
+
+            <nav className="hidden md:flex items-center gap-8">
+              <a href="#home" onClick={(e) => handleNavClick(e, 'home')} className="text-sm text-foreground hover:text-primary transition-colors">Home</a>
+              <a href="#features" onClick={(e) => handleNavClick(e, 'features')} className="text-sm text-foreground hover:text-primary transition-colors">Features</a>
+              <a href="#activities" onClick={(e) => handleNavClick(e, 'activities')} className="text-sm text-foreground hover:text-primary transition-colors">Activities</a>
+              <a href="#interviews" onClick={(e) => handleNavClick(e, 'interviews')} className="text-sm text-foreground hover:text-primary transition-colors">Interviews</a>
+              <a href="#pricing" onClick={(e) => handleNavClick(e, 'pricing')} className="text-sm text-foreground hover:text-primary transition-colors">Pricing</a>
+              <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="text-sm text-foreground hover:text-primary transition-colors">Contact</a>
+            </nav>
+
+            <button onClick={() => navigate('/signup')} className="hidden md:block landing-btn-primary">Get Started</button>
+
+            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden">
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
-          
-          <div className="hamburger-menu" onClick={() => setActiveModal('menu')}>
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-          
-          <div className="nav-links">
-            <a href="#home" onClick={(e) => handleNavClick(e, 'home')}>Home</a>
-            <a href="#features" onClick={(e) => handleNavClick(e, 'features')}>Features</a>
-            <a href="#activities" onClick={(e) => handleNavClick(e, 'activities')}>Activities</a>
-            <a href="#pricing" onClick={(e) => handleNavClick(e, 'pricing')}>Pricing</a>
-            <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')}>Contact</a>
-          </div>
-          <div className="auth-buttons">
-            <button className="btn-signup" onClick={() => { window.location.href = '/signup'; }}>Get started now !</button>
-          </div>
+
+          {mobileMenuOpen && (
+            <div className="border-t border-border py-4 md:hidden flex flex-col gap-3">
+              <a href="#home" onClick={(e) => handleNavClick(e, 'home')} className="text-foreground hover:text-primary">Home</a>
+              <a href="#features" onClick={(e) => handleNavClick(e, 'features')} className="text-foreground hover:text-primary">Features</a>
+              <a href="#activities" onClick={(e) => handleNavClick(e, 'activities')} className="text-foreground hover:text-primary">Activities</a>
+              <a href="#interviews" onClick={(e) => handleNavClick(e, 'interviews')} className="text-foreground hover:text-primary">Interviews</a>
+              <a href="#pricing" onClick={(e) => handleNavClick(e, 'pricing')} className="text-foreground hover:text-primary">Pricing</a>
+              <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="text-foreground hover:text-primary">Contact</a>
+              <button onClick={() => navigate('/signup')} className="landing-btn-primary w-full text-center">Get Started</button>
+            </div>
+          )}
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section id="home" className="hero">
-        <div className="hero-content">
-          <div className="hero-text">
-            <h1>Speak with TaraAI, <br />Speak with Confidence</h1>
-            <p>Enhance your communication skills with AI-driven practice, personalized feedback, and engaging learning experiences for students and professionals.</p>
-            <div className="hero-buttons">
-              <button className="btn-start" onClick={() => { window.location.href = '/signup'; }}>
-                Get Started
-              </button>
-              <h2 className="hero-subtitle">- Speak your first word now!</h2>
+      {/* Hero */}
+      <section id="home" style={{ background: 'var(--gradient-hero)' }} className="py-12 sm:py-16 md:py-20">
+        <div className="container">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+            <div data-animate>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium mb-6 landing-badge primary">
+                <Sparkles className="w-4 h-4" />
+                AI-Powered Communication
+              </div>
+              
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold font-heading text-foreground mb-4 leading-tight">
+                Speak with <span className="text-gradient-primary">TaraAI</span><br></br> Speak with Confidence 
+              </h1>
+              <p className="text-base sm:text-lg text-muted-foreground mb-6 leading-relaxed">
+                Practice, learn, and improve your communication skills with personalized feedback from TaraAI.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button onClick={() => navigate('/signup')} className="landing-btn-primary flex items-center justify-center gap-2 text-sm">
+                  Get Started <ArrowRight className="w-4 h-4" />
+                </button>
+                <button onClick={() => window.open('https://mentorhub.skillrouteai.com', '_blank')} className="px-6 py-2 sm:py-3 border-2 border-primary rounded-lg font-semibold text-primary hover:bg-primary/5 transition-all text-sm">
+                  Mentor Access
+                </button>
+              </div>
+            </div>
+
+            <div data-animate className="relative h-80 sm:h-96">
+              {[
+                { title: 'Progress', icon: '📊', delay: 0 },
+                { title: 'Achievements', icon: '🏆', delay: 0.3 },
+                { title: 'AI Feedback', icon: '🤖', delay: 0.6 },
+                { title: 'Real Mentor Guide', icon: '👩‍🏫', delay: 0.9 },
+              ].map((item, idx) => (
+                <div
+                  key={idx}
+                  className="absolute bg-card border border-border rounded-lg p-3 shadow-lg text-center"
+                  style={{
+                    animation: `float 3s ease-in-out ${item.delay}s infinite`,
+                    left: `${15 + (idx % 2) * 40}%`,
+                    top: `${20 + Math.floor(idx / 2) * 35}%`,
+                    width: '120px'
+                  }}
+                >
+                  <div className="text-2xl mb-1">{item.icon}</div>
+                  <p className="font-semibold text-xs text-foreground">{item.title}</p>
+                </div>
+              ))}
             </div>
           </div>
-          <div className="hero-visual">
-            <div className="floating-card">
-              <div className="card-icon">
-                <img src="https://cdn0.iconfinder.com/data/icons/business-management-3-4/256/m-21-128.png" alt="progress" style={{ width: 40, height: 40 }} />
-              </div>
-              <div className="card-text">
-                <h4>Progress Tracking</h4>
-                <p>Visual insights</p>
+        </div>
+      </section>
+
+      {/* Features */}
+      <section id="features" className="py-12 sm:py-16 md:py-20 bg-card">
+        <div className="container">
+          <div className="text-center mb-10 md:mb-16" data-animate>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold font-heading text-foreground mb-3">How Skill Route Works</h2>
+            <p className="text-sm sm:text-base text-muted-foreground">Three simple steps to transform your communication</p>
+          </div>
+
+          <div className="grid lg:grid-cols-3 gap-6 md:gap-8">
+            {features.map((feature, idx) => {
+              const Icon = feature.icon;
+              return (
+                <div key={idx} data-animate className="relative overflow-hidden rounded-2xl bg-background border border-border p-6 md:p-8">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+                  <div className="relative">
+                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                      <Icon className="w-6 h-6 text-primary" />
+                    </div>
+                    <div className="text-3xl font-bold text-primary/20 font-heading mb-2">{feature.number}</div>
+                    <h3 className="text-lg md:text-xl font-bold font-heading text-foreground mb-2">{feature.title}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Activities */}
+      <section id="activities" className="py-12 sm:py-16 md:py-20 bg-card">
+        <div className="container">
+          <div className="text-center mb-10 md:mb-16" data-animate>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold font-heading text-foreground mb-3">Interactive Learning</h2>
+            <p className="text-sm sm:text-base text-muted-foreground">Practice your communication skills daily</p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6">
+            {activities.map((activity) => {
+              const Icon = activity.icon;
+              return (
+                <div
+                  key={activity.id}
+                  data-animate
+                  onClick={() => setActiveModal(activity.id)}
+                  className="group cursor-pointer rounded-xl bg-background border border-border p-4 md:p-5 hover:border-primary hover:shadow-lg transition-all duration-300 relative overflow-hidden"
+                >
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-primary/8 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:bg-primary/12 transition-colors" />
+                  <div className="relative z-10">
+                    <div className="w-10 h-10 rounded-lg bg-primary/15 flex items-center justify-center mb-3 group-hover:bg-primary/25 transition-colors">
+                      <Icon className="w-5 h-5 text-primary" />
+                    </div>
+                    <h3 className="font-bold text-sm md:text-base text-foreground mb-2 font-heading">{activity.title}</h3>
+                    <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">{activity.description}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Interview Mastery Path - Hierarchical Flow */}
+      <section id="interviews" className="py-12 sm:py-16 md:py-20" style={{ background: 'linear-gradient(135deg, #f0f9f7 0%, #f5faf8 100%)' }}>
+        <div className="container">
+          <div className="text-center mb-16" data-animate>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold font-heading text-foreground mb-3">Interview Mastery Path</h2>
+            <p className="text-sm sm:text-base text-muted-foreground">Progress through structured learning levels</p>
+          </div>
+
+          {/* Basic Module */}
+          <div className="mb-20" data-animate>
+            <div className="flex items-center justify-center mb-12">
+              <div className="text-center">
+                <div className="inline-block px-6 py-3 rounded-full bg-primary/10 border-2 border-primary">
+                  <h3 className="font-heading text-xl font-bold text-primary">🎯 BASIC MODULE</h3>
+                </div>
               </div>
             </div>
-            <div className="floating-card">
-              <div className="card-icon">
-                <img src="https://cdn0.iconfinder.com/data/icons/business-startup-10/50/33-128.png" alt="achievements" style={{ width: 40, height: 40 }} />
-              </div>
-              <div className="card-text">
-                <h4>Achievements</h4>
-                <p>Milestone rewards</p>
+
+            <div className="interview-path-grid">
+              {interviewTopics.map((topic, topicIdx) => (
+                <div key={topic.topicId} className="interview-topic-container" data-animate style={{ animationDelay: `${topicIdx * 100}ms` }}>
+                  {/* Topic Header */}
+                  <div className="interview-topic-header">
+                    <div className="topic-number">{topic.topicId}</div>
+                    <h4 className="topic-title">{topic.title}</h4>
+                  </div>
+
+                  {/* Level Progression Path */}
+                  <div className="interview-levels-flow">
+                    {topic.levels.map((level, levelIdx) => (
+                      <div key={levelIdx} className="interview-level-item">
+                        {/* Connection Line */}
+                        {levelIdx < topic.levels.length - 1 && (
+                          <div className="level-connector"></div>
+                        )}
+
+                        {/* Level Badge */}
+                        <div className={`level-badge level-${levelIdx + 1}`}>
+                          <div className="level-dot"></div>
+                          <span className="level-text">{level}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="flex justify-center mb-20">
+            <div className="text-center">
+              <div className="inline-flex items-center gap-3 px-6 py-4 rounded-full bg-primary/15 border-2 border-dashed border-primary">
+                <span className="text-primary font-bold">⬇</span>
+                <span className="text-primary font-semibold text-sm">Unlock Advanced Module</span>
+                <span className="text-primary font-bold">⬇</span>
               </div>
             </div>
-            <div className="floating-card">
-              <div className="card-icon">
-                <img src="https://cdn2.iconfinder.com/data/icons/artificial-intelligence-6/64/ArtificialIntelligence5-128.png" alt="speak with ai" style={{ width: 40, height: 40 }} />
-              </div>
-              <div className="card-text">
-                <h4>Speak with AI</h4>
-                <p>Voice interaction</p>
+          </div>
+
+          {/* Advanced Module */}
+          <div data-animate>
+            <div className="flex items-center justify-center mb-12">
+              <div className="text-center">
+                <div className="inline-block px-6 py-3 rounded-full bg-accent/10 border-2 border-accent">
+                  <h3 className="font-heading text-xl font-bold text-accent">🚀 ADVANCED MODULE</h3>
+                </div>
               </div>
             </div>
-            <div className="floating-card">
-              <div className="card-icon">
-                <img src="https://cdn2.iconfinder.com/data/icons/xomo-basics/128/document-05-128.png" alt="feedback" style={{ width: 40, height: 40 }} />
+
+            <div className="interview-path-grid">
+              {advancedTopics.map((topic, topicIdx) => (
+                <div key={topic.topicId} className="interview-topic-container advanced" data-animate style={{ animationDelay: `${topicIdx * 100}ms` }}>
+                  {/* Topic Header */}
+                  <div className="interview-topic-header advanced">
+                    <div className="topic-number accent">{topic.topicId}</div>
+                    <h4 className="topic-title">{topic.title}</h4>
+                  </div>
+
+                  {/* Level Progression Path */}
+                  <div className="interview-levels-flow">
+                    {topic.levels.map((level, levelIdx) => (
+                      <div key={levelIdx} className="interview-level-item">
+                        {/* Connection Line */}
+                        {levelIdx < topic.levels.length - 1 && (
+                          <div className="level-connector accent"></div>
+                        )}
+
+                        {/* Level Badge */}
+                        <div className={`level-badge level-${levelIdx + 1} advanced`}>
+                          <div className="level-dot"></div>
+                          <span className="level-text">{level}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing */}
+      <section id="pricing" className="py-12 sm:py-16 md:py-20 bg-background">
+        <div className="container">
+          <div className="text-center mb-12 md:mb-16" data-animate>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold font-heading text-foreground mb-3">Choose Your Plan</h2>
+            <p className="text-sm sm:text-base text-muted-foreground">Flexible pricing for your needs</p>
+          </div>
+
+          <div className="max-w-5xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-6 md:gap-8 mb-8">
+              {/* Free Plan */}
+              <div data-animate className="rounded-2xl bg-card border border-border p-8">
+                <div className="text-center mb-6">
+                  <h3 className="text-2xl font-bold font-heading text-foreground mb-2">Free Plan</h3>
+                  <span className="text-4xl font-bold text-primary">₹0</span>
+                </div>
+                <div className="space-y-2 mb-6">
+                  <p className="flex items-start gap-2 text-sm text-foreground"><span className="text-primary font-bold">✓</span> 2 tests - for trial</p>
+                  <p className="flex items-start gap-2 text-sm text-foreground"><span className="text-primary font-bold">✓</span> Basic tests only</p>
+                  <p className="flex items-start gap-2 text-sm text-foreground"><span className="text-primary font-bold">✓</span> Simple AI feedback</p>
+                  <p className="flex items-start gap-2 text-sm text-foreground"><span className="text-primary font-bold">✓</span> Basic streak tracking</p>
+                  <p className="flex items-start gap-2 text-sm text-muted-foreground"><span className="font-bold">✗</span> No advanced analytics</p>
+                </div>
+                <button onClick={() => navigate('/signup')} className="w-full py-2.5 rounded-lg bg-muted text-foreground font-bold hover:bg-muted/80 transition-all text-sm">
+                  Get Started
+                </button>
               </div>
-              <div className="card-text">
-                <h4>AI Feedback</h4>
-                <p>Real-time analysis</p>
+
+              {/* Premium Plan */}
+              <div data-animate className="rounded-2xl border-2 border-primary/60 bg-gradient-to-br from-primary/10 to-card relative flex flex-col p-8">
+                <div className="absolute top-4 right-4 bg-primary text-white px-3 py-1 rounded-full text-xs font-bold">Most Popular</div>
+                <div className="text-center mb-6 mt-2">
+                  <h3 className="text-2xl font-bold font-heading text-foreground mb-2">Premium Plans</h3>
+                  <p className="text-sm text-muted-foreground mb-4">Choose duration that works for you</p>
+                </div>
+                <div className="space-y-2 mb-8">
+                  <p className="flex items-start gap-2 text-sm text-foreground"><span className="text-primary font-bold">✓</span> Daily 2 tests of all Levels</p>
+                  <p className="flex items-start gap-2 text-sm text-foreground"><span className="text-primary font-bold">✓</span> Advanced test types</p>
+                  <p className="flex items-start gap-2 text-sm text-foreground"><span className="text-primary font-bold">✓</span> Detailed AI analysis & audio</p>
+                  <p className="flex items-start gap-2 text-sm text-foreground"><span className="text-primary font-bold">✓</span> Advanced analytics & Badges</p>
+                  <p className="flex items-start gap-2 text-sm text-foreground"><span className="text-primary font-bold">✓</span> All Levels Access</p>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {plans.slice(1, 4).map((plan, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => handleSelectPlan(plan)}
+                      className="py-3 rounded-lg bg-primary text-primary-foreground font-bold hover:opacity-90 transition-all text-xs flex flex-col items-center"
+                    >
+                      <span className="text-lg">{plan.price}</span>
+                      <span className="text-xs opacity-90">{plan.tag}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* T&C and Security Info */}
+            <div data-animate className="rounded-xl bg-card border border-border p-6 md:p-8">
+              <div className="flex items-start gap-4 mb-4">
+                <input
+                  type="checkbox"
+                  id="terms"
+                  checked={agreeToTerms}
+                  onChange={(e) => setAgreeToTerms(e.target.checked)}
+                  className="w-4 h-4 rounded border-border cursor-pointer accent-primary mt-1"
+                />
+                <label htmlFor="terms" className="flex-1 cursor-pointer">
+                  <span className="text-sm text-foreground">I agree to the </span>
+                  <button
+                    onClick={() => setShowTerms(!showTerms)}
+                    className="text-sm text-primary font-semibold hover:underline"
+                  >
+                    Terms & Conditions
+                  </button>
+                </label>
+              </div>
+
+              {showTerms && (
+                <div className="border-t border-border pt-4 mt-4 max-h-48 overflow-y-auto text-xs text-muted-foreground space-y-2">
+                  <p><strong>One-time Payment:</strong> Premium subscription is available through one-time payment only.</p>
+                  <p><strong>Non-Refundable:</strong> All payments are final and non-refundable. Please review your selection carefully.</p>
+                  <p><strong>Payment Confirmation:</strong> Premium access will be activated immediately after successful payment verification.</p>
+                  <p><strong>Secure Payment:</strong> All payments are processed securely through Razorpay payment gateway with 256-bit SSL encryption.</p>
+                  <p><strong>Subscription Period:</strong> Your premium access will be valid for the selected duration (1 month, 3 months, or 1 year).</p>
+                  <p><strong>Auto-renewal:</strong> Premium subscriptions do not auto-renew. You must manually renew your subscription.</p>
+                  <p><strong>Cancellation:</strong> You can cancel anytime, but refunds will not be provided for the existing period.</p>
+                </div>
+              )}
+
+              <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-2 text-xs text-muted-foreground border-t border-border pt-4">
+                <span>🔒 Secure Payment via Razorpay</span>
+                <span className="hidden sm:inline">•</span>
+                <span>💳 100% Safe & Encrypted</span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Mentor Section */}
-      <section className="mentor-section">
-        <h3>Get Started as a Mentor</h3>
-        <p>Monitor your Institute or university students, track their tests progress, practice and guide them in Communication and Interviews</p>
-        <button
-          className="mentor-btn"
-          onClick={() => window.open('https://mentorhub.skillrouteai.com', '_blank')}
-        >
-          Get Started
-        </button>
-      </section>
-      {/* Features Section */}
-      <section id="features" className="features">
-        <div className="section-header">
-          <h2>How Skill Route Works</h2>
-          <p>Three simple steps to transform your communication skills</p>
-        </div>
-        <div className="features-grid">
-          <div className="feature-card">
-            <div className="feature-number">01</div>
-            <div className="feature-icon">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <h3>ACCESS TARA</h3>
-            <p>Sign up to access TARA and get personalized feedback made just for you!</p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-number">02</div>
-            <div className="feature-icon">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-            </div>
-            <h3>Practice Daily</h3>
-            <p>Engage with interactive activities, JAM sessions,Image-Based Speaking and AI-powered exercises to your learning goals.</p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-number">03</div>
-            <div className="feature-icon">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" />
-              </svg>
-            </div>
-            <h3>Track Progress</h3>
-            <p>Monitor your improvement with detailed analytics, feedback, and milestone achievements to stay motivated.</p>
-          </div>
-        </div>
-      </section>
+      {/* Contact */}
+      <section id="contact" className="py-12 sm:py-16 md:py-20 bg-card">
+        <div className="container">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-12">
+            <div data-animate className="rounded-2xl bg-background border border-border p-6 md:p-8">
+              <h2 className="text-2xl md:text-3xl font-bold font-heading text-foreground mb-4">Get in Touch</h2>
+              <p className="text-sm md:text-base text-muted-foreground mb-8">Connect with us through professional channels.</p>
 
-      {/* Activities Section */}
-      <section id="activities" className="activities">
-        <div className="section-header">
-          <h2>Interactive Learning Activities</h2>
-          <p>Access TARA to practice and improve your communication skills through interactive activities.</p>
-        </div>
-        <div className="activities-grid">
-          {activities.map((activity) => (
-            <div 
-              key={activity.id} 
-              className="activity-card"
-              onClick={() => setActiveModal(activity.id)}
-            >
-              <div className="activity-icon">
-                {activity.icon}
+              <div className="space-y-6">
+                {[
+                  { icon: '💼', label: 'LinkedIn', value: 'linkedin.com/in/rrbalaji' },
+                  { icon: '📧', label: 'Email', value: 'support@skillrouteai.com' },
+                  { icon: '📞', label: 'Phone', value: '+91 9398350217' }
+                ].map((item, idx) => (
+                  <div key={idx} className="flex items-start gap-4">
+                    <div className="text-2xl">{item.icon}</div>
+                    <div>
+                      <h4 className="font-bold text-sm md:text-base text-foreground">{item.label}</h4>
+                      <p className="text-xs md:text-sm text-muted-foreground">{item.value}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <h3>{activity.title}</h3>
-              <p>{activity.description}</p>
-              <button className="activity-btn">
-                WATCH DEMO <span>→</span>
-              </button>
             </div>
-          ))}
-        </div>
-      </section>
 
-      {/* Interview Activities Roadmap Section */}
-      <section id="interview-activities" className="interview-roadmap" style={{ marginBottom: '4rem' }}>
-        <div className="section-header">
-          <h2>Interview Activities Path</h2>
-          <p>Master your interview skills step by step with our structured learning path</p>
-        </div>
-        
-        {/* Basic Interview Skills */}
-        <div className="roadmap-section">
-          <div className="section-title">
-            <h3>Basic Interview Skills</h3>
-          </div>
-          
-          {/* Row 1: Left to Right */}
-          <div className="roadmap-row">
-            <div className="roadmap-step">
-              <div className="step-number">1</div>
-              <div className="step-content">
-                <h4>JD-Based Self Introduction</h4>
-              </div>
+            <div data-animate className="rounded-2xl bg-background border border-border p-6 md:p-8">
+              <h3 className="text-xl md:text-2xl font-bold font-heading text-foreground mb-6">Send Message</h3>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <input
+                  type="text"
+                  placeholder="Your Name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  required
+                />
+                <input
+                  type="email"
+                  placeholder="Your Email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  required
+                />
+                <textarea
+                  placeholder="Your Message"
+                  rows="4"
+                  value={formData.message}
+                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  required
+                />
+                <button type="submit" disabled={isSubmitting} className="landing-btn-primary w-full text-center text-sm">
+                  {isSubmitting ? 'Sending...' : 'Send Message'}
+                </button>
+                {submitMessage && <p className="text-xs md:text-sm text-primary font-medium text-center">{submitMessage}</p>}
+              </form>
             </div>
-            <div className="roadmap-connector horizontal"></div>
-            <div className="roadmap-step">
-              <div className="step-number">2</div>
-              <div className="step-content">
-                <h4>Programming Knowledge</h4>
-              </div>
-            </div>
-            <div className="roadmap-connector horizontal"></div>
-            <div className="roadmap-step">
-              <div className="step-number">3</div>
-              <div className="step-content">
-                <h4>Worked Domain</h4>
-              </div>
-            </div>
-          </div>
-          
-          {/* Vertical Connector */}
-          <div className="roadmap-connector vertical-center"></div>
-          
-          {/* Row 2: Right to Left */}
-          <div className="roadmap-row reverse">
-            <div className="roadmap-step">
-              <div className="step-number">4</div>
-              <div className="step-content">
-                <h4>Project Discussion</h4>
-              </div>
-            </div>
-            <div className="roadmap-connector horizontal reverse"></div>
-            <div className="roadmap-step">
-              <div className="step-number">5</div>
-              <div className="step-content">
-                <h4>Future Career Planning</h4>
-              </div>
-            </div>
-            <div className="roadmap-connector horizontal reverse"></div>
-            <div className="roadmap-step">
-              <div className="step-number">6</div>
-              <div className="step-content">
-                <h4>Hobbies & Interests</h4>
-              </div>
-            </div>
-          </div>
-          
-          {/* Vertical Connector */}
-          <div className="roadmap-connector vertical-center"></div>
-          
-          {/* Row 3: Left to Right */}
-          <div className="roadmap-row">
-            <div className="roadmap-step">
-              <div className="step-number">7</div>
-              <div className="step-content">
-                <h4>Certifications & Internships</h4>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Advanced Interview Skills */}
-        <div className="roadmap-section">
-          <div className="section-title">
-            <h3>Advanced Interview Skills</h3>
-          </div>
-          
-          {/* Vertical Connector from Basic to Advanced */}
-          <div className="roadmap-connector vertical-center"></div>
-          
-          {/* Row 1: Left to Right */}
-          <div className="roadmap-row">
-            <div className="roadmap-step">
-              <div className="step-number">8</div>
-              <div className="step-content">
-                <h4>Role-Based Interview</h4>
-              </div>
-            </div>
-            <div className="roadmap-connector horizontal"></div>
-            <div className="roadmap-step">
-              <div className="step-number">9</div>
-              <div className="step-content">
-                <h4>Resume-Based Interview</h4>
-              </div>
-            </div>
-            <div className="roadmap-connector horizontal"></div>
-            <div className="roadmap-step">
-              <div className="step-number">10</div>
-              <div className="step-content">
-                <h4>Technical Interview</h4>
-              </div>
-            </div>
-          </div>
-          
-          {/* Vertical Connector */}
-          <div className="roadmap-connector vertical-center"></div>
-          
-          {/* Row 2: Right to Left */}
-          <div className="roadmap-row reverse">
-            <div className="roadmap-step">
-              <div className="step-number">11</div>
-              <div className="step-content">
-                <h4>Logical Puzzles</h4>
-              </div>
-            </div>
-            <div className="roadmap-connector horizontal reverse"></div>
-            <div className="roadmap-step">
-              <div className="step-number">12</div>
-              <div className="step-content">
-                <h4>Stress/Pressure Questions</h4>
-              </div>
-            </div>
-            <div className="roadmap-connector horizontal reverse"></div>
-            <div className="roadmap-step">
-              <div className="step-number">13</div>
-              <div className="step-content">
-                <h4>Follow-Up Questioning</h4>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div className="roadmap-progress">
-          <div className="progress-indicator">
-            <div className="progress-bar"></div>
-            <div className="progress-text">Complete Your Interview Journey</div>
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Section */}
-      <section id="pricing" className="pricing">
-        <div className="section-header">
-          <h2>Choose Your Learning Path</h2>
-          <p>Flexible plans designed for every learner's needs</p>
-        </div>
-        
-
-        <div className="pricing-container" style={{ 
-          maxWidth: '1400px', 
-          margin: '0 auto', 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(4, 1fr)',
-        }}>
-          {plans.map((plan, idx) => (
-            <div
-              key={idx}
-              className={`pricing-card ${
-                plan.highlight ? "featured" : ""
-              }`}
-              style={{
-                background: 'rgba(255, 255, 255, 0.95)',
-                backdropFilter: 'blur(20px)',
-                borderRadius: '16px',
-                textAlign: 'center',
-                boxShadow: '0 15px 35px rgba(0, 0, 0, 0.1)',
-                border: plan.highlight ? '2px solid #3B9797' : '1px solid rgba(255, 255, 255, 0.2)',
-                flex: 1,
-                transform: 'translateX(0) translateY(0)',
-                opacity: 1,
-                transition: 'all 0.3s ease',
-                display: 'flex',
-                flexDirection: 'column',
-                height: '100%'
-              }}
-            >
-              <div style={{ marginBottom: '-1.2rem' }}>
-                <span className={`plan-badge ${plan.highlight ? 'popular' : ''}`} style={{
-                  background: plan.highlight ? 'linear-gradient(135deg, #3B9797, #5bb5b5)' : '#f1f5f9',
-                  color: plan.highlight ? 'white' : '#000000',
-                  padding: '0.5rem 1rem',
-                  borderRadius: '16px',
-                  fontSize: '0.875rem',
-                  fontWeight: '600',
-                  marginBottom: '1rem',
-                  display: 'inline-block'
-                }}>
-                  {plan.tag}
-                </span>
-                
-                <div className="plan-price" style={{ marginBottom: '1.5rem' }}>
-                  <span className="amount" style={{
-                    fontSize: '2rem',
-                    fontWeight: '800',
-                    color: '#000000'
-                  }}>{plan.price}</span>
-                  <span className="period" style={{
-                    fontSize: '1rem',
-                    color: '#666',
-                    marginLeft: '0.25rem'
-                  }}>{plan.duration}</span>
-                </div>
-              </div>
-
-              <ul className="plan-features" style={{
-                listStyle: 'none',
-                marginBottom: '2rem',
-                textAlign: 'left',
-                flex: 1,
-                padding: 0
-              }}>
-                {plan.features.map((feature, i) => {
-                  if (feature.startsWith('<h3>')) {
-                    return (
-                      <li key={i} style={{
-                        color: '#3B9797',
-                        fontSize: '0.9rem',
-                        fontWeight: 'bold',
-                        marginTop: '1rem',
-                        marginBottom: '0.5rem',
-                        textAlign: 'center'
-                      }}>
-                        <div dangerouslySetInnerHTML={{ __html: feature }} />
-                      </li>
-                    );
-                  }
-                  return (
-                    <li key={i} style={{
-                      color: '#000000',
-                      fontSize: '0.8rem',
-                      lineHeight: '1.4',
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      gap: '0.75rem',
-                      marginBottom: '0.5rem'
-                    }}>
-                      <span style={{
-                        color: feature.startsWith('✓') ? '#3B9797' : '#ef4444',
-                        fontSize: '14px',
-                        fontWeight: 'bold',
-                        marginTop: '0.125rem',
-                        flexShrink: 0
-                      }}>
-                        {feature.startsWith('✓') ? '✓' : '✗'}
-                      </span>
-                      <span>{feature.substring(2)}</span>
-                    </li>
-                  );
-                })}
-              </ul>
-
-              <button
-                onClick={() => handleButtonClick(plan.tag)}
-                className="plan-btn"
-                style={{
-                  width: '100%',
-                  marginTop: '-20px',
-                  padding: '1rem',
-                  background: 'linear-gradient(135deg, #3B9797, #5bb5b5)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '12px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  fontSize: '1rem'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.transform = 'translateY(-2px)';
-                  e.target.style.boxShadow = '0 8px 25px rgba(59, 151, 151, 0.3)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = 'none';
-                }}
-              >
-                {plan.button}
-              </button>
-            </div>
-          ))}
-        </div>
-        <div className="pricing-terms-checklist">
-          <h4>Before Proceeding, Please Confirm:</h4>
-          <div className="pricing-terms-note">
-            Payments once made are final and non-refundable.
-          </div>
-          <center>
-            <button 
-              className="submit-message"
-              style={{ textAlign: 'center', cursor: 'pointer' }}
-              onClick={() => setActiveModal('terms')}
-            >
-            Terms & Conditions apply - click here to know more
-          </button>
-        </center>
-      </div>
-    </section>
-
-      {/* Contact Section */}
-      <section id="contact" className="contact" style={{ paddingTop: '6rem', paddingBottom: '4rem' }}>
-        <div className="contact-content" style={{ 
-          display: 'grid', 
-          gridTemplateColumns: '1fr 1fr', 
-          gap: '3rem', 
-          maxWidth: '1200px', 
-          margin: '0 auto',
-        }}>
-          <div className="contact-info" style={{
-            background: 'rgba(255, 255, 255, 0.95)',
-            padding: '2rem',
-            borderRadius: '16px',
-            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
-            border: '1px solid rgba(59, 151, 151, 0.1)'
-          }}>
-            <h2>Get in Touch</h2>
-            <p>Connect with us through our professional channels. We're here to help you on your learning journey.</p>
-            <div className="contact-methods">
-              <div className="contact-method">
-                <div className="method-icon">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B9797" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
-                    <rect x="2" y="9" width="4" height="12"/>
-                    <circle cx="4" cy="4" r="2"/>
-                  </svg>
-                </div>
-                <div className="method-details">
-                  <h4>LinkedIn</h4>
-                  <span>linkedin.com/rrbalaji</span>
-                </div>
-              </div>
-              <div className="contact-method">
-                <div className="method-icon">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B9797" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                    <polyline points="22,6 12,13 2,6"/>
-                  </svg>
-                </div>
-                <div className="method-details">
-                  <h4>Email</h4>
-                  <span>support@skillrouteai.com</span>
-                </div>
-              </div>
-              <div className="contact-method">
-                <div className="method-icon">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B9797" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-                  </svg>
-                </div>
-                <div className="method-details">
-                  <h4>Phone</h4>
-                  <span>+91 9398350217</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="contact-form" style={{
-            background: 'rgba(255, 255, 255, 0.95)',
-            padding: '2rem',
-            borderRadius: '16px',
-            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
-            border: '1px solid rgba(59, 151, 151, 0.1)'
-          }}>
-            <h3 style={{ marginBottom: '1.5rem', color: '#3B9797' }}>Send us a Message</h3>
-            <form onSubmit={handleSubmit}>
-              <input 
-                type="text" 
-                placeholder="Your Name" 
-                value={formData.name}
-                onChange={(e) => setFormData({...formData, name: e.target.value})}
-                required
-              />
-              <input 
-                type="email" 
-                placeholder="Your Email" 
-                value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
-                required
-              />
-              <textarea 
-                placeholder="Your Message" 
-                rows="4"
-                value={formData.message}
-                onChange={(e) => setFormData({...formData, message: e.target.value})}
-                required
-              ></textarea>
-              <button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Sending...' : 'Send Message'}
-              </button>
-              {submitMessage && <p className="submit-message" style={{ marginTop: '1rem' }}>{submitMessage}</p>}
-            </form>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="footer" style={{ marginTop: '2rem' }}>
-        <div className="footer-content">
-          <div className="footer-brand">
-            <div className="logo">
-              <span className="logo-text">Skill Route</span>
-            </div>
-            <p>📍 India - Andhra Pradesh </p>
+      <footer className="border-t border-border bg-card py-8">
+        <div className="container text-center text-muted-foreground">
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <img src={logo} alt="Skill Route" className="w-8 h-8 rounded-full" />
+            <span className="font-bold text-foreground">Skill Route</span>
           </div>
-        </div>
-        <div className="footer-bottom">
-          <p>&copy; 2026 Skill-Route. All rights reserved.</p>
+          <p className="text-xs md:text-sm mb-2">📍 India - Andhra Pradesh</p>
+          <p className="text-xs md:text-sm">&copy; 2026 Skill-Route. All rights reserved.</p>
         </div>
       </footer>
 
-      {/* Activity Modals */}
-      {activeModal === 'menu' && (
-        <div className="modal-overlay" onClick={() => setActiveModal(null)}>
-          <div className="modal-content mobile-menu" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setActiveModal(null)}>×</button>
-            <div className="mobile-nav-links">
-              <a href="#home" onClick={(e) => { handleNavClick(e, 'home'); setActiveModal(null); }}>Home</a>
-              <a href="#features" onClick={(e) => { handleNavClick(e, 'features'); setActiveModal(null); }}>Features</a>
-              <a href="#activities" onClick={(e) => { handleNavClick(e, 'activities'); setActiveModal(null); }}>Activities</a>
-              <a href="#pricing" onClick={(e) => { handleNavClick(e, 'pricing'); setActiveModal(null); }}>Pricing</a>
-              <a href="#contact" onClick={(e) => { handleNavClick(e, 'contact'); setActiveModal(null); }}>Contact</a>
-              <button className="btn-signup mobile-signup" onClick={() => { window.location.href = '/signup'; }}>Get started now !</button>
+      {/* Modals */}
+      {activeModal && !['terms'].includes(activeModal) && (
+        <div className="landing-modal-overlay" onClick={() => setActiveModal(null)}>
+          <div className="landing-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="landing-modal-header">
+              <h3 className="font-heading font-bold text-base md:text-lg">
+                {activities.find(a => a.id === activeModal)?.title}
+              </h3>
+              <button onClick={() => setActiveModal(null)} className="text-xl text-muted-foreground hover:text-foreground">×</button>
             </div>
-          </div>
-        </div>
-      )}
-      
-      {activeModal === 'terms' && (
-        <div className="modal-overlay" onClick={() => setActiveModal(null)}>
-          <div className="modal-content terms-modal" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setActiveModal(null)}>×</button>
-            <div className="modal-body">
-              <h2>Premium Subscription – Terms & Conditions</h2>
-              <div className="terms-content">
-                <div className="terms-section">
-                  <h3>One-Time Payment</h3>
-                  <p>The Premium subscription is available through a one-time payment only. No recurring charges are involved.</p>
-                </div>
-                
-                <div className="terms-section">
-                  <h3>No Refund Policy</h3>
-                  <p>All payments made for the Premium plan are final and non-refundable. Refunds will not be provided for partial usage, non-usage, dissatisfaction, accidental purchases, or change of mind.</p>
-                </div>
-                
-                <div className="terms-section">
-                  <h3>Pricing & Tax</h3>
-                  <p>The total amount displayed at checkout includes a 2% applicable tax. No additional charges will be applied beyond the displayed price.</p>
-                </div>
-                
-                <div className="terms-section">
-                  <h3>User Responsibility</h3>
-                  <p>Users are advised to review all Premium features, limitations, and Terms & Conditions carefully before proceeding with the payment. By making the payment, the user confirms full understanding and acceptance.</p>
-                </div>
-                
-                <div className="terms-section">
-                  <h3>Payment Confirmation</h3>
-                  <p>Premium access will be activated only after successful payment verification through the payment gateway. Frontend payment success alone does not guarantee activation.</p>
-                </div>
-                
-                <div className="terms-section">
-                  <h3>Service Availability</h3>
-                  <p>Premium features are provided on a best-effort basis. Temporary service interruptions due to maintenance, updates, or technical issues may occur and do not qualify for refunds.</p>
-                </div>
-                
-                <div className="terms-section">
-                  <h3>Misuse & Access Termination</h3>
-                  <p>Any misuse of the platform, violation of policies, or unethical activity may result in termination of Premium access without refund.</p>
-                </div>
-                
-                <div className="terms-section">
-                  <h3>Changes to Services</h3>
-                  <p>The platform reserves the right to modify, update, or discontinue any Premium feature at its discretion without prior notice.</p>
-                </div>
-                
-                <div className="terms-section">
-                  <h3>Agreement</h3>
-                  <p>By clicking "Pay Now" and completing the payment, the user confirms that they have read, understood, and agreed to all the above Terms & Conditions.</p>
-                </div>
-              </div>
-              <button className="modal-btn" onClick={() => setActiveModal(null)}>Close</button>
-            </div>
-          </div>
-        </div>
-      )}
-      
-      {activeModal && activeModal !== 'menu' && activeModal !== 'terms' && (
-        <div className="modal-overlay" onClick={() => setActiveModal(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setActiveModal(null)}>×</button>
-            <div className="modal-body">
-              <h3>{activities.find(a => a.id === activeModal)?.title}</h3>
-              <p>{activities.find(a => a.id === activeModal)?.description}</p>
-              <button className="modal-btn">Start Activity</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Premium Access Modal */}
-      {showPremiumModal && (
-        <div className="modal-overlay" onClick={() => setShowPremiumModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setShowPremiumModal(false)}>×</button>
-            <div className="modal-body">
-              <h3>Premium Access Required</h3>
-              <p>To access premium features and unlock your full learning potential, please follow our simple payment flow:</p>
-              <div className="premium-steps">
-                <div className="step">
-                  {/* <div className="step-number">1</div> */}
-                  <div className="step-content">
-                    <h4>New User?</h4>
-                    <p>Sign up → Create Profile → Login → Access Profile & Buy Premium</p>
-                  </div>
-                </div>
-                
-                <div className="step">
-                  {/* <div className="step-number">2</div> */}
-                  <div className="step-content">
-                    <h4>Existing User?</h4>
-                    <p>Login → Access Profile Page → Buy Premium</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="premium-benefits">
-                <h4>Premium Benefits:</h4>
-                <ul>
-                  <li>✓ Unlimited AI-powered practice sessions</li>
-                  <li>✓ Advanced analytics & progress tracking</li>
-                  <li>✓ All interview modules unlocked</li>
-                  <li>✓ Premium feedback & pronunciation insights</li>
-                </ul>
-              </div>
-              <center>
-              <button className="modal-btn" onClick={() => window.location.href = '/signup'}>
-                Proceed to Sign Up
-              </button>
-              </center>
+            <div className="landing-modal-body">
+              <p className="text-sm md:text-base text-muted-foreground mb-6">
+                {activities.find(a => a.id === activeModal)?.description}
+              </p>
+              <button onClick={() => setActiveModal(null)} className="landing-btn-primary text-sm">Watch Demo</button>
             </div>
           </div>
         </div>

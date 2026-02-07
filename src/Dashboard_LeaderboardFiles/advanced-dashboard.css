@@ -15,21 +15,27 @@
 }
 
 .back-btn {
-  background: linear-gradient(135deg, #6b7280, #4b5563);
-  color: white;
+  background: var(--gradient-primary);
+  color: hsl(var(--primary-foreground));
   border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
+  padding: 10px 18px;
+  border-radius: 10px;
   cursor: pointer;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(107, 114, 128, 0.3);
+  font-weight: 600;
+  transition: all 0.24s ease;
+  box-shadow: var(--shadow-sm);
 }
 
 .back-btn:hover {
-  background: linear-gradient(135deg, #4b5563, #374151);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.4);
+  box-shadow: var(--shadow-md);
+}
+
+@media (max-width: 640px) {
+  .back-btn {
+    padding: 8px 12px;
+    font-size: 0.95rem;
+  }
 }
 
 .dashboard-header h2 {

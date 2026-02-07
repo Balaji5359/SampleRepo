@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import "./login.css";
+import "../theme-system.css";
+import "./login-custom.css";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 
 function SignUp() {
