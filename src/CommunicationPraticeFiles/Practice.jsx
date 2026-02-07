@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "../components/shared-styles.css";
-import "./practice-styles.css";
+import "../RegisterFiles/login.css";
+import "./practice-custom.css";
 import Header from '../components/Header';
 
 function Practice() {

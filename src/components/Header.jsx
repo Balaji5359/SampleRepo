@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
+import '../RegisterFiles/login.css';
 
 function Header() {
     const navigate = useNavigate();
@@ -8,6 +9,7 @@ function Header() {
     const [userType, setUserType] = useState('free');
     const [streakData, setStreakData] = useState({ current_streak: 0 });
     const [profileData, setProfileData] = useState({});
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -58,55 +60,67 @@ function Header() {
 
     const isActive = (path) => location.pathname === path || location.pathname.startsWith(`${path}/`);
 
-    const baseBtn =
-        "px-3 py-2 rounded-lg bg-muted text-foreground text-sm font-medium hover:bg-muted/80 transition-colors";
-
-    const activeClass = "font-bold";
-
     return (
-        <header className="header">
+        <header className="header glass border-b" style={{ borderColor: 'hsl(var(--border))' }}>
             <div className="header-content">
                 <div className="header-left">
-                    <span className="font-heading text-lg font-bold text-foreground"
-                    style={{fontSize:"25px"}}
-                    >Skill Route</span>
-                    <button
-                        onClick={() => navigate("/profiledata")}
-                        className={`${baseBtn} ${isActive("/profiledata") ? activeClass : ""}`}
-                    >
-                        Home
-                    </button>
-                    <button
-                        onClick={() => navigate("/test")}
-                        className={`${baseBtn} ${isActive("/test") ? activeClass : ""}`}
-                    >
-                        Tests
-                    </button>
-                    <button
-                        onClick={() => navigate("/practice")}
-                        className={`${baseBtn} ${isActive("/practice") ? activeClass : ""}`}
-                    >
-                        Practices
-                    </button>
-                    <button
-                        onClick={() => navigate("/interview")}
-                        className={`${baseBtn} ${isActive("/interview") ? activeClass : ""}`}
-                    >
-                        Interview Hub
-                    </button>
-                    <button
-                        onClick={() => navigate("/student-dashboard")}
-                        className={`${baseBtn} ${isActive("/student-dashboard") ? activeClass : ""}`}
-                    >
-                        Dashboard
-                    </button>
+                    <div className="logo">
+                        <span className="logo-text">Skill Route</span>
+                    </div>
+                    <nav className={`nav-links ${mobileMenuOpen ? 'active' : ''}`}>
+                        <button
+                            onClick={() => {
+                                navigate("/profiledata");
+                                setMobileMenuOpen(false);
+                            }}
+                            className={`nav-link ${isActive("/profiledata") ? 'active' : ''}`}
+                        >
+                            Home
+                        </button>
+                        <button
+                            onClick={() => {
+                                navigate("/test");
+                                setMobileMenuOpen(false);
+                            }}
+                            className={`nav-link ${isActive("/test") ? 'active' : ''}`}
+                        >
+                            Tests
+                        </button>
+                        <button
+                            onClick={() => {
+                                navigate("/practice");
+                                setMobileMenuOpen(false);
+                            }}
+                            className={`nav-link ${isActive("/practice") ? 'active' : ''}`}
+                        >
+                            Practices
+                        </button>
+                        <button
+                            onClick={() => {
+                                navigate("/interview");
+                                setMobileMenuOpen(false);
+                            }}
+                            className={`nav-link ${isActive("/interview") ? 'active' : ''}`}
+                        >
+                            Interview Hub
+                        </button>
+                        <button
+                            onClick={() => {
+                                navigate("/student-dashboard");
+                                setMobileMenuOpen(false);
+                            }}
+                            className={`nav-link ${isActive("/student-dashboard") ? 'active' : ''}`}
+                        >
+                            Dashboard
+                        </button>
+                    </nav>
                 </div>
-                <div className="auth-buttons">
-                    <span className="app-badge">🔥 {streakData.current_streak || 0}</span>
-                    <span className={`app-badge ${userType === 'premium' ? 'badge-premium' : 'badge-free'}`}>
+                <div className="header-right">
+                    <span className="badge primary">🔥 {streakData.current_streak || 0}</span>
+                    <span className={`badge ${userType === 'premium' ? 'badge-premium' : 'badge-free'}`}>
                         {userType === 'premium' ? '👑 Premium' : '🆓 Free'}
                     </span>
-                    <span className="app-badge">{email}</span>
+                    <span className="badge">{email}</span>
                     <button 
                         className="btn-logout"
                         onClick={() => {
@@ -117,6 +131,12 @@ function Header() {
                         Logout
                     </button>
                 </div>
+                <button 
+                    className="menu-toggle"
+                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                >
+                    {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                </button>
             </div>
         </header>
     );

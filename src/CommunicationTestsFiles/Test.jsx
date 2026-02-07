@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "../components/shared-styles.css";
-import "./test-styles.css";
+import "./test-custom.css";
+import '../RegisterFiles/login.css';
+import Header from '../components/Header';
 
 function Test() {
     const [tests, setTests] = useState({});
