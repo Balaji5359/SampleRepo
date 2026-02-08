@@ -1,6 +1,7 @@
 import React, { Suspense, lazy, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
+
 // Basic Components
 import Navigation from "./basic_components/Navigation.jsx";
 import LoadingSpinner from "./basic_components/LoadingSpinner.jsx";
