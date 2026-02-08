@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft, Target, Menu, X } from "lucide-react";
 import "./test-custom.css";
 import '../RegisterFiles/login.css';
-import Header from '../components/Header';
 
 function Test() {
     const [tests, setTests] = useState({});
@@ -10,10 +10,11 @@ function Test() {
     const [activeChallenge, setActiveChallenge] = useState(null);
     const [selectedLevel, setSelectedLevel] = useState('basic');
     const [instructionIndex, setInstructionIndex] = useState(0);
-    const [userName, setUserName] = useState("");
     const [apiData, setApiData] = useState({});
     const [userType, setUserType] = useState('free');
     const [streakData, setStreakData] = useState({ current_streak: 0 });
+    const [showMobileMenu, setShowMobileMenu] = useState(false);
+    const [showLevelModal, setShowLevelModal] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -23,7 +24,6 @@ function Test() {
             return;
         }  
         
-        // Fetch user profile and streak data
         Promise.all([
             fetch(import.meta.env.VITE_STUDENT_PROFILE_API, {
                 method: 'POST',
@@ -135,47 +135,6 @@ function Test() {
         };
     };
 
-    const getScoreFromStorage = (testType) => {
-        const scores = JSON.parse(localStorage.getItem('testScores') || '{}');
-        return scores[testType] || 0;
-    };
-    const isInterviewLevelUnlocked = (level) => {
-        if (level === 1) return true;
-        const prevLevel = level - 1;
-        const prevScore = getScoreFromStorage(`interview_level_${prevLevel}`);
-        return prevScore >= 70;
-    };
-
-    // const interviewLevels = [
-    //     {
-    //         level: 1,
-    //         title: 'Basic Interview Tests',
-    //         color: '#28a745',
-    //         steps: [
-    //             { id: 1, title: 'JD-Based Self Introduction', activities: '' },
-    //             { id: 2, title: 'Programming Knowledge', activities: '' },
-    //             { id: 3, title: 'Worked Domain', activities: '' },
-    //             { id: 4, title: 'Project Discussion', activities: '' },
-    //             { id: 5, title: 'Future Career Planning', activities: '' },
-    //             { id: 6, title: 'Hobbies & Interests', activities: '' },
-    //             { id: 7, title: 'Certifications & Internships', activities: '' }
-    //         ]
-    //     },
-    //     {
-    //         level: 2,
-    //         title: 'Advanced Interview Tests',
-    //         color: '#007bff',
-    //         steps: [
-    //             { id: 8, title: 'Role-Based Interview', activities: '' },
-    //             { id: 9, title: 'Resume-Based Interview', activities: '' },
-    //             { id: 10, title: 'Technical Interview', activities: '' },
-    //             { id: 11, title: 'Follow-Up Questioning', activities: '' },
-    //             { id: 12, title: 'Stress/Pressure Questions', activities: '' },
-    //             { id: 13, title: 'Logical Puzzles', activities: '' }
-    //         ]
-    //     }
-    // ];
-
     const activities = [
         {
             id: 'jam',
@@ -215,7 +174,6 @@ function Test() {
     ];
 
 const testInstructions = {
-
     jam: [
         {
         title: "Instructions for JAM",
@@ -227,55 +185,8 @@ const testInstructions = {
             - Focus on <b>content relevance, clarity, fluency, confidence</b>.
             </strong>
         )
-        },
-        {
-        title: "Microphone Rules",
-        content: (
-            <strong>
-            - Microphone access is provided <b>only once</b>.<br />
-            - Take a few seconds to think before you start speaking.
-            </strong>
-        )
-        },
-        {
-        title: "Grammar & Vocabulary",
-        content: (
-            <strong>
-            - Use correct sentence structures.<br />
-            - Avoid fillers like <i>um, uh, so</i>.<br />
-            -{" "}
-            <b style={{ fontSize: "21px" }}>
-                Tara AI
-            </b>{" "}
-            rewards strong grammar and vocabulary with higher scores.
-            </strong>
-        )
-        },
-        {
-        title: "Confidence & Delivery",
-        content: (
-            <strong>
-            - Speak clearly with a steady pace.<br />
-            - Sit in a quiet place and speak confidently with{" "}
-            <b>Tara AI</b>.
-            </strong>
-        )
-        },
-        {
-        title: "Watch How to Take the JAM Test",
-        content: (
-            <iframe
-            width="100%"
-            height="250"
-            src="https://www.youtube.com/embed/0pNcWTG9Y8M"
-            title="JAM Practice"
-            frameBorder="0"
-            allowFullScreen
-            />
-        )
         }
     ],
-
     pronunciation: [
         {
         title: "Pronunciation Practice Overview",
@@ -285,44 +196,8 @@ const testInstructions = {
             - Focus on <b>clarity, accuracy, and correct sounds</b>.
             </strong>
         )
-        },
-        {
-        title: "Clarity & Articulation",
-        content: (
-            <strong>
-            - Pronounce each sound clearly.<br />
-            - Avoid rushing through words.
-            </strong>
-        )
-        },
-        {
-        title: "Accuracy Matters",
-        content: (
-            <strong>
-            - Incorrect pronunciation affects your score.<br />
-            -{" "}
-            <b style={{ fontSize: "21px" }}>
-                Tara AI
-            </b>{" "}
-            analyzes sound accuracy precisely.
-            </strong>
-        )
-        },
-        {
-        title: "How to Practice Pronunciation",
-        content: (
-            <iframe
-            width="100%"
-            height="250"
-            src="https://www.youtube.com/embed/0pNcWTG9Y8M"
-            title="Pronunciation Practice"
-            frameBorder="0"
-            allowFullScreen
-            />
-        )
         }
     ],
-
     listening: [
         {
         title: "Listening Test Instructions",
@@ -333,40 +208,8 @@ const testInstructions = {
             - Listen attentively before answering.
             </strong>
         )
-        },
-        {
-        title: "Focus & Attention",
-        content: (
-            <strong>
-            - Use headphones for better clarity.<br />
-            - Avoid distractions while listening.
-            </strong>
-        )
-        },
-        {
-        title: "Answer Carefully",
-        content: (
-            <strong>
-            - Questions are based on <b>details and understanding</b>.<br />
-            - Tara AI evaluates comprehension accuracy.
-            </strong>
-        )
-        },
-        {
-        title: "How to Take the Listening Test",
-        content: (
-            <iframe
-            width="100%"
-            height="250"
-            src="https://www.youtube.com/embed/0pNcWTG9Y8M"
-            title="Listening Practice"
-            frameBorder="0"
-            allowFullScreen
-            />
-        )
         }
     ],
-
     situational: [
         {
         title: "Situational Speaking Overview",
@@ -376,44 +219,8 @@ const testInstructions = {
             - Respond as you would in an interview or workplace.
             </strong>
         )
-        },
-        {
-        title: "Think Before You Speak",
-        content: (
-            <strong>
-            - Analyze the problem logically.<br />
-            - Structure your response clearly.
-            </strong>
-        )
-        },
-        {
-        title: "Professional Communication",
-        content: (
-            <strong>
-            - Maintain a professional tone.<br />
-            -{" "}
-            <b style={{ fontSize: "21px" }}>
-                Tara AI
-            </b>{" "}
-            evaluates reasoning, clarity, and confidence.
-            </strong>
-        )
-        },
-        {
-        title: "How to Practice Situational Speaking",
-        content: (
-            <iframe
-            width="100%"
-            height="250"
-            src="https://www.youtube.com/embed/0pNcWTG9Y8M"
-            title="Situational Practice"
-            frameBorder="0"
-            allowFullScreen
-            />
-        )
         }
     ],
-
     "image-speak": [
         {
         title: "Image Speaking Instructions",
@@ -423,59 +230,19 @@ const testInstructions = {
             - Describe what you observe clearly and confidently.
             </strong>
         )
-        },
-        {
-        title: "Observation Skills",
-        content: (
-            <strong>
-            - Focus on key elements in the image.<br />
-            - Organize your description logically.
-            </strong>
-        )
-        },
-        {
-        title: "Fluency & Structure",
-        content: (
-            <strong>
-            - Avoid long pauses.<br />
-            - Tara AI evaluates clarity, structure, and fluency.
-            </strong>
-        )
-        },
-        {
-        title: "How to Take Image Speaking Test",
-        content: (
-            <iframe
-            width="100%"
-            height="250"
-            src="https://www.youtube.com/embed/ReZgqLI3Hq0"
-            title="Image Speaking Practice"
-            frameBorder="0"
-            allowFullScreen
-            />
-        )
         }
     ]
     };
 
-
-    const handleStartChallenge = (id, level = 'basic') => {
+    const handleStartChallenge = (id) => {
         setActiveChallenge(id);
+        setShowLevelModal(true);
+    };
+
+    const handleLevelChoice = (level) => {
         setSelectedLevel(level);
+        setShowLevelModal(false);
         setInstructionIndex(0);
-    };
-
-    const handleNext = () => {
-        const currentInstructions = testInstructions[activeChallenge];
-        if (instructionIndex < currentInstructions.length - 1) {
-            setInstructionIndex(instructionIndex + 1);
-        }
-    };
-
-    const handlePrev = () => {
-        if (instructionIndex > 0) {
-            setInstructionIndex(instructionIndex - 1);
-        }
     };
 
     const handleLaunchChallenge = () => {
@@ -500,88 +267,63 @@ const testInstructions = {
         );
     }
 
-
     return (
-        <div className="test-container app-bg-free">
-            <div className="test-div">
-                <center>
-                    <h1 className="test-title">Communication Assessments with TaraAI</h1>
-                    <p className="test-activity-des">From everyday speaking activities to interview-level assessments,<br></br> TaraAI helps you practice, evaluate, and improve your communication skills with smart feedback and progress tracking.</p>
-                    <div className="test-announcement-banner delayed">
-                        <span className="test-announcement-text">Image-Based Speaking</span>
-                        <span className="test-coming-soon-badge">Coming Soon</span>
-                    </div><br></br>
-                </center>
+        <div className="test-theme min-h-screen bg-background">
+            <div className="sticky top-0 z-40 glass border-b border-border">
+                {showMobileMenu && (
+                    <div className="sm:hidden border-t" style={{ borderColor: 'hsl(var(--border))', background: 'hsl(var(--card))' }}>
+                        <div className="px-4 py-3 flex flex-col gap-2">
+                            <div className="border-t pt-2 mt-2 space-y-1" style={{ borderColor: 'hsl(var(--border))' }}>
+                                <div className="text-xs" style={{ color: 'hsl(var(--muted-foreground))' }}>Streak: {streakData.current_streak || 0}</div>
+                                <div className="text-xs" style={{ color: 'hsl(var(--muted-foreground))' }}>{userType === "premium" ? "Premium" : "Free"}</div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
 
-                <div className={`test-activity-grid ${activeChallenge ? 'blurred' : ''}`}>
+            <div className="container max-w-6xl mx-auto px-4 py-8">
+                <div className="text-center mb-10">
+                    <h2 className="font-heading text-2xl md:text-3xl font-bold mb-2" style={{ color: 'hsl(var(--foreground))' }}>
+                        Test with TaraAI
+                    </h2>
+                    <p style={{ color: 'hsl(var(--muted-foreground))', maxWidth: '600px', margin: '0 auto' }}>
+                        Professional communication evaluation with strict assessment criteria and detailed scoring.
+                    </p>
+                </div>
+
+                <div className="test-activity-grid">
                     {activities.map((activity) => {
                         const stats = getTestStats(activity.id);
                         return (
                             <div key={activity.id} className="test-activity-card">
                                 <h3 className="test-activity-title">{activity.title}</h3>
                                 <p className="test-activity-description">{activity.description}</p>
-                                <div style={{paddingBottom:"15px"}}>Remaining Chances: {activity.count}</div>
+                                <div style={{paddingBottom:"15px", fontSize: '0.9rem', color: 'hsl(var(--muted-foreground))'}}>Remaining: {activity.count}</div>
                                 <div className="test-card-content">
                                     <div className="test-activity-buttons">
-                                        
                                         {activity.id === 'image-speak' ? (
-                                            <button className="test-level-button-coming-soon" disabled>
-                                                <span>Basic</span>
-                                                <span className="test-coming-soon-indicator">SOON</span>
+                                            <button className="test-level-button" disabled style={{ opacity: 0.5 }}>
+                                                <span>Basic - Coming Soon</span>
                                             </button>
                                         ) : (
                                             <button 
-                                                onClick={() => activity.count > 0 ? handleStartChallenge(activity.id, 'basic') : null}
+                                                onClick={() => activity.count > 0 ? handleStartChallenge(activity.id) : null}
                                                 className={activity.count > 0 ? "test-level-button" : "app-btn-disabled"}
                                                 disabled={activity.count === 0}
                                             >
-                                                Basic
+                                                Start Test
                                             </button>
-                                        )}
-                                        {(activity.id === 'jam' || activity.id === 'situational' || activity.id === 'pronunciation' || activity.id === 'listening') ? (
-                                            <>
-                                                <button 
-                                                    onClick={() => userType === 'premium' && activity.count > 0 ? handleStartChallenge(activity.id, 'intermediate') : null}
-                                                    className={userType === 'premium' && activity.count > 0 ? "test-level-button" : "app-btn-disabled"}
-                                                    disabled={userType !== 'premium' || activity.count === 0}
-                                                >
-                                                    <span>Intermediate</span>
-                                                    {userType !== 'premium' && (
-                                                        <span className="test-premium-indicator">- BUY PREMIUM</span>
-                                                    )}
-                                                </button>
-                                                <button 
-                                                    onClick={() => userType === 'premium' && activity.count > 0 ? handleStartChallenge(activity.id, 'advanced') : null}
-                                                    className={userType === 'premium' && activity.count > 0 ? "test-level-button" : "app-btn-disabled"}
-                                                    disabled={userType !== 'premium' || activity.count === 0}
-                                                >
-                                                    <span>Advanced</span>
-                                                    {userType !== 'premium' && (
-                                                        <span className="test-premium-indicator">- BUY PREMIUM</span>
-                                                    )}
-                                                </button>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <button className="test-level-button-coming-soon" disabled>
-                                                    <span>Intermediate</span>
-                                                    <span className="test-coming-soon-indicator">SOON</span>
-                                                </button>
-                                                <button className="test-level-button-coming-soon" disabled>
-                                                    <span>Advanced</span>
-                                                    <span className="test-coming-soon-indicator">SOON</span>
-                                                </button>
-                                            </>
                                         )}
                                     </div>
                                     <div className="test-activity-stats">
                                         <div className="test-activity-stats-text">
-                                            <div>Basic-Avg Score: {loading ? '...' : stats.avgScore}</div>
-                                            <div>Intermed-Avg Score: {loading ? '...' : getIntermediateStats(activity.id).avgScore}</div>
-                                            <div>Advance-Avg Score: {loading ? '...' : getAdvancedStats(activity.id).avgScore}</div>
-                                            <div>Basic Test Count: {loading ? '...' : stats.testCount}</div>
-                                            <div>Intermed Test Count: {loading ? '...' : getIntermediateStats(activity.id).testCount}</div>
-                                            <div>Advance Test Count: {loading ? '...' : getAdvancedStats(activity.id).testCount}</div>
+                                            <div>Basic Count: {loading ? '...' : getTestStats(activity.id).testCount}</div>
+                                            <div>Basic Avg Score: {loading ? '...' : getTestStats(activity.id).avgScore}</div>
+                                            <div>Intermed Count: {loading ? '...' : getIntermediateStats(activity.id).testCount}</div>
+                                            <div>Intermed Avg Score: {loading ? '...' : getIntermediateStats(activity.id).avgScore}</div>
+                                            <div>Advanced Count: {loading ? '...' : getAdvancedStats(activity.id).testCount}</div>
+                                            <div>Advanced Avg Score: {loading ? '...' : getAdvancedStats(activity.id).avgScore}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -589,128 +331,77 @@ const testInstructions = {
                         );
                     })}
                 </div>
+            </div>
 
-                {/* <div className={`test-interview-section ${activeChallenge ? 'blurred' : ''}`}>
-                    {interviewLevels.map((level, levelIndex) => {
-                        const unlocked = isInterviewLevelUnlocked(level.level);
-                        
-                        return (
-                            <div key={level.level} className="test-interview-level">
-                                <h1 className="test-interview-level-title">{level.title}</h1>
-                                
-                                <div className="test-roadmap-row">
-                                    {level.steps.map((step, stepIndex) => {
-                                        const stepUnlocked = unlocked && (stepIndex === 0 || getScoreFromStorage(`interview_step_${step.id - 1}`) >= 70);
-                                        
-                                        return (
-                                            <React.Fragment key={step.id}>
-                                                <div className={`test-roadmap-step ${stepUnlocked ? 'unlocked' : 'locked'}`}>
-                                                    <div className={`test-step-number ${stepUnlocked ? 'unlocked' : 'locked'}`}>
-                                                        {stepUnlocked ? step.id : '🔒'}
-                                                    </div>
-                                                    <div className="test-step-content">
-                                                        <h4 className={stepUnlocked ? 'unlocked' : 'locked'}>
-                                                            {step.title}
-                                                        </h4>
-                                                        <p className={stepUnlocked ? 'unlocked' : 'locked'}>
-                                                            {step.activities}
-                                                        </p>
-                                                    </div>
-                                                    {stepUnlocked && (
-                                                        <button className="test-step-start-button">
-                                                            START STEP
-                                                        </button>
-                                                    )}
-                                                </div>
-                                                {stepIndex < level.steps.length - 1 && (
-                                                    <div className="test-roadmap-connector horizontal"></div>
-                                                )}
-                                            </React.Fragment>
-                                        );
-                                    })}
-                                </div>
-                                
-                                {levelIndex < interviewLevels.length - 1 && (
-                                    <div className="test-roadmap-connector vertical-center"></div>
-                                )}
+            {showLevelModal && (
+                <div className="test-modal-overlay">
+                    <div className="test-modal" style={{ maxWidth: '400px' }}>
+                        <div className="test-modal-header">
+                            <h3 className="test-modal-title">Select Level</h3>
+                            <button
+                                onClick={() => {
+                                    setShowLevelModal(false);
+                                    setActiveChallenge(null);
+                                }}
+                                className="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                                style={{ background: 'hsl(var(--muted))', color: 'hsl(var(--muted-foreground))' }}
+                            >
+                                X
+                            </button>
+                        </div>
+                        <div className="test-modal-content">
+                            <p style={{ fontSize: '0.9rem', marginBottom: '16px', color: 'hsl(var(--muted-foreground))' }}>
+                                Choose difficulty level for this test
+                            </p>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                {['Basic', 'Intermediate', 'Advanced'].map((level) => (
+                                    <button
+                                        key={level}
+                                        onClick={() => handleLevelChoice(level)}
+                                        className="test-level-button"
+                                        style={{ width: '100%', padding: '12px' }}
+                                    >
+                                        {level}
+                                    </button>
+                                ))}
                             </div>
-                        );
-                    })}
-                    
-                    <div className="test-progress-section">
-                        <div className="test-progress-card">
-                            <div className="test-progress-bar">
-                                <div className="test-progress-fill"></div>
-                            </div>
-                            <div className="test-progress-text">Complete Your Interview Journey</div>
                         </div>
                     </div>
-                </div> */}
+                </div>
+            )}
 
-                {activeChallenge && (
-                    <div className="app-modal-overlay">
-                        <div className="test-modal">
-                            <button 
-                                onClick={() => setActiveChallenge(null)}
-                                className="app-modal-close"
-                            >
-                                ×
-                            </button>
-                            
+            {activeChallenge && !showLevelModal && (
+                <div className="test-modal-overlay">
+                    <div className="test-modal">
+                        <div className="test-modal-header">
                             <h2 className="test-modal-title">
                                 {testInstructions[activeChallenge]?.[instructionIndex]?.title}
                             </h2>
-                            
-                            <div className="test-modal-content">
-                                {typeof testInstructions[activeChallenge]?.[instructionIndex]?.content === 'string' ? (
-                                    <p className="test-modal-text">
-                                        {testInstructions[activeChallenge][instructionIndex].content}
-                                    </p>
-                                ) : (
-                                    testInstructions[activeChallenge]?.[instructionIndex]?.content
-                                )}
-                            </div>
-                            
-                            <div className="test-modal-actions">
-                                {instructionIndex > 0 && (
-                                    <button 
-                                        onClick={handlePrev}
-                                        className="app-btn-secondary"
-                                    >
-                                        ← Previous
-                                    </button>
-                                )}
-                                
-                                <div className="test-modal-nav">
-                                    {instructionIndex < testInstructions[activeChallenge]?.length - 1 ? (
-                                        <>
-                                            <button 
-                                                onClick={handleNext}
-                                                className="app-btn-primary"
-                                            >
-                                                Next →
-                                            </button>
-                                            <button 
-                                                onClick={() => setInstructionIndex(testInstructions[activeChallenge].length - 1)}
-                                                className="app-btn-success"
-                                            >
-                                                Skip
-                                            </button>
-                                        </>
-                                    ) : (
-                                        <button 
-                                            onClick={handleLaunchChallenge}
-                                            className="app-btn-danger"
-                                        >
-                                            START TEST
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
+                            <button 
+                                onClick={() => setActiveChallenge(null)}
+                                className="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                                style={{ background: 'hsl(var(--muted))', color: 'hsl(var(--muted-foreground))' }}
+                            >
+                                X
+                            </button>
+                        </div>
+                        
+                        <div className="test-modal-content">
+                            {testInstructions[activeChallenge]?.[instructionIndex]?.content}
+                        </div>
+                        
+                        <div className="test-modal-actions">
+                            <button 
+                                onClick={handleLaunchChallenge}
+                                className="test-level-button"
+                                style={{ padding: '10px 24px', background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)' }}
+                            >
+                                START TEST
+                            </button>
                         </div>
                     </div>
-                )}
-            </div>
+                </div>
+            )}
         </div>
     );
 }

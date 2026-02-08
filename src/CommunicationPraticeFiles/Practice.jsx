@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "../RegisterFiles/login.css";
+import { ArrowLeft, Target, Menu, X } from "lucide-react";
 import "./practice-custom.css";
-import Header from '../components/Header';
+import '../RegisterFiles/login.css';
 
 function Practice() {
     const [practices, setPractices] = useState({});
@@ -10,10 +10,11 @@ function Practice() {
     const [activeChallenge, setActiveChallenge] = useState(null);
     const [selectedLevel, setSelectedLevel] = useState('basic');
     const [instructionIndex, setInstructionIndex] = useState(0);
-    const [userName, setUserName] = useState("");
     const [apiData, setApiData] = useState({});
     const [userType, setUserType] = useState('free');
     const [streakData, setStreakData] = useState({ current_streak: 0 });
+    const [showMobileMenu, setShowMobileMenu] = useState(false);
+    const [showLevelModal, setShowLevelModal] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -23,7 +24,6 @@ function Practice() {
             return;
         }  
         
-        // Fetch user profile and practice data
         Promise.all([
             fetch(import.meta.env.VITE_STUDENT_PROFILE_API, {
                 method: 'POST',
@@ -71,7 +71,6 @@ function Practice() {
         })
         .catch(() => setLoading(false));
     }, []);
-
 
     const getPracticeStats = (activityId) => {
         const practiceMap = {
@@ -170,185 +169,37 @@ function Practice() {
     ];
 
     const practiceInstructions = {
-        jam_practice: [
-            {
-                title: "Instructions for JAM Practice",
-                content: (
-                    <strong>
-                    - You will be given a <b>random topic</b> by <b style={{ fontFamily: "Arial", fontSize: "22px" }}>Tara AI</b>.<br />
-                    - You will have <b>1 minute</b> to speak continuously.<br />
-                    - Focus on <b>content relevance, clarity, fluency, confidence</b>.
-                    </strong>
-                )
-            },
-            {
-                title: "Microphone Rules",
-                content: (
-                    <strong>
-                    - Microphone access is provided continuously.<br />
-                    - Take a few seconds to think before you start speaking.
-                    </strong>
-                )
-            },
-            {
-                title: "Grammar & Vocabulary",
-                content: (
-                    <strong>
-                    - Use correct sentence structures.<br />
-                    - Avoid fillers like <i>um, uh, so</i>.<br />
-                    - <b style={{ fontSize: "21px" }}>Tara AI</b> rewards strong grammar and vocabulary with higher scores.
-                    </strong>
-                )
-            },
-            {
-                title: "Confidence & Delivery",
-                content: (
-                    <strong>
-                    - Speak clearly with a steady pace.<br />
-                    - Sit in a quiet place and speak confidently with <b>Tara AI</b>.
-                    </strong>
-                )
-            }
-        ],
-
-        pronu_practice: [
-            {
-                title: "Pronunciation Practice Overview",
-                content: (
-                    <strong>
-                    - You will be given <b>words or sentences</b> to pronounce.<br />
-                    - Focus on <b>clarity, accuracy, and correct sounds</b>.
-                    </strong>
-                )
-            },
-            {
-                title: "Clarity & Articulation",
-                content: (
-                    <strong>
-                    - Pronounce each sound clearly.<br />
-                    - Avoid rushing through words.
-                    </strong>
-                )
-            },
-            {
-                title: "Accuracy Matters",
-                content: (
-                    <strong>
-                    - Incorrect pronunciation affects your score.<br />
-                    - <b style={{ fontSize: "21px" }}>Tara AI</b> analyzes sound accuracy precisely.
-                    </strong>
-                )
-            }
-        ],
-
-        listen_practice: [
-            {
-                title: "Listening Practice Instructions",
-                content: (
-                    <strong>
-                    - You will hear <b>audio clips</b> carefully curated by <b>Tara AI</b>.<br />
-                    - Listen attentively before responding.
-                    </strong>
-                )
-            },
-            {
-                title: "Focus & Attention",
-                content: (
-                    <strong>
-                    - Use headphones for better clarity.<br />
-                    - Avoid distractions while listening.
-                    </strong>
-                )
-            },
-            {
-                title: "Response Carefully",
-                content: (
-                    <strong>
-                    - Respond based on <b>details and understanding</b>.<br />
-                    - Tara AI evaluates comprehension accuracy.
-                    </strong>
-                )
-            }
-        ],
-
-        situation_practice: [
-            {
-                title: "Situational Speaking Overview",
-                content: (
-                    <strong>
-                    - You will be given a <b>real-life situation</b>.<br />
-                    - Respond as you would in an interview or workplace.
-                    </strong>
-                )
-            },
-            {
-                title: "Think Before You Speak",
-                content: (
-                    <strong>
-                    - Analyze the problem logically.<br />
-                    - Structure your response clearly.
-                    </strong>
-                )
-            },
-            {
-                title: "Professional Communication",
-                content: (
-                    <strong>
-                    - Maintain a professional tone.<br />
-                    - <b style={{ fontSize: "21px" }}>Tara AI</b> evaluates reasoning, clarity, and confidence.
-                    </strong>
-                )
-            }
-        ],
-
-        image_speak_practice: [
-            {
-                title: "Image Speaking Instructions",
-                content: (
-                    <strong>
-                    - You will be shown an <b>image</b>.<br />
-                    - Describe what you observe clearly and confidently.
-                    </strong>
-                )
-            },
-            {
-                title: "Observation Skills",
-                content: (
-                    <strong>
-                    - Focus on key elements in the image.<br />
-                    - Organize your description logically.
-                    </strong>
-                )
-            },
-            {
-                title: "Fluency & Structure",
-                content: (
-                    <strong>
-                    - Avoid long pauses.<br />
-                    - Tara AI evaluates clarity, structure, and fluency.
-                    </strong>
-                )
-            }
-        ]
+        jam_practice: [{
+            title: "Instructions for JAM Practice",
+            content: (<strong>- You will be given a <b>random topic</b> by <b>Tara AI</b>.<br />- You will have <b>1 minute</b> to speak continuously.<br />- Focus on <b>content relevance, clarity, fluency, confidence</b>.</strong>)
+        }],
+        pronu_practice: [{
+            title: "Pronunciation Practice Overview",
+            content: (<strong>- You will be given <b>words or sentences</b> to pronounce.<br />- Focus on <b>clarity, accuracy, and correct sounds</b>.</strong>)
+        }],
+        listen_practice: [{
+            title: "Listening Practice Instructions",
+            content: (<strong>- You will hear <b>audio clips</b> carefully curated by <b>Tara AI</b>.<br />- Listen attentively before responding.</strong>)
+        }],
+        situation_practice: [{
+            title: "Situational Speaking Overview",
+            content: (<strong>- You will be given a <b>real-life situation</b>.<br />- Respond as you would in an interview or workplace.</strong>)
+        }],
+        image_speak_practice: [{
+            title: "Image Speaking Instructions",
+            content: (<strong>- You will be shown an <b>image</b>.<br />- Describe what you observe clearly and confidently.</strong>)
+        }]
     };
 
-    const handleStartChallenge = (id, level = 'basic') => {
+    const handleStartChallenge = (id) => {
         setActiveChallenge(id);
+        setShowLevelModal(true);
+    };
+
+    const handleLevelChoice = (level) => {
         setSelectedLevel(level);
+        setShowLevelModal(false);
         setInstructionIndex(0);
-    };
-
-    const handleNext = () => {
-        const currentInstructions = practiceInstructions[activeChallenge];
-        if (instructionIndex < currentInstructions.length - 1) {
-            setInstructionIndex(instructionIndex + 1);
-        }
-    };
-
-    const handlePrev = () => {
-        if (instructionIndex > 0) {
-            setInstructionIndex(instructionIndex - 1);
-        }
     };
 
     const handleLaunchChallenge = () => {
@@ -382,166 +233,130 @@ function Practice() {
     }
 
     return (
-        <div className="practice-container app-bg-free">
-            <Header />
-            <div className="practice-div">
-                <center>
-                    <h2 className="practice-title">Practice and Improve Your Communication Skills with TaraAI... now</h2>
-                    <p className="test-activity-des">Practice your communication skills through guided speaking, listening, pronunciation, and real-life scenario exercises. <br></br>TaraAI helps you improve step by step with smart feedback and progress tracking.</p>
-                    <div className="practice-announcement-banner">
-                        <span className="practice-announcement-text">
-                            Intermediate and Advanced levels will be unlocked based on your average score from the latest 10 practices
-                        </span>
-                        <span className="practice-coming-soon-badge">will be be activated soon</span>
-                    </div><br></br>
-                    <div className="practice-announcement-banner delayed">
-                        <span className="practice-announcement-text">Image Based Speaking</span>
-                        <span className="practice-coming-soon-badge">Coming Soon</span>
+        <div className="practice-theme min-h-screen bg-background">
+            <div className="sticky top-0 z-40 glass border-b border-border">
+                {showMobileMenu && (
+                    <div className="sm:hidden border-t" style={{ borderColor: 'hsl(var(--border))', background: 'hsl(var(--card))' }}>
+                        <div className="px-4 py-3 flex flex-col gap-2">
+                            <div className="border-t pt-2 mt-2 space-y-1" style={{ borderColor: 'hsl(var(--border))' }}>
+                                <div className="text-xs" style={{ color: 'hsl(var(--muted-foreground))' }}>Streak: {streakData.current_streak || 0}</div>
+                                <div className="text-xs" style={{ color: 'hsl(var(--muted-foreground))' }}>{userType === "premium" ? "Premium" : "Free"}</div>
+                            </div>
+                        </div>
                     </div>
-                </center>
+                )}
+            </div>
 
-                <div className={`practice-activity-grid ${activeChallenge ? 'blurred' : ''}`}>
+            <div className="container max-w-6xl mx-auto px-4 py-8">
+                <div className="text-center mb-10">
+                    <h2 className="font-heading text-2xl md:text-3xl font-bold mb-2" style={{ color: 'hsl(var(--foreground))' }}>
+                        Practice with TaraAI
+                    </h2>
+                    <p style={{ color: 'hsl(var(--muted-foreground))', maxWidth: '600px', margin: '0 auto' }}>
+                        Improve your communication skills through guided practice sessions with instant feedback.
+                    </p>
+                </div>
+
+                <div className="practice-activity-grid">
                     {activities.map((activity) => {
                         const stats = getPracticeStats(activity.id);
                         return (
                             <div key={activity.id} className="practice-activity-card">
                                 <h3 className="practice-activity-title">{activity.title}</h3>
                                 <p className="practice-activity-description">{activity.description}</p>
-                                <div style={{paddingBottom:"15px"}}>Remaining Practices: {activity.count}</div>
+                                <div style={{paddingBottom:"15px", fontSize: '0.9rem', color: 'hsl(var(--muted-foreground))'}}>Remaining: {activity.count}</div>
                                 <div className="practice-card-content">
                                     <div className="practice-activity-buttons">
                                         {activity.id === 'image_speak_practice' ? (
-                                            <button className="practice-level-button-coming-soon" disabled>
-                                                <span>Basic</span>
-                                                <span className="practice-coming-soon-indicator"> - SOON</span>
+                                            <button className="practice-level-button" disabled style={{ opacity: 0.5 }}>
+                                                <span>Basic - Coming Soon</span>
                                             </button>
                                         ) : (
                                             <button 
-                                                onClick={() => activity.count > 0 ? handleStartChallenge(activity.id, 'basic') : null}
+                                                onClick={() => activity.count > 0 ? handleStartChallenge(activity.id) : null}
                                                 className={activity.count > 0 ? "practice-level-button" : "app-btn-disabled"}
                                                 disabled={activity.count === 0}
                                             >
-                                                Basic
+                                                Start Practice
                                             </button>
                                         )}
-
-                                        {activity.id === 'image_speak_practice' ? (
-                                            <>
-                                                <button className="practice-level-button-coming-soon" disabled>
-                                                    <span>Intermediate</span>
-                                                    <span className="practice-coming-soon-indicator"> - SOON</span>
-                                                </button>
-                                                <button className="practice-level-button-coming-soon" disabled>
-                                                    <span>Advanced</span>
-                                                    <span className="practice-coming-soon-indicator"> - SOON</span>
-                                                </button>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <button 
-                                                    onClick={() => userType === 'premium' && activity.count > 0 ? handleStartChallenge(activity.id, 'intermediate') : null}
-                                                    className={userType === 'premium' && activity.count > 0 ? "practice-level-button" : "app-btn-disabled"}
-                                                    disabled={userType !== 'premium' || activity.count === 0}
-                                                >
-                                                    <span>Intermediate</span>
-                                                    {userType !== 'premium' && (
-                                                        <span className="practice-premium-indicator">- BUY PREMIUM</span>
-                                                    )}
-                                                </button>
-
-                                                <button 
-                                                    onClick={() => userType === 'premium' && activity.count > 0 ? handleStartChallenge(activity.id, 'advanced') : null}
-                                                    className={userType === 'premium' && activity.count > 0 ? "practice-level-button" : "app-btn-disabled"}
-                                                    disabled={userType !== 'premium' || activity.count === 0}
-                                                >
-                                                    <span>Advanced</span>
-                                                    {userType !== 'premium' && (
-                                                        <span className="practice-premium-indicator">- BUY PREMIUM</span>
-                                                    )}
-                                                </button>
-                                            </>
-                                        )}
                                     </div>
-                                    {/* <div className="practice-activity-stats">
-                                        <div className="practice-activity-stats-text">
-                                            <div>Basic-Avg Score: {loading ? '...' : stats.avgScore}</div>
-                                            <div>Intermed-Avg Score: {loading ? '...' : getIntermediateStats(activity.id).avgScore}</div>
-                                            <div>Advance-Avg Score: {loading ? '...' : getAdvancedStats(activity.id).avgScore}</div>
-                                            <div>Basic Practice Count: {loading ? '...' : stats.practiceCount}</div>
-                                            <div>Intermed Practice Count: {loading ? '...' : getIntermediateStats(activity.id).practiceCount}</div>
-                                            <div>Advance Practice Count: {loading ? '...' : getAdvancedStats(activity.id).practiceCount}</div>
-                                        </div>
-                                    </div> */}
                                 </div>
                             </div>
                         );
                     })}
                 </div>
+            </div>
 
-                {activeChallenge && (
-                    <div className="app-modal-overlay">
-                        <div className="practice-modal">
-                            <button 
-                                onClick={() => setActiveChallenge(null)}
-                                className="app-modal-close"
+            {showLevelModal && (
+                <div className="practice-modal-overlay">
+                    <div className="practice-modal" style={{ maxWidth: '400px' }}>
+                        <div className="practice-modal-header">
+                            <h3 className="practice-modal-title">Select Level</h3>
+                            <button
+                                onClick={() => {
+                                    setShowLevelModal(false);
+                                    setActiveChallenge(null);
+                                }}
+                                className="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                                style={{ background: 'hsl(var(--muted))', color: 'hsl(var(--muted-foreground))' }}
                             >
-                                ×
+                                X
                             </button>
-                            
-                            <h2 className="practice-modal-title">
-                                {practiceInstructions[activeChallenge]?.[instructionIndex]?.title}
-                            </h2>
-                            
-                            <div className="practice-modal-content">
-                                {typeof practiceInstructions[activeChallenge]?.[instructionIndex]?.content === 'string' ? (
-                                    <p className="practice-modal-text">
-                                        {practiceInstructions[activeChallenge][instructionIndex].content}
-                                    </p>
-                                ) : (
-                                    practiceInstructions[activeChallenge]?.[instructionIndex]?.content
-                                )}
-                            </div>
-                            
-                            <div className="practice-modal-actions">
-                                {instructionIndex > 0 && (
-                                    <button 
-                                        onClick={handlePrev}
-                                        className="app-btn-secondary"
+                        </div>
+                        <div className="practice-modal-content">
+                            <p style={{ fontSize: '0.9rem', marginBottom: '16px', color: 'hsl(var(--muted-foreground))' }}>
+                                Choose difficulty level for this practice
+                            </p>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                {['Basic', 'Intermediate', 'Advanced'].map((level) => (
+                                    <button
+                                        key={level}
+                                        onClick={() => handleLevelChoice(level)}
+                                        className="practice-level-button"
+                                        style={{ width: '100%', padding: '12px' }}
                                     >
-                                        ← Previous
+                                        {level}
                                     </button>
-                                )}
-                                
-                                <div className="practice-modal-nav">
-                                    {instructionIndex < practiceInstructions[activeChallenge]?.length - 1 ? (
-                                        <>
-                                            <button 
-                                                onClick={handleNext}
-                                                className="app-btn-primary"
-                                            >
-                                                Next →
-                                            </button>
-                                            <button 
-                                                onClick={() => setInstructionIndex(practiceInstructions[activeChallenge].length - 1)}
-                                                className="app-btn-success"
-                                            >
-                                                Skip
-                                            </button>
-                                        </>
-                                    ) : (
-                                        <button 
-                                            onClick={handleLaunchChallenge}
-                                            className="app-btn-danger"
-                                        >
-                                            START PRACTICE
-                                        </button>
-                                    )}
-                                </div>
+                                ))}
                             </div>
                         </div>
                     </div>
-                )}
-            </div>
+                </div>
+            )}
+
+            {activeChallenge && !showLevelModal && (
+                <div className="practice-modal-overlay">
+                    <div className="practice-modal">
+                        <div className="practice-modal-header">
+                            <h2 className="practice-modal-title">
+                                {practiceInstructions[activeChallenge]?.[instructionIndex]?.title}
+                            </h2>
+                            <button 
+                                onClick={() => setActiveChallenge(null)}
+                                className="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                                style={{ background: 'hsl(var(--muted))', color: 'hsl(var(--muted-foreground))' }}
+                            >
+                                X
+                            </button>
+                        </div>
+                        
+                        <div className="practice-modal-content">
+                            {practiceInstructions[activeChallenge]?.[instructionIndex]?.content}
+                        </div>
+                        
+                        <div className="practice-modal-actions">
+                            <button 
+                                onClick={handleLaunchChallenge}
+                                className="practice-level-button"
+                                style={{ padding: '10px 24px', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}
+                            >
+                                START PRACTICE
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
