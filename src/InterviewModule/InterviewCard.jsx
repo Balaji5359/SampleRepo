@@ -10,6 +10,7 @@ const InterviewCard = ({
     comingSoon = false,
     locked = false,
     lockedLabel = "BUY PREMIUM",
+    onLevelSelect,
 }) => {
     const isTest = variant === "test";
     const isDisabled = comingSoon || (!locked && count === 0);
@@ -49,7 +50,7 @@ const InterviewCard = ({
                         {title}
                     </h4>
                     <button
-                        onClick={onStart}
+                        onClick={onLevelSelect ? () => onLevelSelect(id, title) : onStart}
                         disabled={isDisabled}
                         className={`w-full py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed ${
                             locked

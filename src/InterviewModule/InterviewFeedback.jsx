@@ -11,6 +11,7 @@ const InterviewFeedback = () => {
         score = 75,
         mode = "practice",
         interviewTitle = "Interview Session",
+        interviewLevel = "Basic",
         report = "",
         terminated = false,
     } = location.state || {};
@@ -91,14 +92,24 @@ const InterviewFeedback = () => {
             <div className="container max-w-3xl mx-auto px-4 py-8 space-y-8">
                 <div className="text-center">
                     <div className="text-4xl mb-4">
-                        {terminated ? "!" : score >= 70 ? "OK" : "!"}
+                        {terminated ? "⚠️" : score >= 70 ? "✅" : "⚠️"}
                     </div>
-                    <h2 className="font-heading text-3xl font-bold text-foreground mb-1">
+                    <h2 className="font-heading text-3xl font-bold text-foreground mb-2">
                         {terminated ? "Interview Terminated" : "Interview Complete!"}
                     </h2>
-                    <p className="text-muted-foreground text-sm">
-                        {interviewTitle} - {mode === "test" ? "Test" : "Practice"} Mode
-                    </p>
+                    <div className="flex items-center justify-center gap-2 flex-wrap mb-1">
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            mode === "test" ? "bg-accent/10 text-accent" : "bg-primary/10 text-primary"
+                        }`}>
+                            {mode.toUpperCase()}
+                        </span>
+                        <span className="text-sm font-medium text-foreground">
+                            {interviewTitle}
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                            {interviewLevel}
+                        </span>
+                    </div>
                 </div>
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
@@ -141,12 +152,12 @@ const InterviewFeedback = () => {
                 </div>
 
                 {report && (
-                    <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
-                        <h4 className="font-heading text-lg font-semibold text-foreground flex items-center gap-2">
+                    <div className="max-w-2xl mx-auto bg-card border border-border rounded-2xl p-6 space-y-4">
+                        <h4 className="font-heading text-lg font-semibold text-foreground flex items-center justify-center gap-2">
                             <TrendingUp className="w-5 h-5 text-primary" />
                             Assessment Report
                         </h4>
-                        <div className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+                        <div className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line text-left">
                             {sections.map((section, i) => (
                                 <div key={i} className={i > 0 ? "mt-4" : ""}>
                                     {section.split("\n").map((line, j) => {

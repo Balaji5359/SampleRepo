@@ -9,6 +9,7 @@ const InterviewSession = () => {
     const navigate = useNavigate();
     const {
         interviewTitle,
+        interviewLevel = "Basic",
         mode = "practice",
         remainingTests = 0,
         interviewType = "basic-interview",
@@ -25,6 +26,8 @@ const InterviewSession = () => {
     const [currentQuestion, setCurrentQuestion] = useState(1);
     const [interviewStarted, setInterviewStarted] = useState(false);
     const [interviewCompleted, setInterviewCompleted] = useState(false);
+    const [showEndConfirm, setShowEndConfirm] = useState(false);
+    const [showFullscreenAlert, setShowFullscreenAlert] = useState(false);
     const { userType, streakData, email, isPremium } = useInterviewUserInfo();
 
     const [isFullscreen, setIsFullscreen] = useState(false);
@@ -64,12 +67,14 @@ const InterviewSession = () => {
         document.addEventListener("visibilitychange", handleVisibilityChange);
         window.addEventListener("blur", handleWindowBlur);
         window.addEventListener("beforeunload", handleBeforeUnload);
+        document.addEventListener("keydown", handleEscKey);
 
         return () => {
             document.removeEventListener("fullscreenchange", handleFullscreenChange);
             document.removeEventListener("visibilitychange", handleVisibilityChange);
             window.removeEventListener("blur", handleWindowBlur);
             window.removeEventListener("beforeunload", handleBeforeUnload);
+            document.removeEventListener("keydown", handleEscKey);
         };
     }, [interviewStarted, isTestMode, fullscreenWarnings, tabSwitchWarnings]);
 
@@ -78,12 +83,19 @@ const InterviewSession = () => {
         if (visibilityTimeoutRef.current) clearTimeout(visibilityTimeoutRef.current);
     };
 
+    const handleEscKey = (e) => {
+        if (e.key === "Escape" && isTestMode && !document.fullscreenElement) {
+            setShowFullscreenAlert(true);
+        }
+    };
+
     const handleFullscreenChange = () => {
         if (!interviewStarted || !isTestMode) return;
         const isCurrentlyFullscreen = document.fullscreenElement !== null;
         setIsFullscreen(isCurrentlyFullscreen);
 
         if (!isCurrentlyFullscreen) {
+            setShowFullscreenAlert(true);
             const nextWarnings = fullscreenWarnings + 1;
             setFullscreenWarnings(nextWarnings);
             if (nextWarnings >= 3) {
@@ -91,8 +103,10 @@ const InterviewSession = () => {
             } else {
                 showWarning("Fullscreen mode required. Please return to fullscreen.");
                 fullscreenTimeoutRef.current = setTimeout(() => {
-                    enterFullscreen();
-                }, 3000);
+                    if (!document.fullscreenElement) {
+                        enterFullscreen();
+                    }
+                }, 5000);
             }
         }
     };
@@ -250,9 +264,33 @@ const InterviewSession = () => {
         }
     };
 
+    const getLevelTips = () => {
+        const tips = {
+            Basic: [
+                "Keep your answers clear and concise",
+                "Focus on basic concepts and fundamentals",
+                "Take your time to think before responding",
+                "Be honest about your experience level"
+            ],
+            Intermediate: [
+                "Provide specific examples from your experience",
+                "Demonstrate problem-solving abilities",
+                "Show understanding of industry practices",
+                "Connect your skills to real-world applications"
+            ],
+            Advanced: [
+                "Showcase leadership and strategic thinking",
+                "Discuss complex technical or domain challenges",
+                "Demonstrate thought leadership and innovation",
+                "Provide measurable impact and outcomes"
+            ]
+        };
+        return tips[interviewLevel] || tips.Basic;
+    };
+
     const getWelcomeMessage = () => {
         const modeText = isTestMode ? "formal interview test" : "practice interview session";
-        return `Welcome to your ${modeText}! I am TaraAI. We will cover ${totalQuestions} questions today. Are you ready to begin?`;
+        return `Welcome to your ${modeText} for ${interviewTitle} at ${interviewLevel} level! I am TaraAI. We will cover ${totalQuestions} questions today. Are you ready to begin?`;
     };
 
     const getFirstQuestion = () => {
@@ -460,12 +498,26 @@ RECOMMENDATIONS:
                     <h1 className="font-heading text-2xl font-bold text-foreground mb-2">
                         {interviewTitle || "Interview Session"}
                     </h1>
-                    <p className="text-muted-foreground mb-2 text-sm">
-                        {isTestMode ? "Formal Test" : "Practice"} - {totalQuestions} questions
+                    <p className="text-muted-foreground mb-1 text-sm">
+                        {isTestMode ? "Test" : "Practice"} - {interviewLevel} Level - {totalQuestions} questions
                     </p>
                     <p className="text-muted-foreground mb-8 text-sm">
                         Remaining sessions: {remainingTests || 0}
                     </p>
+
+                    {!isTestMode && (
+                        <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 mb-6 text-left">
+                            <h4 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
+                                <MessageSquare className="w-4 h-4" />
+                                {interviewLevel} Level Tips
+                            </h4>
+                            <ul className="text-xs text-muted-foreground space-y-1">
+                                {getLevelTips().map((tip, i) => (
+                                    <li key={i}>• {tip}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
 
                     {isTestMode && (
                         <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-4 mb-6 text-left">
@@ -514,14 +566,20 @@ RECOMMENDATIONS:
                         <ArrowLeft className="w-4 h-4" />
                     </button>
                     <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                            <span className="text-sm font-semibold text-foreground truncate">
-                                Q{currentQuestion}/{totalQuestions}
-                            </span>
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
                             <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
                                 isTestMode ? "bg-accent/10 text-accent" : "bg-primary/10 text-primary"
                             }`}>
                                 {mode.toUpperCase()}
+                            </span>
+                            <span className="text-xs font-medium text-foreground">
+                                {interviewTitle}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                                {interviewLevel}
+                            </span>
+                            <span className="text-xs font-semibold text-foreground">
+                                Q{currentQuestion}/{totalQuestions}
                             </span>
                             {isTestMode && (
                                 <span className="text-xs text-muted-foreground">
@@ -627,11 +685,20 @@ RECOMMENDATIONS:
 
                         {!isTestMode && (
                             <button
-                                onClick={() => completeInterview()}
+                                onClick={() => setShowEndConfirm(true)}
                                 disabled={recordingState === "recording"}
                                 className="px-4 py-2 rounded-lg bg-muted text-muted-foreground text-sm font-medium hover:text-foreground transition-colors disabled:opacity-40"
                             >
                                 End Interview
+                            </button>
+                        )}
+                        {isTestMode && (
+                            <button
+                                onClick={() => setShowEndConfirm(true)}
+                                disabled={recordingState === "recording"}
+                                className="px-4 py-2 rounded-lg bg-destructive/10 text-destructive text-sm font-medium hover:bg-destructive/20 transition-colors disabled:opacity-40"
+                            >
+                                End Test
                             </button>
                         )}
                     </div>
@@ -641,6 +708,54 @@ RECOMMENDATIONS:
                     </p>
                 </div>
             </div>
+
+            {showEndConfirm && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-foreground/50 backdrop-blur-sm">
+                    <div className="relative w-full max-w-sm bg-card rounded-2xl overflow-hidden shadow-lg p-6">
+                        <h3 className="font-heading text-lg font-bold text-foreground mb-2">End Interview?</h3>
+                        <p className="text-sm text-muted-foreground mb-6">
+                            Are you sure you want to end this {isTestMode ? "test" : "practice session"}? Your progress will be evaluated.
+                        </p>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setShowEndConfirm(false)}
+                                className="flex-1 py-2 rounded-lg bg-muted text-foreground text-sm font-medium hover:bg-muted/80 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setShowEndConfirm(false);
+                                    completeInterview();
+                                }}
+                                className="flex-1 py-2 rounded-lg bg-destructive text-destructive-foreground text-sm font-semibold hover:opacity-90 transition-opacity"
+                            >
+                                End Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showFullscreenAlert && isTestMode && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-foreground/80 backdrop-blur-sm">
+                    <div className="relative w-full max-w-sm bg-card rounded-2xl overflow-hidden shadow-lg p-6 text-center">
+                        <h3 className="font-heading text-lg font-bold text-foreground mb-2">Fullscreen Required</h3>
+                        <p className="text-sm text-muted-foreground mb-6">
+                            Please return to fullscreen mode to continue the test.
+                        </p>
+                        <button
+                            onClick={() => {
+                                setShowFullscreenAlert(false);
+                                enterFullscreen();
+                            }}
+                            className="w-full py-3 rounded-lg bg-accent text-accent-foreground text-sm font-semibold hover:opacity-90 transition-opacity"
+                        >
+                            Enter Fullscreen
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
