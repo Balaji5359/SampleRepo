@@ -13,6 +13,8 @@ function LandingPage() {
   const [submitMessage, setSubmitMessage] = useState('');
   const [showTerms, setShowTerms] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [showPlanFeatures, setShowPlanFeatures] = useState(null);
+  const [pendingPlan, setPendingPlan] = useState(null);
 
   useEffect(() => {
     const observerOptions = {
@@ -35,9 +37,10 @@ function LandingPage() {
   }, []);
 
   useEffect(() => {
-    document.body.style.overflow = activeModal || mobileMenuOpen ? 'hidden' : 'unset';
+    const isModalOpen = activeModal || mobileMenuOpen || showTerms || showPlanFeatures;
+    document.body.style.overflow = isModalOpen ? 'hidden' : 'unset';
     return () => { document.body.style.overflow = 'unset'; };
-  }, [activeModal, mobileMenuOpen]);
+  }, [activeModal, mobileMenuOpen, showTerms, showPlanFeatures]);
 
   useEffect(() => {
     const main = document.querySelector('.main-content');
@@ -78,6 +81,34 @@ function LandingPage() {
     { number: '01', icon: BookOpen, title: 'ACCESS TARA', description: 'Sign up and get personalized feedback' },
     { number: '02', icon: Zap, title: 'Practice Daily', description: 'Engage with interactive activities' },
     { number: '03', icon: BarChart3, title: 'Track Progress', description: 'Monitor improvement with analytics' }
+  ];
+
+  const communicationActivities = [
+    {
+      id: 'pronunciation',
+      title: 'Pronunciation Practice',
+      levels: ['Basic', 'Intermediate', 'Advanced']
+    },
+    {
+      id: 'listening',
+      title: 'Listening Comprehension',
+      levels: ['Basic', 'Intermediate', 'Advanced']
+    },
+    {
+      id: 'speaking',
+      title: 'Fluency Speaking',
+      levels: ['Basic', 'Intermediate', 'Advanced']
+    },
+    {
+      id: 'situational',
+      title: 'Situational Speaking',
+      levels: ['Basic', 'Intermediate', 'Advanced']
+    },
+    {
+      id: 'image',
+      title: 'Image-Based Speaking',
+      levels: ['Basic', 'Intermediate', 'Advanced']
+    }
   ];
 
 
@@ -162,7 +193,8 @@ function LandingPage() {
 
   const handleSelectPlan = (plan) => {
     if (!agreeToTerms) {
-      alert('Please agree to Terms & Conditions to proceed');
+      setPendingPlan(plan);
+      setShowTerms(true);
       return;
     }
     navigate('/signup', { state: { selectedPlan: plan } });
@@ -208,7 +240,7 @@ function LandingPage() {
         </div>
       </header>
 
-      {/* Hero */}
+     {/* Hero */}
       <section id="home" style={{ background: 'var(--gradient-hero)' }} className="py-12 sm:py-16 md:py-20">
         <div className="container">
           <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
@@ -289,35 +321,35 @@ function LandingPage() {
         </div>
       </section>
 
-      {/* Activities */}
-      <section id="activities" className="py-12 sm:py-16 md:py-20 bg-card">
+      {/* Communication Learning Path - Combined with Interactive Learning */}
+      <section id="communication-learning" className="py-12 sm:py-16 md:py-20" style={{ background: 'linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%)' }}>
         <div className="container">
-          <div className="text-center mb-10 md:mb-16" data-animate>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold font-heading text-foreground mb-3">Interactive Learning</h2>
-            <p className="text-sm sm:text-base text-muted-foreground">Practice your communication skills daily</p>
+          <div className="text-center mb-16" data-animate>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold font-heading text-foreground mb-3">Communication Learning Path</h2>
+            <p className="text-sm sm:text-base text-muted-foreground">Master communication skills through progressive levels</p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6">
-            {activities.map((activity) => {
-              const Icon = activity.icon;
-              return (
-                <div
-                  key={activity.id}
-                  data-animate
-                  onClick={() => setActiveModal(activity.id)}
-                  className="group cursor-pointer rounded-xl bg-background border border-border p-4 md:p-5 hover:border-primary hover:shadow-lg transition-all duration-300 relative overflow-hidden"
-                >
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-primary/8 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:bg-primary/12 transition-colors" />
-                  <div className="relative z-10">
-                    <div className="w-10 h-10 rounded-lg bg-primary/15 flex items-center justify-center mb-3 group-hover:bg-primary/25 transition-colors">
-                      <Icon className="w-5 h-5 text-primary" />
-                    </div>
-                    <h3 className="font-bold text-sm md:text-base text-foreground mb-2 font-heading">{activity.title}</h3>
-                    <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">{activity.description}</p>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-6">
+            {communicationActivities.map((activity, idx) => (
+              <div key={activity.id} data-animate style={{ animationDelay: `${idx * 100}ms` }} className="group">
+                <div className="bg-card border-2 border-primary/20 rounded-2xl p-6 hover:border-primary/40 hover:shadow-lg transition-all duration-300">
+                  <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 mb-4 mx-auto group-hover:bg-primary/20 transition-colors">
+                    <span className="text-2xl">{['🎤', '🗣️', '👂', '💬', '🖼️'][idx]}</span>
+                  </div>
+                  <h3 className="font-heading text-base font-bold text-foreground text-center mb-4">{activity.title}</h3>
+                  <div className="space-y-2">
+                    {activity.levels.map((level, levelIdx) => (
+                      <div key={levelIdx} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                        <div className={`w-2 h-2 rounded-full ${
+                          levelIdx === 0 ? 'bg-green-500' : levelIdx === 1 ? 'bg-yellow-500' : 'bg-red-500'
+                        }`} />
+                        <span className="text-xs font-medium text-foreground">{level}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -448,7 +480,7 @@ function LandingPage() {
                   <p className="flex items-start gap-2 text-sm text-foreground"><span className="text-primary font-bold">✓</span> Basic streak tracking</p>
                   <p className="flex items-start gap-2 text-sm text-muted-foreground"><span className="font-bold">✗</span> No advanced analytics</p>
                 </div>
-                <button onClick={() => navigate('/signup')} className="w-full py-2.5 rounded-lg bg-muted text-foreground font-bold hover:bg-muted/80 transition-all text-sm">
+                <button onClick={() => setShowPlanFeatures(plans[0])} className="w-full py-2.5 rounded-lg bg-muted text-foreground font-bold hover:bg-muted/80 transition-all text-sm">
                   Get Started
                 </button>
               </div>
@@ -471,7 +503,7 @@ function LandingPage() {
                   {plans.slice(1, 4).map((plan, idx) => (
                     <button
                       key={idx}
-                      onClick={() => handleSelectPlan(plan)}
+                      onClick={() => setShowPlanFeatures(plan)}
                       className="py-3 rounded-lg bg-primary text-primary-foreground font-bold hover:opacity-90 transition-all text-xs flex flex-col items-center"
                     >
                       <span className="text-lg">{plan.price}</span>
@@ -482,38 +514,16 @@ function LandingPage() {
               </div>
             </div>
 
-            {/* T&C and Security Info */}
-            <div data-animate className="rounded-xl bg-card border border-border p-6 md:p-8">
-              <div className="flex items-start gap-4 mb-4">
-                <input
-                  type="checkbox"
-                  id="terms"
-                  checked={agreeToTerms}
-                  onChange={(e) => setAgreeToTerms(e.target.checked)}
-                  className="w-4 h-4 rounded border-border cursor-pointer accent-primary mt-1"
-                />
-                <label htmlFor="terms" className="flex-1 cursor-pointer">
-                  <span className="text-sm text-foreground">I agree to the </span>
-                  <button
-                    onClick={() => setShowTerms(!showTerms)}
-                    className="text-sm text-primary font-semibold hover:underline"
-                  >
-                    Terms & Conditions
-                  </button>
-                </label>
-              </div>
-
-              {showTerms && (
-                <div className="border-t border-border pt-4 mt-4 max-h-48 overflow-y-auto text-xs text-muted-foreground space-y-2">
-                  <p><strong>One-time Payment:</strong> Premium subscription is available through one-time payment only.</p>
-                  <p><strong>Non-Refundable:</strong> All payments are final and non-refundable. Please review your selection carefully.</p>
-                  <p><strong>Payment Confirmation:</strong> Premium access will be activated immediately after successful payment verification.</p>
-                  <p><strong>Secure Payment:</strong> All payments are processed securely through Razorpay payment gateway with 256-bit SSL encryption.</p>
-                  <p><strong>Subscription Period:</strong> Your premium access will be valid for the selected duration (1 month, 3 months, or 1 year).</p>
-                  <p><strong>Auto-renewal:</strong> Premium subscriptions do not auto-renew. You must manually renew your subscription.</p>
-                  <p><strong>Cancellation:</strong> You can cancel anytime, but refunds will not be provided for the existing period.</p>
-                </div>
-              )}
+            {/* T&C Link Only */}
+            <div data-animate className="rounded-xl bg-card border border-border p-6 md:p-8 text-center">
+              <p className="text-sm md:text-base text-foreground mb-4">
+                By signing up, you agree to our <button
+                  onClick={() => setShowTerms(true)}
+                  className="text-primary font-semibold hover:underline"
+                >
+                  Terms & Conditions
+                </button>
+              </p>
 
               <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-2 text-xs text-muted-foreground border-t border-border pt-4">
                 <span>🔒 Secure Payment via Razorpay</span>
@@ -611,6 +621,132 @@ function LandingPage() {
                 {activities.find(a => a.id === activeModal)?.description}
               </p>
               <button onClick={() => setActiveModal(null)} className="landing-btn-primary text-sm">Watch Demo</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Terms & Conditions Modal */}
+      {showTerms && (
+        <div className="landing-modal-overlay" onClick={() => setShowTerms(false)}>
+          <div className="landing-modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '760px' }}>
+            <div className="landing-modal-header">
+              <h3 className="font-heading font-bold text-lg md:text-xl">Terms & Conditions</h3>
+              <button onClick={() => setShowTerms(false)} className="text-xl text-muted-foreground hover:text-foreground">×</button>
+            </div>
+            <div className="landing-modal-body">
+              <div className="text-sm text-muted-foreground space-y-3 max-h-72 overflow-y-auto mb-6">
+                <p><strong>One-time Payment:</strong> Premium subscription is available through one-time payment only.</p>
+                <p><strong>Non-Refundable:</strong> All payments are final and non-refundable. Please review your selection carefully.</p>
+                <p><strong>Payment Confirmation:</strong> Premium access will be activated immediately after successful payment verification.</p>
+                <p><strong>Secure Payment:</strong> All payments are processed securely through Razorpay payment gateway with 256-bit SSL encryption.</p>
+                <p><strong>Subscription Period:</strong> Your premium access will be valid for the selected duration (1 month, 3 months, or 1 year).</p>
+                <p><strong>Auto-renewal:</strong> Premium subscriptions do not auto-renew. You must manually renew your subscription.</p>
+                <p><strong>Cancellation:</strong> You can cancel anytime, but refunds will not be provided for the existing period.</p>
+              </div>
+
+              <div className="space-y-4">
+                <label className="flex items-start gap-3 text-sm text-foreground">
+                  <input
+                    type="checkbox"
+                    checked={agreeToTerms}
+                    onChange={(e) => setAgreeToTerms(e.target.checked)}
+                    className="mt-1"
+                  />
+                  I agree to the Terms & Conditions
+                </label>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => {
+                      if (!agreeToTerms) return;
+                      if (pendingPlan) {
+                        navigate('/signup', { state: { selectedPlan: pendingPlan } });
+                        setPendingPlan(null);
+                      }
+                      setShowTerms(false);
+                    }}
+                    className="landing-btn-primary w-full text-center text-base font-bold"
+                  >
+                    {pendingPlan ? 'Agree & Continue' : 'Agree & Close'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Plan Features Modal */}
+      {showPlanFeatures && (
+        <div className="landing-modal-overlay" onClick={() => setShowPlanFeatures(null)}>
+          <div className="landing-modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px' }}>
+            <div className="landing-modal-header">
+              <h3 className="font-heading font-bold text-lg md:text-xl">
+                {showPlanFeatures.tag === 'Free' ? 'Free Plan Features' : showPlanFeatures.tag + ' Plan Features'}
+              </h3>
+              <button onClick={() => setShowPlanFeatures(null)} className="text-xl text-muted-foreground hover:text-foreground">×</button>
+            </div>
+            <div className="landing-modal-body">
+              <div className="mb-6">
+                <div className="text-3xl md:text-4xl font-bold text-primary mb-2">{showPlanFeatures.price}</div>
+                <p className="text-sm text-muted-foreground">{showPlanFeatures.duration}</p>
+              </div>
+
+              <div className="space-y-3 mb-8">
+                {showPlanFeatures.tag === 'Free' ? (
+                  <>
+                    <div className="flex items-start gap-3">
+                      <span className="text-primary font-bold mt-1">✓</span>
+                      <p className="text-sm text-foreground">2 tests - for trial</p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <span className="text-primary font-bold mt-1">✓</span>
+                      <p className="text-sm text-foreground">Basic tests only</p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <span className="text-primary font-bold mt-1">✓</span>
+                      <p className="text-sm text-foreground">Simple AI feedback</p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <span className="text-primary font-bold mt-1">✓</span>
+                      <p className="text-sm text-foreground">Basic streak tracking</p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-start gap-3">
+                      <span className="text-primary font-bold mt-1">✓</span>
+                      <p className="text-sm text-foreground">Daily 2 tests of all Levels</p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <span className="text-primary font-bold mt-1">✓</span>
+                      <p className="text-sm text-foreground">Advanced test types</p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <span className="text-primary font-bold mt-1">✓</span>
+                      <p className="text-sm text-foreground">Detailed AI analysis & audio</p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <span className="text-primary font-bold mt-1">✓</span>
+                      <p className="text-sm text-foreground">Advanced analytics & Badges</p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <span className="text-primary font-bold mt-1">✓</span>
+                      <p className="text-sm text-foreground">All Levels Access</p>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              <button
+                onClick={() => {
+                  handleSelectPlan(showPlanFeatures);
+                  setShowPlanFeatures(null);
+                }}
+                className="landing-btn-primary w-full text-center text-base font-bold"
+              >
+                Continue to Signup
+              </button>
             </div>
           </div>
         </div>

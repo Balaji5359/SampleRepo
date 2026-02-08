@@ -140,6 +140,10 @@
   white-space: nowrap;
 }
 
+.mobile-only {
+  display: none;
+}
+
 .btn-logout:hover {
   opacity: 0.9;
   background: #e75309;
@@ -180,6 +184,17 @@
   .nav-links a {
     font-size: 0.85rem;
     padding: 0.4rem 0.7rem;
+  }
+
+  .mobile-only {
+    display: inline-flex;
+  }
+}
+
+/* Show mobile-only items only when mobile menu is open */
+@media (max-width: 820px) {
+  .nav-links.active .mobile-only {
+    display: inline-flex;
   }
 }
 

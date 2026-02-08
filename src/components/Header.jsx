@@ -113,6 +113,18 @@ function Header() {
                         >
                             Dashboard
                         </button>
+                        {mobileMenuOpen && (
+                            <button
+                                onClick={() => {
+                                    localStorage.removeItem('email');
+                                    navigate('/signup');
+                                    setMobileMenuOpen(false);
+                                }}
+                                className="btn-logout mobile-only"
+                            >
+                                Logout
+                            </button>
+                        )}
                     </nav>
                 </div>
                 <div className="header-right">

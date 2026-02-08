@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Target } from "lucide-react";
+import { ArrowLeft, Target, Menu, X } from "lucide-react";
 import InterviewCard from "./InterviewCard";
 import InstructionModal from "./InstructionModal";
 import "./interview-clone-theme.css";
@@ -51,6 +51,7 @@ function InterviewTest() {
     const [showLevelModal, setShowLevelModal] = useState(false);
     const navigate = useNavigate();
     const { userType, streakData, email, isPremium } = useInterviewUserInfo();
+    const [showMobileMenu, setShowMobileMenu] = useState(false);
 
     useEffect(() => {
         const storedEmail = localStorage.getItem("email");
@@ -100,7 +101,8 @@ function InterviewTest() {
     const instructions = buildInstructions();
 
     const handleLevelSelect = (interviewId, title) => {
-        if (!isPremium && interviews[getInterviewKey(interviewId)] === 0) {
+        const remainingCount = interviews[getInterviewKey(interviewId)] || 0;
+        if (remainingCount === 0 && !isPremium) {
             openPremiumModal("No remaining test sessions. Upgrade to Premium to get more interview tests.");
             return;
         }
@@ -166,15 +168,37 @@ function InterviewTest() {
                         </div>
                         <h1 className="font-heading text-lg font-bold text-foreground">Interview Test</h1>
                     </div>
-                    <div className="ml-auto flex items-center gap-2 flex-wrap">
-                        <span className="interview-badge accent">Test</span>
-                        <span className="interview-badge">Streak: {streakData.current_streak || 0}</span>
-                        <span className={`interview-badge ${isPremium ? "accent" : ""}`}>
-                            {userType === "premium" ? "Premium" : "Free"}
-                        </span>
-                        {email && <span className="interview-badge">{email}</span>}
+                    <div className="ml-auto flex items-center gap-2">
+                        <span className="interview-badge accent hidden md:inline">Test</span>
+                        <div className="relative group hidden sm:block">
+                            <button className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
+                                <Menu className="w-4 h-4" />
+                            </button>
+                            <div className="absolute right-0 top-full mt-2 w-64 bg-card border border-border rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all p-3 space-y-2 z-50">
+                                <div className="text-xs text-muted-foreground">Streak: {streakData.current_streak || 0}</div>
+                                <div className="text-xs text-muted-foreground">{userType === "premium" ? "Premium" : "Free"}</div>
+                                {email && <div className="text-xs text-muted-foreground truncate">{email}</div>}
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => setShowMobileMenu(!showMobileMenu)}
+                            className="sm:hidden ml-2 p-2 rounded-lg hover:bg-muted transition-colors"
+                        >
+                            {showMobileMenu ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                        </button>
                     </div>
                 </div>
+                {showMobileMenu && (
+                    <div className="sm:hidden border-t border-border bg-card">
+                        <div className="px-4 py-3 flex flex-col gap-2">
+                            <div className="border-t border-border pt-2 mt-2 space-y-1">
+                                <div className="text-xs text-muted-foreground">Streak: {streakData.current_streak || 0}</div>
+                                <div className="text-xs text-muted-foreground">{userType === "premium" ? "Premium" : "Free"}</div>
+                                {email && <div className="text-xs text-muted-foreground truncate">{email}</div>}
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <div className="container max-w-6xl mx-auto px-4 py-8">
@@ -199,7 +223,7 @@ function InterviewTest() {
                                 {...item}
                                 index={i}
                                 variant="test"
-                                locked={!isPremium && item.count === 0}
+                                locked={false}
                                 lockedLabel="BUY PREMIUM"
                                 onLevelSelect={handleLevelSelect}
                             />
@@ -245,14 +269,16 @@ function InterviewTest() {
             {showLevelModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-foreground/50 backdrop-blur-sm">
                     <div className="relative w-full max-w-md bg-card rounded-2xl overflow-hidden shadow-lg p-6">
-                        <h3 className="font-heading text-xl font-bold text-foreground mb-4">Select Level</h3>
-                        <p className="text-sm text-muted-foreground mb-6">{selectedTitle}</p>
+                        <h3 className="font-heading text-xl font-bold text-foreground mb-2">Select Level</h3>
+                        <p className="text-sm text-muted-foreground mb-1">{selectedTitle}</p>
+                        <p className="text-xs text-muted-foreground mb-6">Remaining: {interviews[getInterviewKey(activeChallenge)] || 0} {isPremium ? "(Premium - Resets daily)" : "(Free - Upgrade for more)"}</p>
                         <div className="space-y-3">
                             {["Basic", "Intermediate", "Advanced"].map((level) => (
                                 <button
                                     key={level}
                                     onClick={() => handleLevelChoice(level)}
-                                    className="w-full py-3 px-4 rounded-xl bg-accent/10 hover:bg-accent/20 text-foreground font-medium transition-colors text-left"
+                                    disabled={interviews[getInterviewKey(activeChallenge)] === 0 && isPremium}
+                                    className="w-full py-3 px-4 rounded-xl bg-accent/10 hover:bg-accent/20 text-foreground font-medium transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {level}
                                 </button>
@@ -303,6 +329,7 @@ function InterviewTest() {
                     </div>
                 </div>
             )}
+
         </div>
     );
 }

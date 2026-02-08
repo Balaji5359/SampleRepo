@@ -213,6 +213,7 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  padding: 15px;
 }
 
 /* Premium modal styles */
@@ -290,4 +291,362 @@
 
 .free-bg {
   background: #f8fafc;
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 1024px) {
+  .dashboard-content {
+    padding: 16px;
+  }
+
+  .dashboard-header {
+    margin-bottom: 32px;
+  }
+
+  .dashboard-main-title {
+    font-size: 2rem;
+    margin-bottom: 8px;
+  }
+
+  .dashboard-activities-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .dashboard-activity-card {
+    padding: 20px;
+    border-radius: 12px;
+  }
+
+  .dashboard-interview-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .dashboard-interview-card {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-content {
+    padding: 12px;
+  }
+
+  .dashboard-header {
+    margin-bottom: 24px;
+  }
+
+  .dashboard-main-title {
+    font-size: 1.5rem;
+    margin-bottom: 6px;
+  }
+
+  /* Activity Cards - Single Column */
+  .dashboard-activities-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .dashboard-activity-card {
+    padding: 16px;
+    border-radius: 12px;
+    border: 2px solid #0d8888ff;
+  }
+
+  .dashboard-activity-header {
+    gap: 10px;
+  }
+
+  .dashboard-activity-icon img,
+  .dashboard-activity-icon svg,
+  .dashboard-activity-icon-img,
+  .dashboard-activity-icon-svg {
+    width: 40px;
+    height: 40px;
+  }
+
+  .dashboard-activity-title {
+    font-size: 1.1rem;
+  }
+
+  .dashboard-activity-stats {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .dashboard-stats-container {
+    gap: 12px;
+    width: 100%;
+  }
+
+  .dashboard-stat-item {
+    flex: 1;
+    padding: 8px;
+    background: #f0fffe;
+    border-radius: 8px;
+  }
+
+  .dashboard-stat-value {
+    font-size: 1.2rem;
+  }
+
+  .dashboard-stat-label {
+    font-size: 0.75rem;
+  }
+
+  .dashboard-view-button {
+    padding: 9px 16px;
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+  }
+
+  /* Interview Section */
+  .dashboard-interview-title {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+  }
+
+  .dashboard-interview-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    max-width: 100%;
+  }
+
+  .dashboard-interview-card {
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  .dashboard-interview-card-title {
+    font-size: 1.1rem;
+  }
+
+  .dashboard-interview-description {
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+  }
+
+  .dashboard-interview-button {
+    padding: 9px 16px;
+    font-size: 0.9rem;
+  }
+
+  /* Modal */
+  .premium-modal-content {
+    padding: 20px;
+    width: 90vw;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .premium-modal-body {
+    padding: 16px;
+  }
+
+  .premium-modal-icon {
+    font-size: 40px;
+    margin-bottom: 16px;
+  }
+
+  .premium-modal-button {
+    padding: 10px 24px;
+    font-size: 0.95rem;
+  }
+
+  .dashboard-title {
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-main {
+    min-height: calc(100vh - 56px);
+  }
+
+  .dashboard-content {
+    padding: 10px;
+  }
+
+  .dashboard-header {
+    margin-bottom: 16px;
+  }
+
+  .dashboard-main-title {
+    font-size: 1.3rem;
+    margin-bottom: 4px;
+  }
+
+  /* Activity Cards */
+  .dashboard-activities-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .dashboard-activity-card {
+    padding: 12px;
+    border-radius: 10px;
+    border: 2px solid #0d8888ff;
+  }
+
+  .dashboard-activity-header {
+    margin-bottom: 12px;
+  }
+
+  .dashboard-activity-icon {
+    margin-right: 10px;
+  }
+
+  .dashboard-activity-icon img,
+  .dashboard-activity-icon svg,
+  .dashboard-activity-icon-img,
+  .dashboard-activity-icon-svg {
+    width: 36px;
+    height: 36px;
+  }
+
+  .dashboard-activity-title {
+    font-size: 1rem;
+  }
+
+  .dashboard-activity-stats {
+    flex-direction: row;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .dashboard-stats-container {
+    gap: 8px;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .dashboard-stat-item {
+    padding: 6px 8px;
+    flex: 1;
+    min-width: 70px;
+  }
+
+  .dashboard-stat-value {
+    font-size: 1rem;
+  }
+
+  .dashboard-stat-label {
+    font-size: 0.7rem;
+    margin-top: 2px;
+  }
+
+  .dashboard-mini-chart {
+    width: 50px;
+    height: 25px;
+  }
+
+  .dashboard-view-button {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+    border-radius: 6px;
+  }
+
+  .dashboard-premium-lock {
+    width: 16px;
+    height: 16px;
+    font-size: 8px;
+  }
+
+  /* Interview Section */
+  .dashboard-interview-title {
+    font-size: 1.2rem;
+    margin-bottom: 16px;
+  }
+
+  .dashboard-interview-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .dashboard-interview-card {
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  .dashboard-interview-header {
+    margin-bottom: 12px;
+  }
+
+  .dashboard-interview-icon {
+    margin-right: 8px;
+  }
+
+  .dashboard-interview-card-title {
+    font-size: 1rem;
+  }
+
+  .dashboard-interview-description {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    margin-bottom: 12px;
+  }
+
+  .dashboard-interview-button {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+
+  /* Modal */
+  .modal-overlay {
+    align-items: flex-end;
+  }
+
+  .premium-modal-content {
+    padding: 16px;
+    width: 95vw;
+    max-width: 500px;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .premium-modal-header {
+    margin-bottom: 16px;
+  }
+
+  .close-btn {
+    font-size: 20px;
+    padding: 4px;
+  }
+
+  .premium-modal-body {
+    padding: 12px;
+  }
+
+  .premium-modal-icon {
+    font-size: 36px;
+    margin-bottom: 12px;
+  }
+
+  .premium-modal-title {
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+  }
+
+  .premium-modal-text {
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    line-height: 1.4;
+  }
+
+  .premium-modal-button {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+
+  .dashboard-title {
+    font-size: 1.3rem;
+    margin-bottom: 12px;
+  }
 }
